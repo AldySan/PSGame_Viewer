@@ -281,6 +281,14 @@ QList<BatchItem> previewBatch(const QStringList &files, const QString &pattern,
 BatchOutcome applyBatch(const QList<BatchItem> &plan, const QString &logPath)
 {
     BatchOutcome out;
+    // Open the revert log before renaming anything: renames without a log
+    // cannot be reverted, so a failure to open it must be reported, not
+    // discovered after the files are already moved.
+    QFile logFile(logPath);
+    if (!logPath.isEmpty()
+        && !logFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        out.logError = logFile.errorString();
+    }
     QStringList lines;
     lines.append(QStringLiteral("# PSGame-Viewer batch rename %1")
                      .arg(QDateTime::currentDateTime()
@@ -307,12 +315,12 @@ BatchOutcome applyBatch(const QList<BatchItem> &plan, const QString &logPath)
             lines.append(old + u'\t' + neu);
         }
     }
-    if (!logPath.isEmpty() && !out.renamed.isEmpty()) {
-        QFile lf(logPath);
-        if (lf.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            lf.write(lines.join(u'\n').toUtf8() + '\n');
+    if (logFile.isOpen()) {
+        logFile.write(lines.join(u'\n').toUtf8() + '\n');
+        if (!out.renamed.isEmpty())
             out.logPath = logPath;
-        }
+        else
+            logFile.remove(); // nothing renamed: no empty log files
     }
     return out;
 }

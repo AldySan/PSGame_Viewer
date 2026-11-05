@@ -13,6 +13,8 @@ LibraryController::LibraryController(GameLibrary *library, QObject *parent)
     : QAbstractListModel(parent)
     , m_library(library)
 {
+    if (m_library && !m_library->isValid())
+        m_error = m_library->lastError();
 }
 
 int LibraryController::rowCount(const QModelIndex &parent) const

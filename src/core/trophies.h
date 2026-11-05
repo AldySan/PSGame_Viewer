@@ -60,4 +60,8 @@ struct UcpResult {
 };
 UcpResult ucpTrophies(const QByteArray &data);
 
+// UCP icon blobs in display order: keys naturally sorted ("2.png" before
+// "10.png"), so the i-th icon belongs to the i-th trophy.
+QList<QByteArray> ucpIconsSorted(const UcpResult &res);
+
 } // namespace psg::trophies

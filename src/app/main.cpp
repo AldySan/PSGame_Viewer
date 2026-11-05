@@ -104,13 +104,17 @@ int runBatch(const QStringList &inputs, bool recursive, bool apply,
     const QString log = QDir::current().filePath(QStringLiteral(
         "batch_rename_%1.log")
         .arg(QDateTime::currentDateTime().toString(
-            QStringLiteral("yyyyMMdd_hhmmss"))));
+            QStringLiteral("yyyyMMdd_hhmmsszzz"))));
     const BatchOutcome out = applyBatch(plan, log);
     std::cout << "Renamed " << out.renamed.size() << ", skipped "
               << out.skipped.size() << ".";
     if (!out.logPath.isEmpty())
         std::cout << " Log: " << out.logPath.toStdString();
     std::cout << "\n";
+    if (!out.logError.isEmpty())
+        std::cerr << "WARNING: could not write the revert log ("
+                  << out.logError.toStdString()
+                  << "); these renames cannot be reverted with --revert.\n";
     return 0;
 }
 
@@ -197,6 +201,9 @@ int runGui(int argc, char *argv[])
 
     // game library (SQLite) + recent files, stored next to the executable
     GameLibrary gameLibrary(portable::libraryDbPath());
+    if (!gameLibrary.isValid())
+        qWarning("library database unavailable: %s",
+                 qPrintable(gameLibrary.lastError()));
     LibraryController library(&gameLibrary);
 
     // release checks; QML gets it as the Updater context property

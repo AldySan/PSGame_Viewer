@@ -8,6 +8,8 @@
 #include <QJsonObject>
 #include <QXmlStreamReader>
 
+#include <algorithm>
+
 namespace psg::trophies {
 namespace {
 
@@ -47,7 +49,9 @@ QList<TrpInner> parseTrp(const QByteArray &data)
         t.size = bytes::rdU64BE(data, eo + 16);
         const QByteArray nm = bytes::untilNul(data.mid(eo + 40, 24));
         t.name = QString::fromLatin1(nm);
-        if (t.name.isEmpty() || t.offset + t.size > quint64(data.size()))
+        // offset+size must not just fit — the sum itself must not wrap
+        if (t.name.isEmpty() || t.offset > quint64(data.size())
+            || t.size > quint64(data.size()) - t.offset)
             return {};
         out.append(t);
     }
@@ -257,6 +261,42 @@ UcpResult ucpTrophies(const QByteArray &data)
             res.icons.insert(it.key(), it.value());
     }
     return res;
+}
+
+QList<QByteArray> ucpIconsSorted(const UcpResult &res)
+{
+    QList<QString> keys = res.icons.keys();
+    std::sort(keys.begin(), keys.end(),
+              [](const QString &a, const QString &b) {
+                  // natural order: split into digit / non-digit chunks so
+                  // "trophy_2.png" sorts before "trophy_10.png"
+                  int ia = 0, ib = 0;
+                  while (ia < a.size() && ib < b.size()) {
+                      const bool da = a.at(ia).isDigit();
+                      const bool db = b.at(ib).isDigit();
+                      if (da && db) {
+                          int ja = ia, jb = ib;
+                          while (ja < a.size() && a.at(ja).isDigit()) ++ja;
+                          while (jb < b.size() && b.at(jb).isDigit()) ++jb;
+                          const quint64 na = a.mid(ia, ja - ia).toULongLong();
+                          const quint64 nb = b.mid(ib, jb - ib).toULongLong();
+                          if (na != nb)
+                              return na < nb;
+                          ia = ja;
+                          ib = jb;
+                      } else {
+                          if (a.at(ia) != b.at(ib))
+                              return a.at(ia) < b.at(ib);
+                          ++ia;
+                          ++ib;
+                      }
+                  }
+                  return (a.size() - ia) < (b.size() - ib);
+              });
+    QList<QByteArray> out;
+    for (const QString &k : keys)
+        out.append(res.icons.value(k));
+    return out;
 }
 
 } // namespace psg::trophies

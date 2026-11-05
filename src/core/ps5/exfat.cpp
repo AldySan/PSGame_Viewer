@@ -56,6 +56,13 @@ void ExfatImage::construct(bool *ok, QString *error)
         if (error) *error = QStringLiteral("not an exFAT image");
         return;
     }
+    // guard the shifts: "1 << n" with n >= 32 is undefined behaviour, so a
+    // malformed boot sector must be rejected before the shifts happen
+    if (uchar(bs.at(108)) > kMaxSectorShift
+        || uchar(bs.at(109)) > kMaxClusterShift) {
+        if (error) *error = QStringLiteral("bad exFAT boot sector (shift)");
+        return;
+    }
     m_bytesPerSector = quint32(1) << uchar(bs.at(108));
     m_sectorsPerCluster = quint32(1) << uchar(bs.at(109));
     m_fatSector = bytes::rdU32LE(bs, 80);
@@ -63,13 +70,6 @@ void ExfatImage::construct(bool *ok, QString *error)
     m_rootCluster = bytes::rdU32LE(bs, 96);
     if (m_bytesPerSector == 0 || m_sectorsPerCluster == 0) {
         if (error) *error = QStringLiteral("bad exFAT boot sector");
-        return;
-    }
-    // guard the shifts: "1 << n" with n >= 32 is undefined behaviour, so a
-    // malformed boot sector must be rejected up front
-    if (uchar(bs.at(108)) > kMaxSectorShift
-        || uchar(bs.at(109)) > kMaxClusterShift) {
-        if (error) *error = QStringLiteral("bad exFAT boot sector (shift)");
         return;
     }
     if (ok) *ok = true;

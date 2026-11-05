@@ -241,11 +241,16 @@ QByteArray Ufs2File::readRange(const Inode &ino, quint64 from, quint64 len) cons
         const QByteArray blk = readDirBlock(ino, lbn);
         if (blk.isEmpty())
             break;
-        const quint64 take = qMin<quint64>(blockLen, blk.size() - inOff);
+        // signed on purpose: a short final fragment can leave inOff past
+        // the block end, and unsigned math would wrap around it
+        const qint64 avail = blk.size() - qint64(inOff);
+        if (avail <= 0)
+            break;
+        const qint64 take = qMin<qint64>(blockLen, avail);
         if (take == 0)
             break;
         out += blk.mid(int(inOff), int(take));
-        done += take;
+        done += quint64(take);
     }
     return out;
 }

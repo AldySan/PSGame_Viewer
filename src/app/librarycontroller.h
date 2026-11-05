@@ -16,6 +16,10 @@ class LibraryController : public QAbstractListModel
     Q_PROPERTY(int count READ count NOTIFY countChanged)
     Q_PROPERTY(QString search READ search WRITE setSearch NOTIFY countChanged)
     Q_PROPERTY(QStringList recentFiles READ recentFiles NOTIFY countChanged)
+    // non-empty when the library database could not be opened (e.g. the
+    // portable folder is read-only): the library and recent lists are
+    // unavailable until it is fixed
+    Q_PROPERTY(QString error READ error CONSTANT)
 
 public:
     enum Roles {
@@ -42,6 +46,7 @@ public:
     QString search() const { return m_search; }
     void setSearch(const QString &search);
     QStringList recentFiles() const;
+    QString error() const { return m_error; }
 
     Q_INVOKABLE void refresh();
     Q_INVOKABLE void openAt(int row);
@@ -60,6 +65,7 @@ private:
     GameLibrary *m_library = nullptr;
     QList<LibraryEntry> m_entries;
     QString m_search;
+    QString m_error;
 };
 
 } // namespace psg

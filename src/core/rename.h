@@ -58,6 +58,7 @@ struct BatchOutcome {
     QList<QPair<QString, QString>> renamed;  // (old, new)
     QList<QPair<QString, QString>> skipped;  // (file, reason)
     QString logPath;
+    QString logError;  // set when the revert log could not be written
 };
 
 // Execute a plan and write a revert log ("old\tnew" lines).

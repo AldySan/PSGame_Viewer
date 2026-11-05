@@ -646,6 +646,45 @@ def make_trp():
     return bytes(hdr + recs + body)
 
 
+# ---------------------------------------------------------------- UCP
+
+def make_ucp():
+    """PS5 trophy00.ucp: a tropmeta JSON plus trophy_1.png..trophy_12.png.
+    The icon names are deliberately NOT zero-padded, so the display order
+    needs a natural sort (trophy_2.png before trophy_10.png). Each icon
+    carries a distinct amount of trailing padding so the order is
+    observable from the blob sizes."""
+    trophies = []
+    files = []
+    for i in range(1, 13):
+        trophies.append({"id": str(i), "name": "Trophy %d" % i,
+                         "detail": "Do thing %d" % i})
+        files.append(("trophy_%d.png" % i,
+                      png_bytes(4, 4, (i * 8, 0x8E, 0xF7, 0xFF))
+                      + b"\x00" * i))
+    meta = {"trophyNpCommId": "NPWR90000_00",
+            "metadata": {"titleMetadata":
+                         {"name": "PSGame-Viewer UCP Sample"},
+                         "trophyMetadata": trophies}}
+    files.insert(0, ("tropmeta_en-US.json", json.dumps(meta).encode()))
+
+    header_size = 0x40
+    rec_size = 64
+    body = bytearray()
+    recs = b""
+    for name, payload in files:
+        off = header_size + rec_size * len(files) + len(body)
+        rec = bytearray(rec_size)
+        struct.pack_into(">I", rec, 4, off)
+        struct.pack_into(">I", rec, 12, len(payload))
+        rec[32:32 + len(name)] = name.encode()
+        recs += bytes(rec)
+        body += payload
+    hdr = bytearray(header_size)
+    hdr[0:4] = b"\xB2\x28\xC6\x0A"
+    return bytes(hdr + recs + body)
+
+
 # ---------------------------------------------------------------- ffpfsc / ffpkg
 
 PFSC_BLOCK = 0x10000
@@ -963,6 +1002,7 @@ def main():
         "ps3.iso": make_ps3_iso(),
         "ps5.exfat": make_exfat(),
         "trophy.trp": make_trp(),
+        "trophy.ucp": make_ucp(),
         # regression fixture for the exFAT read cap: a >5 MB trophy pack
         # must still be readable end to end
         "ps5_bigpack.exfat": make_exfat_trophy(6 << 20),
