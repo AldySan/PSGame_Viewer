@@ -18,8 +18,9 @@ Makefile
 *.so
 *.exe
 
-# Qt generated
+# Qt generated (i18n/*.qm are intentionally committed)
 *.qm
+!i18n/*.qm
 moc_*.cpp
 qrc_*.cpp
 .qtc_clangd/
