@@ -1,0 +1,396 @@
+#include "ps5image.h"
+
+#include "../bytes.h"
+#include "../util.h"
+#include "exfat.h"
+#include "ps5pkg.h"
+
+#include <QDir>
+#include <QDirIterator>
+#include <QFile>
+#include <QFileInfo>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QSet>
+
+#include <algorithm>
+
+namespace psg::ps5 {
+namespace {
+
+// Build the common PS5 result rows/entries once param.json is known.
+GameInfo exfatResult(const ExfatImage &fs, const QString &path,
+                     quint64 size, const QString &platformLabel,
+                     const QString &innerName)
+{
+    GameInfo out;
+    out.path = path;
+    out.size = size;
+    out.platform = Platform::PS5;
+    out.iconEntry = QStringLiteral("icon0.png");
+
+    QVariantMap meta;
+    QString title;
+    QList<SpecRow> extra;
+    ExfatImage::Found pj;
+    if (fs.find({QStringLiteral("sce_sys"), QStringLiteral("param.json")}, &pj)
+        && !pj.isDir && pj.size < 100000) {
+        const QByteArray raw = pj.noFat ? fs.readNoFat(pj.firstCluster, pj.size)
+                                        : fs.readChain(pj.firstCluster, pj.size);
+        const QJsonDocument doc = QJsonDocument::fromJson(raw);
+        if (doc.isObject()) {
+            meta = doc.object().toVariantMap();
+            std::tie(title, extra) = paramJsonMeta(meta);
+        }
+    }
+
+    out.ok = true;
+    out.title = title.isEmpty() ? QFileInfo(path).fileName() : title;
+    out.meta = meta;
+    out.addRow(QStringLiteral("Platform"), platformLabel);
+    out.addRow(QStringLiteral("Size"), fmtSize(size));
+    if (!innerName.isEmpty())
+        out.addRow(QStringLiteral("Inner file"), innerName);
+    out.rows += extra;
+
+    // icon0.png first, then every other PNG in sce_sys for the gallery
+    quint32 eid = 0;
+    ExfatImage::Found icon;
+    if (fs.find({QStringLiteral("sce_sys"), QStringLiteral("icon0.png")}, &icon)
+        && !icon.isDir && icon.size > 0) {
+        Entry e;
+        e.id = eid++;
+        e.name = QStringLiteral("icon0.png");
+        e.size = icon.size;
+        e.source = Entry::Source::ExfatChain;
+        e.exfatFirst = icon.firstCluster;
+        e.exfatNoFat = icon.noFat;
+        e.containerPath = path;
+        out.entries.append(e);
+    }
+    QSet<QString> seen{{QStringLiteral("icon0.png")}};
+    const QList<ExfatImage::DirItem> sceSys = fs.listPath({QStringLiteral("sce_sys")});
+    for (const ExfatImage::DirItem &it : sceSys) {
+        if (it.isDir || seen.contains(it.name.toLower())
+            || !it.name.endsWith(QLatin1String(".png"), Qt::CaseInsensitive)
+            || it.size == 0 || it.size > 32000000)
+            continue;
+        seen.insert(it.name.toLower());
+        Entry e;
+        e.id = eid++;
+        e.name = it.name;
+        e.size = it.size;
+        e.source = Entry::Source::ExfatChain;
+        e.exfatFirst = it.firstCluster;
+        e.exfatNoFat = it.noFat;
+        e.containerPath = path;
+        out.entries.append(e);
+    }
+
+    // trophy packs for the Trophies tab, read on demand
+    for (const ExfatPack &p : exfatScanPacks(fs)) {
+        Entry e;
+        e.id = eid++;
+        e.name = p.relPath;
+        e.size = p.size;
+        e.source = Entry::Source::ExfatChain;
+        e.exfatFirst = p.firstCluster;
+        e.exfatNoFat = p.noFat;
+        e.containerPath = path;
+        out.entries.append(e);
+    }
+    return out;
+}
+
+// AMPR/LZ4 asset containers (LIZARD-style PS5 app dumps).
+const char *const kAmprMagics[] = {"AMPRPAK4", "AMPRDAT3", "AMPRIDX3",
+                                   "AMPRCRC1", "AMPRCFG1"};
+const char kUnitySig[] = "UnityFS\x00";
+const char *const kUnityMarkers[] = {"2022.3.57f1", "CAB-", "AssetBundle",
+                                     ".resS", "globalgamemanagers"};
+
+QString unityCompAt(const QByteArray &buf, qsizetype pos)
+{
+    // UnityFS header: signature(8) + ver(4) + readerVersion.. + flags u32BE
+    qsizetype p = pos + 8 + 4;
+    const int e1 = buf.indexOf('\x00', p);
+    if (e1 < 0)
+        return QString();
+    const int e2 = buf.indexOf('\x00', e1 + 1);
+    if (e2 < 0)
+        return QString();
+    p = qsizetype(e2) + 1 + 8 + 4 + 4;
+    if (p + 4 > buf.size())
+        return QString();
+    const quint32 fl = bytes::rdU32BE(buf, p);
+    switch (fl & 0x3F) {
+    case 0: return QStringLiteral("raw");
+    case 1: return QStringLiteral("LZMA");
+    case 2: return QStringLiteral("LZ4");
+    case 3: return QStringLiteral("LZ4HC");
+    default: return QString();
+    }
+}
+
+// Strided probe of an AMPR .pak: "LZ4HC" / "LZ4" / "LZMA" / "Unity" / "".
+QString probePakCodec(const QString &filePath, quint64 size)
+{
+    QFile f(filePath);
+    if (!f.open(QIODevice::ReadOnly))
+        return QString();
+    QStringList comps;
+    bool seenLz4 = false;
+    bool seenUnity = false;
+
+    QList<quint64> offs;
+    quint64 win = size;
+    if (size <= (32ull << 20)) {
+        offs = {0};
+    } else {
+        const quint64 step = 16ull << 20;
+        win = 1ull << 20;
+        for (quint64 o = 0; o + win <= size; o += step)
+            offs.append(o);
+        if (offs.isEmpty() || offs.last() != size - win)
+            offs.append(size - win);
+    }
+    const qsizetype winLen = qsizetype(win + 256);
+    for (quint64 off : offs) {
+        f.seek(qint64(off));
+        const QByteArray buf = f.read(winLen);
+        if (buf.isEmpty())
+            continue;
+        qsizetype i = 0;
+        while (comps.size() < 3) {
+            i = buf.indexOf(kUnitySig, i);
+            if (i < 0)
+                break;
+            const QString c = unityCompAt(buf, i);
+            if (!c.isEmpty()) {
+                comps.append(c);
+                if (c == QLatin1String("LZ4HC"))
+                    return c;
+            }
+            ++i;
+        }
+        const QByteArray low = buf.toLower();
+        if (low.contains("lz4"))
+            seenLz4 = true;
+        if (!seenUnity) {
+            for (const char *m : kUnityMarkers) {
+                if (buf.contains(m)) {
+                    seenUnity = true;
+                    break;
+                }
+            }
+        }
+    }
+    if (comps.contains(QLatin1String("LZ4")))
+        return QStringLiteral("LZ4");
+    if (comps.contains(QLatin1String("LZMA")))
+        return QStringLiteral("LZMA");
+    if (seenLz4)
+        return QStringLiteral("LZ4");
+    if (seenUnity || !comps.isEmpty())
+        return QStringLiteral("Unity");
+    return QString();
+}
+
+struct AmprFile {
+    QString name;
+    quint64 size = 0;
+    QString magic;
+    QString codec;
+};
+
+QList<AmprFile> scanAmpr(const QString &path)
+{
+    QList<AmprFile> out;
+    const QDir dir(path);
+    const QStringList files = dir.entryList(QDir::Files, QDir::Name);
+    for (const QString &fn : files) {
+        const QString fp = dir.filePath(fn);
+        const QString ln = fn.toLower();
+        const bool nameHit = ln.startsWith(QLatin1String("ampr_"))
+            || ln.endsWith(QLatin1String(".pak"))
+            || ln.endsWith(QLatin1String(".index"))
+            || ln.endsWith(QLatin1String(".crc"))
+            || ln.endsWith(QLatin1String(".runtime"));
+        if (!nameHit)
+            continue;
+        QFile fh(fp);
+        if (!fh.open(QIODevice::ReadOnly))
+            continue;
+        const QByteArray magic = fh.read(8);
+        bool known = false;
+        for (const char *m : kAmprMagics) {
+            if (magic == QByteArray(m))
+                known = true;
+        }
+        if (!known)
+            continue;
+        AmprFile a;
+        a.name = fn;
+        a.size = quint64(QFileInfo(fp).size());
+        a.magic = QString::fromLatin1(magic);
+        a.codec = (magic == QByteArrayLiteral("AMPRDAT3"))
+            ? probePakCodec(fp, a.size)
+            : QString();
+        out.append(a);
+    }
+    return out;
+}
+
+} // namespace
+
+GameInfo parseExfatImage(const QString &path)
+{
+    bool ok = false;
+    QString err;
+    const ExfatImage fs(path, &ok, &err);
+    if (!ok) {
+        GameInfo bad;
+        bad.path = path;
+        bad.error = err;
+        return bad;
+    }
+    return exfatResult(fs, path, quint64(QFileInfo(path).size()),
+                       QStringLiteral("PS5 exFAT image"), QString());
+}
+
+GameInfo parseAppFolder(const QString &path)
+{
+    GameInfo out;
+    out.path = path;
+    out.platform = Platform::PS5;
+    out.iconEntry = QStringLiteral("icon0.png");
+
+    QVariantMap meta;
+    QString title;
+    QList<SpecRow> extra;
+    const QString pjPath = QDir(path).filePath(QStringLiteral("sce_sys/param.json"));
+    QFile pjFile(pjPath);
+    if (pjFile.open(QIODevice::ReadOnly)) {
+        const QByteArray raw = pjFile.read(100000);
+        const QJsonDocument doc = QJsonDocument::fromJson(raw);
+        if (doc.isObject()) {
+            meta = doc.object().toVariantMap();
+            std::tie(title, extra) = paramJsonMeta(meta);
+        }
+    }
+
+    quint64 total = 0;
+    int nfiles = 0;
+    QDirIterator it(path, QDir::Files, QDirIterator::Subdirectories);
+    while (it.hasNext()) {
+        it.next();
+        ++nfiles;
+        total += quint64(it.fileInfo().size());
+    }
+    out.size = total;
+
+    out.ok = true;
+    out.title = title.isEmpty() ? QFileInfo(path).fileName() : title;
+    out.meta = meta;
+    out.addRow(QStringLiteral("Platform"), QStringLiteral("PS5 app folder"));
+    out.addRow(QStringLiteral("Size"),
+               QStringLiteral("%1 (%2 files)").arg(fmtSize(total)).arg(nfiles));
+
+    const QList<AmprFile> ampr = scanAmpr(path);
+    if (!ampr.isEmpty()) {
+        quint64 amprTotal = 0;
+        int lz4 = 0, lz4hc = 0;
+        for (const AmprFile &a : ampr) {
+            amprTotal += a.size;
+            if (a.codec == QLatin1String("LZ4"))
+                ++lz4;
+            else if (a.codec == QLatin1String("LZ4HC"))
+                ++lz4hc;
+        }
+        QString label = QStringLiteral("%1 AMPR containers (%2)")
+                            .arg(ampr.size())
+                            .arg(fmtSize(amprTotal));
+        QStringList codecs;
+        if (lz4)
+            codecs << (lz4 > 1 ? QStringLiteral("LZ4 x%1").arg(lz4)
+                               : QStringLiteral("LZ4"));
+        if (lz4hc)
+            codecs << (lz4hc > 1 ? QStringLiteral("LZ4HC x%1").arg(lz4hc)
+                                 : QStringLiteral("LZ4HC"));
+        if (!codecs.isEmpty())
+            label += QStringLiteral(" · ") + codecs.join(QStringLiteral(" · "));
+        out.addRow(QStringLiteral("Assets"), label);
+        for (const AmprFile &a : ampr) {
+            out.amprLines.append(
+                QStringLiteral("%1 = %2%3")
+                    .arg(a.name, a.magic,
+                         a.codec.isEmpty() ? QString()
+                                           : QStringLiteral(" / ") + a.codec));
+        }
+    }
+    out.rows += extra;
+
+    // icon0.png + every other PNG in sce_sys for the gallery
+    quint32 eid = 0;
+    const QString iconPath = QDir(path).filePath(QStringLiteral("sce_sys/icon0.png"));
+    if (QFileInfo(iconPath).isFile()) {
+        Entry e;
+        e.id = eid++;
+        e.name = QStringLiteral("icon0.png");
+        e.size = quint64(QFileInfo(iconPath).size());
+        e.source = Entry::Source::LocalFile;
+        e.localPath = iconPath;
+        out.entries.append(e);
+    }
+    const QDir sceDir(QDir(path).filePath(QStringLiteral("sce_sys")));
+    const QStringList sceFiles = sceDir.entryList(QDir::Files, QDir::Name);
+    for (const QString &fn : sceFiles) {
+        if (fn == QLatin1String("icon0.png")
+            || !fn.endsWith(QLatin1String(".png"), Qt::CaseInsensitive))
+            continue;
+        const QString fp = sceDir.filePath(fn);
+        const qint64 sz = QFileInfo(fp).size();
+        if (sz <= 0)
+            continue;
+        Entry e;
+        e.id = eid++;
+        e.name = fn;
+        e.size = quint64(sz);
+        e.source = Entry::Source::LocalFile;
+        e.localPath = fp;
+        out.entries.append(e);
+    }
+
+    // trophy packs anywhere in the dump so the Trophies tab auto-fills
+    QDirIterator tit(path, {QStringLiteral("*.trp"), QStringLiteral("*.ucp")},
+                     QDir::Files, QDirIterator::Subdirectories);
+    while (tit.hasNext()) {
+        const QString fp = tit.next();
+        const qint64 sz = QFileInfo(fp).size();
+        if (sz <= 0 || sz >= 300000000)
+            continue;
+        Entry e;
+        e.id = eid++;
+        e.name = QDir(path).relativeFilePath(fp);
+        e.size = quint64(sz);
+        e.source = Entry::Source::LocalFile;
+        e.localPath = fp;
+        out.entries.append(e);
+    }
+
+    // AMPR/LZ4 asset containers in the Files tab (name + size + codec)
+    for (const AmprFile &a : ampr) {
+        Entry e;
+        e.id = eid++;
+        e.name = a.codec.isEmpty() ? a.name
+                                   : QStringLiteral("%1  [%2]").arg(a.name, a.codec);
+        e.size = a.size;
+        e.source = Entry::Source::LocalFile;
+        e.localPath = QDir(path).filePath(a.name);
+        e.codec = a.codec.isEmpty() ? QStringLiteral("-") : a.codec;
+        out.entries.append(e);
+    }
+    return out;
+}
+
+} // namespace psg::ps5
