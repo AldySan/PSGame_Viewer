@@ -104,6 +104,7 @@ void AppSettings::saveRenamePrefs(const QVariantMap &include,
     if (!preset.isEmpty())
         m_s->setValue(QStringLiteral("renamePreset"), preset);
     m_s->setValue(QStringLiteral("renamePattern"), pattern);
+    emit renamePrefsChanged();
 }
 
 QVariant AppSettings::value(const QString &key, const QVariant &def) const

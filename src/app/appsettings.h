@@ -21,8 +21,14 @@ class AppSettings : public QObject
     Q_PROPERTY(bool checkUpdatesOnStartup READ checkUpdatesOnStartup
                    WRITE setCheckUpdatesOnStartup
                    NOTIFY checkUpdatesOnStartupChanged)
-    Q_PROPERTY(QString renamePreset READ renamePreset CONSTANT)
-    Q_PROPERTY(QString renamePattern READ renamePattern CONSTANT)
+    // rename dialog persistence: NOT constant, the dialogs re-read these
+    // after every save, so they must notify
+    Q_PROPERTY(QVariantMap renameInclude READ renameInclude
+                   NOTIFY renamePrefsChanged)
+    Q_PROPERTY(QString renamePreset READ renamePreset
+                   NOTIFY renamePrefsChanged)
+    Q_PROPERTY(QString renamePattern READ renamePattern
+                   NOTIFY renamePrefsChanged)
 
 public:
     explicit AppSettings(QObject *parent = nullptr);
@@ -57,6 +63,7 @@ signals:
     void themeChanged();
     void onlineEnabledChanged();
     void checkUpdatesOnStartupChanged();
+    void renamePrefsChanged();
 
 private:
     QSettings *m_s;

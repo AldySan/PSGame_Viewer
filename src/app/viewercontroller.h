@@ -39,6 +39,10 @@ class ViewerController : public QObject
     Q_PROPERTY(QString patchInfo READ patchInfo NOTIFY patchInfoChanged)
     Q_PROPERTY(bool busy READ busy NOTIFY infoChanged)
     Q_PROPERTY(bool undoAvailable READ undoAvailable NOTIFY infoChanged)
+    // the models behind the Files and Trophies tabs; CONSTANT because the
+    // model objects live as long as the controller
+    Q_PROPERTY(EntryTreeModel *entryModel READ entryModel CONSTANT)
+    Q_PROPERTY(TrophyListModel *trophyModel READ trophyModel CONSTANT)
 
 public:
     explicit ViewerController(AppSettings *settings, ImageStore *images,
