@@ -18,6 +18,9 @@ class AppSettings : public QObject
     Q_PROPERTY(QString theme READ theme WRITE setTheme NOTIFY themeChanged)
     Q_PROPERTY(bool onlineEnabled READ onlineEnabled WRITE setOnlineEnabled
                    NOTIFY onlineEnabledChanged)
+    Q_PROPERTY(bool checkUpdatesOnStartup READ checkUpdatesOnStartup
+                   WRITE setCheckUpdatesOnStartup
+                   NOTIFY checkUpdatesOnStartupChanged)
     Q_PROPERTY(QString renamePreset READ renamePreset CONSTANT)
     Q_PROPERTY(QString renamePattern READ renamePattern CONSTANT)
 
@@ -34,6 +37,10 @@ public:
     bool onlineEnabled() const;
     void setOnlineEnabled(bool enabled);
 
+    // background check when the app starts (default on)
+    bool checkUpdatesOnStartup() const;
+    void setCheckUpdatesOnStartup(bool enabled);
+
     // Rename dialog persistence (pattern + include ticks)
     QVariantMap renameInclude() const;
     QString renamePreset() const;
@@ -49,6 +56,7 @@ signals:
     void languageChanged();
     void themeChanged();
     void onlineEnabledChanged();
+    void checkUpdatesOnStartupChanged();
 
 private:
     QSettings *m_s;

@@ -16,6 +16,8 @@
 #include "app/appsettings.h"
 #include "app/imagestore.h"
 #include "app/librarycontroller.h"
+#include "app/portable.h"
+#include "app/updatechecker.h"
 #include "app/viewercontroller.h"
 #include "core/db/library.h"
 #include "core/detect.h"
@@ -24,6 +26,10 @@
 #include "core/util.h"
 
 #include <iostream>
+
+#ifndef PSGV_VERSION
+#define PSGV_VERSION "1.0.0"
+#endif
 
 using namespace psg;
 
@@ -183,19 +189,19 @@ int runGui(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     app.setOrganizationName(QStringLiteral("PSGame-Viewer"));
     app.setApplicationName(QStringLiteral("PSGame-Viewer"));
-    app.setApplicationVersion(QStringLiteral("1.0.0"));
+    app.setApplicationVersion(QStringLiteral(PSGV_VERSION));
 
     AppSettings settings;
     ImageStore images;
     auto *provider = new PsgImageProvider(&images);
     ViewerController viewer(&settings, &images);
 
-    // game library (SQLite) + recent files
-    const QString dbPath =
-        QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
-        + QStringLiteral("/library.db");
-    GameLibrary gameLibrary(dbPath);
+    // game library (SQLite) + recent files, stored next to the executable
+    GameLibrary gameLibrary(portable::libraryDbPath());
     LibraryController library(&gameLibrary);
+
+    // release checks; QML gets it as the Updater context property
+    UpdateChecker updater(app.applicationVersion());
     QObject::connect(&viewer, &ViewerController::fileOpened, &app,
                      [&](const QString &path) {
                          if (!viewer.hasFile())
@@ -235,6 +241,8 @@ int runGui(int argc, char *argv[])
                                              &library);
     engine.rootContext()->setContextProperty(QStringLiteral("AppSettings"),
                                              &settings);
+    engine.rootContext()->setContextProperty(QStringLiteral("Updater"),
+                                             &updater);
     engine.rootContext()->setContextProperty(QStringLiteral("AppVersion"),
                                              app.applicationVersion());
     QObject::connect(

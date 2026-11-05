@@ -32,3 +32,7 @@ CMakeLists.txt.user
 # OS
 .DS_Store
 Thumbs.db
+
+# portable packaging output (regenerate with packaging/make-portable.*)
+PSGame-Viewer-*-linux-portable.tar.gz
+PSGame-Viewer-*-win64-portable.zip

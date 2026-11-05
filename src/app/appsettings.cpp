@@ -1,13 +1,14 @@
 #include "appsettings.h"
 
+#include "portable.h"
+
 #include <QSettings>
 
 namespace psg {
 
 AppSettings::AppSettings(QObject *parent)
     : QObject(parent)
-    , m_s(new QSettings(QStringLiteral("PSGame-Viewer"),
-                        QStringLiteral("PSGame-Viewer"), this))
+    , m_s(new QSettings(portable::iniPath(), QSettings::IniFormat, this))
 {
 }
 
@@ -46,6 +47,20 @@ void AppSettings::setTheme(const QString &theme)
 bool AppSettings::onlineEnabled() const
 {
     return m_s->value(QStringLiteral("onlineEnabled"), true).toBool();
+}
+
+bool AppSettings::checkUpdatesOnStartup() const
+{
+    return m_s->value(QStringLiteral("checkUpdatesOnStartup"), true)
+        .toBool();
+}
+
+void AppSettings::setCheckUpdatesOnStartup(bool enabled)
+{
+    if (enabled == checkUpdatesOnStartup())
+        return;
+    m_s->setValue(QStringLiteral("checkUpdatesOnStartup"), enabled);
+    emit checkUpdatesOnStartupChanged();
 }
 
 void AppSettings::setOnlineEnabled(bool enabled)

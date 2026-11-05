@@ -15,7 +15,32 @@ ApplicationWindow {
     color: Theme.bg
 
     property string statusText: ""
+    property bool startupCheckDone: false
 
+    // startup update check: silent, but a found update opens the dialog
+    function onUpdaterFinished(map) {
+        if (!startupCheckDone)
+            return
+        startupCheckDone = false
+        if (map && map.state === "update-available")
+            updateDialog.showResult(map)
+    }
+
+    Component.onCompleted: {
+        // file passed on the command line
+        if (typeof initialFile !== "undefined" && initialFile)
+            Viewer.openPath(initialFile)
+        // background release check
+        if (AppSettings.checkUpdatesOnStartup) {
+            startupCheckDone = true
+            Updater.checkNow()
+        }
+    }
+
+    Connections {
+        target: Updater
+        function onCheckFinished(map) { root.onUpdaterFinished(map) }
+    }
     header: ToolBar {
         height: 52
         background: Rectangle { color: Theme.card }
@@ -162,10 +187,15 @@ ApplicationWindow {
 
     AboutDialog {
         id: aboutDialog
+        onUpdateCheckRequested: updateDialog.startCheck()
     }
 
     SettingsDialog {
         id: settingsDialog
+    }
+
+    UpdateDialog {
+        id: updateDialog
     }
 
     // drag & drop: accept files and folders onto the window
@@ -182,11 +212,5 @@ ApplicationWindow {
     Connections {
         target: Viewer
         function onStatusMessage(message) { root.statusText = message }
-    }
-
-    Component.onCompleted: {
-        // file passed on the command line
-        if (typeof initialFile !== "undefined" && initialFile)
-            Viewer.openPath(initialFile)
     }
 }

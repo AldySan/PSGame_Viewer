@@ -11,7 +11,7 @@
     <message>
       
         
-      <location filename="../src/qml/AboutDialog.qml" line="42"/>
+      <location filename="../src/qml/AboutDialog.qml" line="46"/>
       
         
       <source>PSGame-Viewer</source>
@@ -26,7 +26,7 @@
     <message>
       
         
-      <location filename="../src/qml/AboutDialog.qml" line="48"/>
+      <location filename="../src/qml/AboutDialog.qml" line="52"/>
       
         
       <source>Version %1</source>
@@ -41,7 +41,7 @@
     <message>
       
         
-      <location filename="../src/qml/AboutDialog.qml" line="60"/>
+      <location filename="../src/qml/AboutDialog.qml" line="64"/>
       
         
       <source>See what is inside PlayStation game files without extracting them: PS2 and PS3 disc images, PS3 packages and folders, PS4 and PS5 packages (including split parts), PS5 exFAT images and app folders. Cover art, spec cards, file listings, trophies, extraction and uniform renaming.</source>
@@ -56,7 +56,7 @@
     <message>
       
         
-      <location filename="../src/qml/AboutDialog.qml" line="68"/>
+      <location filename="../src/qml/AboutDialog.qml" line="72"/>
       
         
       <source>Built with Qt 6, QML and SQLite. Licensed under the GNU General Public License v3.</source>
@@ -71,7 +71,22 @@
     <message>
       
         
-      <location filename="../src/qml/AboutDialog.qml" line="75"/>
+      <location filename="../src/qml/AboutDialog.qml" line="79"/>
+      
+        
+      <source>Check for updates</source>
+      
+        
+      <translation>检查更新</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/AboutDialog.qml" line="85"/>
       
         
       <source>Close</source>
@@ -797,7 +812,7 @@
       <location filename="../src/qml/Main.qml" line="14"/>
       
         
-      <location filename="../src/qml/Main.qml" line="41"/>
+      <location filename="../src/qml/Main.qml" line="66"/>
       
         
       <source>PSGame-Viewer</source>
@@ -812,7 +827,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="49"/>
+      <location filename="../src/qml/Main.qml" line="74"/>
       
         
       <source>Open</source>
@@ -827,7 +842,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="54"/>
+      <location filename="../src/qml/Main.qml" line="79"/>
       
         
       <source>Library</source>
@@ -842,7 +857,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="54"/>
+      <location filename="../src/qml/Main.qml" line="79"/>
       
         
       <source>Viewer</source>
@@ -857,7 +872,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="65"/>
+      <location filename="../src/qml/Main.qml" line="90"/>
       
         
       <source>Rename</source>
@@ -872,7 +887,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="70"/>
+      <location filename="../src/qml/Main.qml" line="95"/>
       
         
       <source>Batch</source>
@@ -887,7 +902,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="74"/>
+      <location filename="../src/qml/Main.qml" line="99"/>
       
         
       <source>Settings</source>
@@ -902,7 +917,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="79"/>
+      <location filename="../src/qml/Main.qml" line="104"/>
       
         
       <source>About</source>
@@ -917,7 +932,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="130"/>
+      <location filename="../src/qml/Main.qml" line="155"/>
       
         
       <source>Open a game file</source>
@@ -932,7 +947,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="132"/>
+      <location filename="../src/qml/Main.qml" line="157"/>
       
         
       <source>Game files (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</source>
@@ -947,7 +962,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="133"/>
+      <location filename="../src/qml/Main.qml" line="158"/>
       
         
       <source>All files (*)</source>
@@ -962,7 +977,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="140"/>
+      <location filename="../src/qml/Main.qml" line="165"/>
       
         
       <source>Extract to folder</source>
@@ -1241,7 +1256,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="36"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="37"/>
       
         
       <source>Settings</source>
@@ -1256,7 +1271,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="43"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="44"/>
       
         
       <source>Theme</source>
@@ -1271,7 +1286,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="52"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="53"/>
       
         
       <source>Dark</source>
@@ -1286,7 +1301,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="53"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="54"/>
       
         
       <source>Light</source>
@@ -1301,7 +1316,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="60"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="61"/>
       
         
       <source>Language</source>
@@ -1316,7 +1331,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="70"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="71"/>
       
         
       <source>System default</source>
@@ -1331,7 +1346,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="79"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="80"/>
       
         
       <source>Restart the app to apply a language change.</source>
@@ -1346,7 +1361,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="87"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="88"/>
       
         
       <source>Online lookups (covers, latest patch)</source>
@@ -1361,7 +1376,22 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="97"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="94"/>
+      
+        
+      <source>Check for updates on startup</source>
+      
+        
+      <translation>启动时检查更新</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/SettingsDialog.qml" line="104"/>
       
         
       <source>Cancel</source>
@@ -1376,7 +1406,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="102"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="109"/>
       
         
       <source>Save</source>
@@ -1491,6 +1521,225 @@
       
         
       <translation>保存奖杯图标到文件夹</translation>
+      
+    
+    </message>
+    
+
+  </context>
+  
+
+  <context>
+    
+    
+    <name>UpdateDialog</name>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/UpdateDialog.qml" line="52"/>
+      
+        
+      <source>Checking for updates…</source>
+      
+        
+      <translation>正在检查更新…</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/UpdateDialog.qml" line="53"/>
+      
+        
+      <source>Update checker</source>
+      
+        
+      <translation>更新检查器</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/UpdateDialog.qml" line="55"/>
+      
+        
+      <source>Update available</source>
+      
+        
+      <translation>有可用更新</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/UpdateDialog.qml" line="57"/>
+      
+        
+      <source>Up to date</source>
+      
+        
+      <translation>已是最新版本</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/UpdateDialog.qml" line="59"/>
+      
+        
+      <source>No release published yet</source>
+      
+        
+      <translation>尚未发布任何版本</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/UpdateDialog.qml" line="60"/>
+      
+        
+      <source>Update check failed</source>
+      
+        
+      <translation>更新检查失败</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/UpdateDialog.qml" line="77"/>
+      
+        
+      <source>Contacting the release server…</source>
+      
+        
+      <translation>正在连接发布服务器…</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/UpdateDialog.qml" line="85"/>
+      
+        
+      <source>PSGame-Viewer %1 is available (you are running %2).</source>
+      
+        
+      <translation>PSGame-Viewer %1 已发布（当前版本 %2）。</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/UpdateDialog.qml" line="97"/>
+      
+        
+      <source>You are running the latest version (%1).</source>
+      
+        
+      <translation>当前已是最新版本（%1）。</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/UpdateDialog.qml" line="108"/>
+      
+        
+      <source>Could not reach the release server: %1</source>
+      
+        
+      <translation>无法连接发布服务器：%1</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/UpdateDialog.qml" line="119"/>
+      
+        
+      <source>Nothing to check against yet. Publish a GitHub release to enable update checks.</source>
+      
+        
+      <translation>暂时没有可检查的版本。发布 GitHub Release 后即可启用更新检查。</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/UpdateDialog.qml" line="158"/>
+      
+        
+      <source>Open release page</source>
+      
+        
+      <translation>打开发布页面</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/UpdateDialog.qml" line="164"/>
+      
+        
+      <source>Cancel</source>
+      
+        
+      <translation>取消</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/UpdateDialog.qml" line="171"/>
+      
+        
+      <source>Close</source>
+      
+        
+      <translation>关闭</translation>
       
     
     </message>
@@ -1877,7 +2126,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="622"/>
+      <location filename="../src/app/viewercontroller.cpp" line="619"/>
       
         
       <source>Batch: renamed %1, skipped %2</source>
@@ -1892,7 +2141,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="634"/>
+      <location filename="../src/app/viewercontroller.cpp" line="631"/>
       
         
       <source>Nothing to revert in %1</source>
@@ -1907,7 +2156,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="636"/>
+      <location filename="../src/app/viewercontroller.cpp" line="633"/>
       
         
       <source>Dry run: %1 renames would be reverted. Run with apply.</source>
@@ -1922,7 +2171,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="639"/>
+      <location filename="../src/app/viewercontroller.cpp" line="636"/>
       
         
       <source>Reverted %1, skipped %2</source>

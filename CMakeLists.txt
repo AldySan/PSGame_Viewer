@@ -18,6 +18,13 @@ find_package(ZLIB REQUIRED)
 
 qt_standard_project_setup()
 
+# QML module under the :/qt/qml resource prefix so the compiled-in module
+# resolves from qrc:/qt/qml (the engine's default import path). Without
+# this the app only runs from the build tree — copy the executable
+# elsewhere (portable archive) and "Module PSGameViewer contains no type
+# named Main" follows.
+qt_policy(SET QTP0001 NEW)
+
 add_library(psgcore STATIC
   src/core/types.cpp
   src/core/util.cpp
@@ -60,8 +67,17 @@ qt_add_executable(psgame-viewer
   src/app/entrytreemodel.cpp
   src/app/trophylistmodel.cpp
   src/app/online.cpp
+  src/app/updatechecker.cpp
   src/app/viewercontroller.cpp
 )
+
+# the displayed/about version comes from the project version
+target_compile_definitions(psgame-viewer
+  PRIVATE PSGV_VERSION="${PROJECT_VERSION}")
+
+if(WIN32)
+  target_sources(psgame-viewer PRIVATE src/app/psgame-viewer.rc)
+endif()
 
 set_source_files_properties(src/qml/Theme.qml PROPERTIES
   QT_QML_SINGLETON_TYPE TRUE)
@@ -83,6 +99,7 @@ qt_add_qml_module(psgame-viewer
     src/qml/RenameDialog.qml
     src/qml/BatchDialog.qml
     src/qml/AboutDialog.qml
+    src/qml/UpdateDialog.qml
     src/qml/LibraryPage.qml
     src/qml/SettingsDialog.qml
 )
@@ -108,35 +125,11 @@ target_link_libraries(psgame-viewer
     Qt6::QuickControls2
     Qt6::Network)
 
-# app icon + desktop entry
-set(APP_ICON_FILES
-  assets/icons/psgame-viewer-16.png
-  assets/icons/psgame-viewer-32.png
-  assets/icons/psgame-viewer-48.png
-  assets/icons/psgame-viewer-64.png
-  assets/icons/psgame-viewer-128.png
-  assets/icons/psgame-viewer-256.png)
-
-if(WIN32)
-  # placeholder for a proper .rc on Windows
-elseif(APPLE)
-  set(ICON_PATHS)
-  foreach(icon ${APP_ICON_FILES})
-    list(APPEND ICON_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/${icon})
-  endforeach()
-  set_target_properties(psgame-viewer PROPERTIES MACOSX_BUNDLE_ICON_FILE "")
-else()
-  foreach(icon ${APP_ICON_FILES})
-    get_filename_component(size ${icon} NAME_WE)
-    string(REGEX REPLACE "psgame-viewer-" "" size ${size})
-    install(FILES ${icon}
-            DESTINATION share/icons/hicolor/${size}x${size}/apps
-            RENAME psgame-viewer.png)
-  endforeach()
-  install(FILES assets/psgame-viewer.desktop
-          DESTINATION share/applications)
-  install(TARGETS psgame-viewer BUNDLE DESTINATION . RUNTIME DESTINATION bin)
-endif()
+# portable distribution only: no install rules, no setup installer.
+# Everything the app writes lands next to the executable (see
+# src/app/portable.h); binary archives are produced by
+# packaging/make-portable.sh (Linux) and packaging/make-portable.ps1
+# (Windows).
 
 if(BUILD_TESTING AND TARGET Qt6::Test)
   enable_testing()
