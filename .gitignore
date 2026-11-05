@@ -1,0 +1,33 @@
+# Build directories
+build*/
+cmake-build-*/
+
+# IDE
+.vscode/
+.idea/
+*.user
+*.user.*
+
+# CMake / compiler artifacts
+CMakeCache.txt
+CMakeFiles/
+Makefile
+*.obj
+*.o
+*.a
+*.so
+*.exe
+
+# Qt generated
+*.qm
+moc_*.cpp
+qrc_*.cpp
+.qtc_clangd/
+CMakeLists.txt.user
+
+# Translation tooling scratch
+*.ts.bak
+
+# OS
+.DS_Store
+Thumbs.db
