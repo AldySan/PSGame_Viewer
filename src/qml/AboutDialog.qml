@@ -7,11 +7,15 @@ Popup {
     id: root
     anchors.centerIn: parent
     width: 440
-    height: 380
+    height: 400
     modal: true
     focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
     padding: 22
+
+    // fired when the user asks for an update check; Main.qml routes it
+    // to the shared UpdateDialog.
+    signal updateCheckRequested()
 
     background: Rectangle {
         color: Theme.card
@@ -69,6 +73,12 @@ Popup {
         }
 
         Item { Layout.fillHeight: true }
+
+        Button {
+            Layout.alignment: Qt.AlignHCenter
+            text: qsTr("Check for updates")
+            onClicked: updateCheckRequested()
+        }
 
         Button {
             Layout.alignment: Qt.AlignHCenter

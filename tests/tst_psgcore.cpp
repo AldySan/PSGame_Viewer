@@ -40,6 +40,7 @@ private slots:
     void aesNistVectors();
     void sfoParsing();
     void utilHelpers();
+    void versionCompare();
     void ps4CntPkg();
     void ps5FihPkg();
     void ps3DebugPkg();
@@ -164,6 +165,32 @@ void TestPsgCore::utilHelpers()
 }
 
 // ---------------------------------------------------------------- PS4
+
+void TestPsgCore::versionCompare()
+{
+    QCOMPARE(parseVersionTag(QStringLiteral("v1.6.1")),
+              QList<int>({1, 6, 1, 1}));
+    QCOMPARE(parseVersionTag(QStringLiteral("1.19.4-pre2")),
+              QList<int>({1, 19, 4, 0, 2}));
+    QCOMPARE(parseVersionTag(QStringLiteral("1.19.4-pre1")),
+              QList<int>({1, 19, 4, 0, 1}));
+    QCOMPARE(parseVersionTag(QStringLiteral("2.0")),
+              QList<int>({2, 0, 1}));
+
+    QVERIFY(isVersionNewer(QStringLiteral("v1.6.1"),
+                           QStringLiteral("1.6.0")));
+    QVERIFY(isVersionNewer(QStringLiteral("1.19.4"),
+                           QStringLiteral("1.19.4-pre2")));
+    QVERIFY(isVersionNewer(QStringLiteral("1.19.4-pre2"),
+                           QStringLiteral("1.19.4-pre1")));
+    QVERIFY(!isVersionNewer(QStringLiteral("v1.0.0"),
+                            QStringLiteral("1.0.0")));
+    QVERIFY(!isVersionNewer(QStringLiteral("1.19.4-pre1"),
+                            QStringLiteral("1.19.4")));
+    QVERIFY(isVersionNewer(QStringLiteral("2.0"),
+                           QStringLiteral("1.9.9")));
+    QVERIFY(!isVersionNewer(QString(), QStringLiteral("0.1")));
+}
 
 void TestPsgCore::ps4CntPkg()
 {

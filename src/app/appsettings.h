@@ -17,6 +17,9 @@ class AppSettings : public QObject
                    NOTIFY languageChanged)
     Q_PROPERTY(bool onlineEnabled READ onlineEnabled WRITE setOnlineEnabled
                    NOTIFY onlineEnabledChanged)
+    Q_PROPERTY(bool checkUpdatesOnStartup READ checkUpdatesOnStartup
+                   WRITE setCheckUpdatesOnStartup
+                   NOTIFY checkUpdatesOnStartupChanged)
     Q_PROPERTY(QString renamePreset READ renamePreset CONSTANT)
     Q_PROPERTY(QString renamePattern READ renamePattern CONSTANT)
 
@@ -27,6 +30,10 @@ public:
     void setLanguage(const QString &lang);
     bool onlineEnabled() const;
     void setOnlineEnabled(bool enabled);
+
+    // background check when the app starts (default on)
+    bool checkUpdatesOnStartup() const;
+    void setCheckUpdatesOnStartup(bool enabled);
 
     // Rename dialog persistence (pattern + include ticks)
     QVariantMap renameInclude() const;
@@ -42,6 +49,7 @@ public:
 signals:
     void languageChanged();
     void onlineEnabledChanged();
+    void checkUpdatesOnStartupChanged();
 
 private:
     QSettings *m_s;

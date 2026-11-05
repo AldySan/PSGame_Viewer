@@ -58,4 +58,13 @@ bool isPs3TitleId(const QString &tid);
 // map value as string, "-" when the key is missing.
 QString valueOrDash(const QVariantMap &map, const QString &key);
 
+// Parse a version tag into comparable groups: "v1.6.1" -> 1.6.1.1,
+// "1.19.4-pre2" -> 1.19.4.0.2. Pre-releases sort below the final
+// release; non-numeric parts count as 0.
+QList<int> parseVersionTag(const QString &tag);
+
+// True when `latest` is strictly newer than `current` (same semantics
+// as parseVersionTag, padded with zeros).
+bool isVersionNewer(const QString &latest, const QString &current);
+
 } // namespace psg

@@ -8,7 +8,7 @@ Popup {
     id: root
     anchors.centerIn: parent
     width: 420
-    height: 300
+    height: 340
     modal: true
     focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
@@ -25,6 +25,7 @@ Popup {
         var idx = langCombo.find(lang)
         langCombo.currentIndex = idx >= 0 ? idx : 0
         onlineBox.checked = AppSettings.onlineEnabled
+        updatesBox.checked = AppSettings.checkUpdatesOnStartup
     }
 
     ColumnLayout {
@@ -70,6 +71,12 @@ Popup {
             font.pixelSize: 13
         }
 
+        CheckBox {
+            id: updatesBox
+            text: qsTr("Check for updates on startup")
+            font.pixelSize: 13
+        }
+
         Item { Layout.fillHeight: true }
 
         RowLayout {
@@ -86,6 +93,7 @@ Popup {
                 onClicked: {
                     AppSettings.language = langCombo.currentValue
                     AppSettings.onlineEnabled = onlineBox.checked
+                    AppSettings.checkUpdatesOnStartup = updatesBox.checked
                     root.close()
                 }
             }

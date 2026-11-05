@@ -368,4 +368,72 @@ QString valueOrDash(const QVariantMap &map, const QString &key)
     return v.toString();
 }
 
+namespace {
+
+// Leading digits of one dot-separated part ("" and "rc3" -> 0).
+int leadingDigits(const QString &part)
+{
+    int end = 0;
+    while (end < part.size() && part.at(end).isDigit())
+        ++end;
+    bool ok = false;
+    const int v = part.left(end).toInt(&ok);
+    return ok ? v : 0;
+}
+
+} // namespace
+
+QList<int> parseVersionTag(const QString &tag)
+{
+    QString s = tag.trimmed();
+    if (s.startsWith(u'v') || s.startsWith(u'V'))
+        s = s.mid(1);
+    const int dash = s.indexOf(u'-');
+    const QString core = dash < 0 ? s : s.left(dash);
+    const QString pre = dash < 0 ? QString() : s.mid(dash + 1);
+
+    QList<int> out;
+    for (const QString &part : core.split(u'.'))
+        out.append(leadingDigits(part));
+    if (out.isEmpty())
+        out.append(0);
+
+    if (dash < 0) {
+        // final releases sort above their pre-releases
+        out.append(1);
+        return out;
+    }
+    out.append(0);
+    QList<int> preNums;
+    int start = -1;
+    for (int i = 0; i <= pre.size(); ++i) {
+        const bool digit = i < pre.size() && pre.at(i).isDigit();
+        if (digit && start < 0)
+            start = i;
+        if (!digit && start >= 0) {
+            bool ok = false;
+            const int v = pre.mid(start, i - start).toInt(&ok);
+            if (ok)
+                preNums.append(v);
+            start = -1;
+        }
+    }
+    if (preNums.isEmpty())
+        preNums.append(0);
+    out += preNums;
+    return out;
+}
+
+bool isVersionNewer(const QString &latest, const QString &current)
+{
+    QList<int> a = parseVersionTag(latest);
+    QList<int> b = parseVersionTag(current);
+    const int n = qMax(a.size(), b.size());
+    while (a.size() < n)
+        a.append(0);
+    while (b.size() < n)
+        b.append(0);
+    return a > b;
+}
+
 } // namespace psg

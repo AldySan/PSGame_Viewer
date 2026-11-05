@@ -9,6 +9,7 @@
 #include "core/util.h"
 #include "imagestore.h"
 #include "online.h"
+#include "portable.h"
 
 #include <QBuffer>
 #include <QClipboard>
@@ -17,7 +18,6 @@
 #include <QGuiApplication>
 #include <QImage>
 #include <QRegularExpression>
-#include <QStandardPaths>
 
 namespace psg {
 namespace {
@@ -555,11 +555,8 @@ QVariantList ViewerController::batchPreview(const QString &pattern,
 
 QVariantMap ViewerController::batchApply()
 {
-    const QString log = QDir(
-        QStandardPaths::writableLocation(QStandardPaths::HomeLocation))
-        .filePath(QStringLiteral("batch_rename_%1.log")
-                      .arg(QDateTime::currentDateTime().toString(
-                          QStringLiteral("yyyyMMdd_hhmmss"))));
+    // portable: the revert log lives next to the executable
+    const QString log = portable::batchLogPath();
     const BatchOutcome out = applyBatch(m_batchPlan, log);
     QVariantMap m;
     m.insert(QStringLiteral("renamed"), out.renamed.size());

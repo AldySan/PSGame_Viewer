@@ -1,5 +1,7 @@
 #include "online.h"
 
+#include "portable.h"
+
 #include <QDir>
 #include <QEventLoop>
 #include <QFile>
@@ -10,7 +12,6 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QRegularExpression>
-#include <QStandardPaths>
 #include <QTimer>
 
 namespace psg {
@@ -50,9 +51,8 @@ OnlineService::OnlineService(QObject *parent)
 
 QString OnlineService::coversCacheDir()
 {
-    const QString base = QStandardPaths::writableLocation(
-        QStandardPaths::AppDataLocation);
-    const QString dir = base + QStringLiteral("/covers");
+    // portable: the disk cache lives next to the executable
+    const QString dir = portable::coversCacheDir();
     QDir().mkpath(dir);
     return dir;
 }
