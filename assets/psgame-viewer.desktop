@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=PSGame-Viewer
+GenericName=PlayStation Game File Viewer
+Comment=See what is inside PS2/PS3/PS4/PS5 game files
+Exec=psgame-viewer %f
+Icon=psgame-viewer
+Terminal=false
+Categories=Utility;FileTools;
+MimeType=application/x-pkg;
+StartupWMClass=psgame-viewer

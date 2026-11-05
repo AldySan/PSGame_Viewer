@@ -138,6 +138,35 @@ ExtractResult extractEntries(const QList<Entry> &entries,
     return res;
 }
 
+bool extractEntryTo(const Entry &e, const QString &containerPath,
+                    const QString &outFile)
+{
+    if (e.size == 0)
+        return false;
+    QDir().mkpath(QFileInfo(outFile).absolutePath());
+    // plain offsets stream through so multi-GB ISO files stay cheap
+    if (e.source == Entry::Source::Offset && e.offset >= 0) {
+        QFile r(e.containerPath.isEmpty() ? containerPath : e.containerPath);
+        QFile w(outFile);
+        if (!r.open(QIODevice::ReadOnly) || !w.open(QIODevice::WriteOnly))
+            return false;
+        r.seek(e.offset);
+        quint64 left = e.size;
+        while (left > 0) {
+            const QByteArray buf = r.read(int(qMin<quint64>(left, 4 << 20)));
+            if (buf.isEmpty() || w.write(buf) != buf.size())
+                return false;
+            left -= quint64(buf.size());
+        }
+        return true;
+    }
+    const QByteArray data = readEntryBytes(e, containerPath, quint64(2) << 30);
+    if (data.isEmpty())
+        return false;
+    QFile w(outFile);
+    return w.open(QIODevice::WriteOnly) && w.write(data) == data.size();
+}
+
 QString writeGp4(const GameInfo &info, const QString &extractedDir,
                  const QString &gp4Path)
 {

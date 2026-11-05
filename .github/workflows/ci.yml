@@ -11,12 +11,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Qt and build tools
+      - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            qt6-base-dev qt6-declarative-dev qt6-tools-dev \
             libgl1-mesa-dev cmake ninja-build
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.*'
+          cache: true
 
       - name: Configure
         run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
