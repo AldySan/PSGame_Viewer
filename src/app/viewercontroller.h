@@ -92,6 +92,7 @@ signals:
     void infoChanged();
     void patchInfoChanged();
     void statusMessage(const QString &message);
+    void fileOpened(const QString &path);
 
 private:
     void loadTrophies();
