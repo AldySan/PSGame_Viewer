@@ -1256,7 +1256,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="36"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="37"/>
       
         
       <source>Settings</source>
@@ -1271,7 +1271,52 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="43"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="44"/>
+      
+        
+      <source>Theme</source>
+      
+        
+      <translation>主题</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/SettingsDialog.qml" line="53"/>
+      
+        
+      <source>Dark</source>
+      
+        
+      <translation>深色</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/SettingsDialog.qml" line="54"/>
+      
+        
+      <source>Light</source>
+      
+        
+      <translation>浅色</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/SettingsDialog.qml" line="61"/>
       
         
       <source>Language</source>
@@ -1286,7 +1331,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="53"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="71"/>
       
         
       <source>System default</source>
@@ -1301,7 +1346,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="62"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="80"/>
       
         
       <source>Restart the app to apply a language change.</source>
@@ -1316,7 +1361,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="70"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="88"/>
       
         
       <source>Online lookups (covers, latest patch)</source>
@@ -1331,7 +1376,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="76"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="94"/>
       
         
       <source>Check for updates on startup</source>
@@ -1346,7 +1391,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="86"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="104"/>
       
         
       <source>Cancel</source>
@@ -1361,7 +1406,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="91"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="109"/>
       
         
       <source>Save</source>
@@ -1409,7 +1454,37 @@
     <message>
       
         
-      <location filename="../src/qml/TrophiesTab.qml" line="31"/>
+      <location filename="../src/qml/TrophiesTab.qml" line="33"/>
+      
+        
+      <source>%1 trophies</source>
+      
+        
+      <translation>%1 个奖杯</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/TrophiesTab.qml" line="39"/>
+      
+        
+      <source>Export icons…</source>
+      
+        
+      <translation>导出图标…</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/TrophiesTab.qml" line="61"/>
       
         
       <source>No trophy pack in this file</source>
@@ -1424,13 +1499,28 @@
     <message>
       
         
-      <location filename="../src/qml/TrophiesTab.qml" line="103"/>
+      <location filename="../src/qml/TrophiesTab.qml" line="133"/>
       
         
       <source>hidden</source>
       
         
       <translation>隐藏</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/TrophiesTab.qml" line="160"/>
+      
+        
+      <source>Save trophy icons to folder</source>
+      
+        
+      <translation>保存奖杯图标到文件夹</translation>
       
     
     </message>
@@ -1727,7 +1817,7 @@
     <message>
       
         
-      <location filename="../src/qml/ViewerPage.qml" line="115"/>
+      <location filename="../src/qml/ViewerPage.qml" line="117"/>
       
         
       <source>Extract to folder</source>
@@ -1928,7 +2018,70 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="441"/>
+      <location filename="../src/app/viewercontroller.cpp" line="435"/>
+      
+        
+      <location filename="../src/app/viewercontroller.cpp" line="439"/>
+      
+        
+      <source>No trophy icons loaded</source>
+      
+        
+      <translation>未加载奖杯图标</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/app/viewercontroller.cpp" line="452"/>
+      
+        
+      <source>Cannot create folder: %1</source>
+      
+        
+      <translation>无法创建文件夹：%1</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/app/viewercontroller.cpp" line="475"/>
+      
+        
+      <source>Saved %1 trophy icons to %2</source>
+      
+        
+      <translation>已保存 %1 个奖杯图标到 %2</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/app/viewercontroller.cpp" line="479"/>
+      
+        
+      <source> (%1 skipped)</source>
+      
+        
+      <translation>（跳过 %1 个）</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/app/viewercontroller.cpp" line="495"/>
       
         
       <source>Copied to clipboard</source>
@@ -1943,7 +2096,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="491"/>
+      <location filename="../src/app/viewercontroller.cpp" line="545"/>
       
         
       <source>Renamed to %1</source>
@@ -1958,7 +2111,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="506"/>
+      <location filename="../src/app/viewercontroller.cpp" line="560"/>
       
         
       <source>Rename undone</source>
@@ -1973,7 +2126,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="565"/>
+      <location filename="../src/app/viewercontroller.cpp" line="619"/>
       
         
       <source>Batch: renamed %1, skipped %2</source>
@@ -1988,7 +2141,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="577"/>
+      <location filename="../src/app/viewercontroller.cpp" line="631"/>
       
         
       <source>Nothing to revert in %1</source>
@@ -2003,7 +2156,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="579"/>
+      <location filename="../src/app/viewercontroller.cpp" line="633"/>
       
         
       <source>Dry run: %1 renames would be reverted. Run with apply.</source>
@@ -2018,7 +2171,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="582"/>
+      <location filename="../src/app/viewercontroller.cpp" line="636"/>
       
         
       <source>Reverted %1, skipped %2</source>

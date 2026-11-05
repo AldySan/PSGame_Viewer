@@ -71,6 +71,9 @@ public:
     Q_INVOKABLE QString extractAll(const QUrl &destDir);
     Q_INVOKABLE bool saveCover(const QUrl &destFile);
     Q_INVOKABLE QString copyCoverToClipboard() const;
+    // Write every carved trophy icon to <destDir>/<game name>/<id>_<name>.png.
+    // Returns a user-facing status message.
+    Q_INVOKABLE QString exportTrophyIcons(const QUrl &destDir);
     Q_INVOKABLE void selectCover(const QString &key);
     Q_INVOKABLE void copyText(const QString &text);
     Q_INVOKABLE QString renamePreview(const QString &pattern,

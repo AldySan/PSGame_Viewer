@@ -15,6 +15,7 @@ class AppSettings : public QObject
     Q_OBJECT
     Q_PROPERTY(QString language READ language WRITE setLanguage
                    NOTIFY languageChanged)
+    Q_PROPERTY(QString theme READ theme WRITE setTheme NOTIFY themeChanged)
     Q_PROPERTY(bool onlineEnabled READ onlineEnabled WRITE setOnlineEnabled
                    NOTIFY onlineEnabledChanged)
     Q_PROPERTY(bool checkUpdatesOnStartup READ checkUpdatesOnStartup
@@ -28,6 +29,11 @@ public:
 
     QString language() const;
     void setLanguage(const QString &lang);
+
+    // "dark" (default) or "light"
+    QString theme() const;
+    void setTheme(const QString &theme);
+
     bool onlineEnabled() const;
     void setOnlineEnabled(bool enabled);
 
@@ -48,6 +54,7 @@ public:
 
 signals:
     void languageChanged();
+    void themeChanged();
     void onlineEnabledChanged();
     void checkUpdatesOnStartupChanged();
 

@@ -14,6 +14,7 @@ endif()
 # the core stays Core+Xml only
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Xml Quick QuickControls2 Network Sql)
 find_package(Qt6 6.5 QUIET OPTIONAL_COMPONENTS Test)
+find_package(ZLIB REQUIRED)
 
 qt_standard_project_setup()
 
@@ -38,6 +39,8 @@ add_library(psgcore STATIC
   src/core/ps4/ps4pkg.cpp
   src/core/ps5/ps5pkg.cpp
   src/core/ps5/exfat.cpp
+  src/core/ps5/pfs.cpp
+  src/core/ps5/ufs2.cpp
   src/core/ps5/ps5image.cpp
   src/core/trophies.cpp
   src/core/entrytree.cpp
@@ -53,6 +56,7 @@ target_link_libraries(psgcore
     Qt6::Core
     Qt6::Xml
     Qt6::Sql
+    ZLIB::ZLIB
 )
 
 qt_add_executable(psgame-viewer
