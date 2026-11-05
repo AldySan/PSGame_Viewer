@@ -18,6 +18,7 @@
 #include <QGuiApplication>
 #include <QImage>
 #include <QRegularExpression>
+#include <QThread>
 
 namespace psg {
 namespace {
@@ -65,13 +66,25 @@ ViewerController::ViewerController(AppSettings *settings, ImageStore *images,
     : QObject(parent)
     , m_settings(settings)
     , m_images(images)
-    , m_online(new OnlineService(this))
+    , m_online(new OnlineService())
+    , m_onlineThread(new QThread(this))
     , m_entryModel(new EntryTreeModel(this))
     , m_trophyModel(new TrophyListModel(this))
 {
+    // the lookups do blocking HTTP with a 15 s transfer timeout; keep them
+    // off the GUI thread so a slow or unreachable network cannot freeze
+    // the window while covers and patch info load
+    m_online->moveToThread(m_onlineThread);
+    connect(m_onlineThread, &QThread::finished,
+            m_online, &QObject::deleteLater);
+    m_onlineThread->start();
+
     connect(m_online, &OnlineService::patchReady, this,
-            [this](const QString &, const QString &latest, int count,
+            [this](const QString &tid, const QString &latest, int count,
                    const QString &date) {
+                if (!m_info.ok || tid.compare(m_info.patchTid,
+                                              Qt::CaseInsensitive) != 0)
+                    return; // late reply for a previously opened file
                 if (latest.isEmpty()) {
                     m_patchInfo.clear();
                 } else {
@@ -88,6 +101,8 @@ ViewerController::ViewerController(AppSettings *settings, ImageStore *images,
             [this](const QString &key, const QByteArray &bytes) {
                 if (bytes.isEmpty() || !m_info.ok)
                     return;
+                if (key != m_onlineCoverKey)
+                    return; // late reply for a previously opened file
                 QImage img;
                 if (!img.loadFromData(bytes))
                     return;
@@ -101,6 +116,14 @@ ViewerController::ViewerController(AppSettings *settings, ImageStore *images,
                 m_coverKey = QStringLiteral("online/%1").arg(key);
                 emit infoChanged();
             });
+}
+
+ViewerController::~ViewerController()
+{
+    if (m_onlineThread) {
+        m_onlineThread->quit();
+        m_onlineThread->wait(3000);
+    }
 }
 
 QString ViewerController::title() const
@@ -186,6 +209,9 @@ void ViewerController::openPath(const QUrl &path)
         return;
     m_busy = true;
     emit infoChanged();
+
+    // lookups started for the previous file must not land on this one
+    m_onlineCoverKey.clear();
 
     m_info = detect::openAny(local);
     m_patchInfo.clear();
@@ -347,21 +373,26 @@ void ViewerController::startOnlineLookups()
 {
     if (!m_settings || !m_settings->onlineEnabled())
         return;
-    const QString cid = m_info.storeCid.isEmpty() ? m_info.contentId()
-                                                  : m_info.storeCid;
-    if (!cid.isEmpty() && cid != QLatin1String("-"))
-        m_online->fetchStoreCover(cid);
+    // patch info for the current title (fetched off the GUI thread)
     if (!m_info.patchTid.isEmpty())
-        m_online->fetchLatestPatch(m_info.patchTid);
+        QMetaObject::invokeMethod(
+            m_online, "fetchLatestPatch", Qt::QueuedConnection,
+            Q_ARG(QString, m_info.patchTid));
     // PS2/PS3 carry no usable icon inside the container: fetch art
     if (m_coverKey.isEmpty()) {
+        QString coverKey;
         if (m_info.platform == Platform::PS2 && !m_info.ps2Serial.isEmpty())
-            m_online->fetchCoverBytes(m_info.ps2Serial, m_info.ps2Serial,
-                                      QString());
+            coverKey = m_info.ps2Serial;
         else if (m_info.platform == Platform::PS3
                  && isPs3TitleId(m_info.titleId()))
-            m_online->fetchCoverBytes(m_info.titleId(), m_info.titleId(),
-                                      m_info.region());
+            coverKey = m_info.titleId();
+        if (!coverKey.isEmpty()) {
+            m_onlineCoverKey = coverKey;
+            QMetaObject::invokeMethod(
+                m_online, "fetchCoverBytes", Qt::QueuedConnection,
+                Q_ARG(QString, coverKey), Q_ARG(QString, coverKey),
+                Q_ARG(QString, m_info.region()));
+        }
     }
 }
 

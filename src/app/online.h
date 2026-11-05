@@ -22,11 +22,12 @@ public:
 
     // (name, coverUrl, releaseDate) for a Content ID from the store page.
     void fetchStoreCover(const QString &contentId);
-    // cover bytes for a PS2 serial (SCUS-97399) or PS3 Title ID (BCUS98111)
-    void fetchCoverBytes(const QString &key, const QString &tid,
-                         const QString &region);
+    // cover bytes for a PS2 serial (SCUS-97399) or PS3 Title ID (BCUS98111).
+    // invokable so the GUI can run them on the OnlineService thread.
+    Q_INVOKABLE void fetchCoverBytes(const QString &key, const QString &tid,
+                                    const QString &region);
     // "(latest) N patches" info for a PS4/PS5 Title ID
-    void fetchLatestPatch(const QString &titleId);
+    Q_INVOKABLE void fetchLatestPatch(const QString &titleId);
 
     // blocking variants for the CLI
     QString latestPatchBlocking(const QString &titleId);

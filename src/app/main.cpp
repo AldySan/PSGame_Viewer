@@ -8,7 +8,6 @@
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickWindow>
-#include <QStandardPaths>
 #include <QTimer>
 #include <QTranslator>
 #include <QUrl>

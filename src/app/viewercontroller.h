@@ -9,6 +9,8 @@
 #include "entrytreemodel.h"
 #include "trophylistmodel.h"
 
+class QThread;
+
 namespace psg {
 
 class AppSettings;
@@ -41,6 +43,7 @@ class ViewerController : public QObject
 public:
     explicit ViewerController(AppSettings *settings, ImageStore *images,
                               QObject *parent = nullptr);
+    ~ViewerController() override;
 
     EntryTreeModel *entryModel() const { return m_entryModel; }
     TrophyListModel *trophyModel() const { return m_trophyModel; }
@@ -105,7 +108,13 @@ private:
 
     AppSettings *m_settings = nullptr;
     ImageStore *m_images = nullptr;
+    // online lookups run on a worker thread so the blocking HTTP below
+    // never freezes the GUI; results arrive via queued signals
     OnlineService *m_online = nullptr;
+    QThread *m_onlineThread = nullptr;
+    // cover lookup key of the file that started the in-flight request;
+    // late replies for a previously opened file are dropped
+    QString m_onlineCoverKey;
     EntryTreeModel *m_entryModel = nullptr;
     TrophyListModel *m_trophyModel = nullptr;
     GameInfo m_info;
