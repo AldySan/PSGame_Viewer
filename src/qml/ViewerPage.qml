@@ -105,6 +105,8 @@ Item {
                 }
                 TrophiesTab {
                     model: Viewer.trophyModel
+                    controller: root.controller
+                    onStatusMessage: function(msg) { root.statusMessage(msg) }
                 }
             }
         }

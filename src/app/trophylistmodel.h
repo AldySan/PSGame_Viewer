@@ -42,6 +42,9 @@ public:
     void setTrophies(const QList<Item> &items);
     int count() const { return m_items.size(); }
 
+    // read access for the icon exporter
+    QList<Item> items() const { return m_items; }
+
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index,
                   int role = Qt::DisplayRole) const override;

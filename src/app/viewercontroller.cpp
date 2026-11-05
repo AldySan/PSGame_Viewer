@@ -427,6 +427,60 @@ QString ViewerController::copyCoverToClipboard() const
     return tr("Cover copied to clipboard");
 }
 
+QString ViewerController::exportTrophyIcons(const QUrl &destDir)
+{
+    const QList<TrophyListModel::Item> items =
+        m_trophyModel ? m_trophyModel->items() : QList<TrophyListModel::Item>();
+    if (!m_info.ok || items.isEmpty())
+        return tr("No trophy icons loaded");
+    const QString dir =
+        destDir.isLocalFile() ? destDir.toLocalFile() : destDir.toString();
+    if (dir.isEmpty())
+        return tr("No trophy icons loaded");
+
+    // save into a game-named subfolder, not loose files
+    QString folder = buildCleanName(m_info);
+    if (folder.isEmpty())
+        folder = sanitizeFileNamePart(m_info.title);
+    if (folder.isEmpty())
+        folder = sanitizeFileNamePart(
+            QFileInfo(m_info.path).completeBaseName());
+    if (folder.isEmpty())
+        folder = QStringLiteral("trophies");
+    const QString dest = QDir(dir).filePath(sanitizeFileNamePart(folder));
+    if (!QDir().mkpath(dest))
+        return tr("Cannot create folder: %1").arg(dest);
+
+    int saved = 0;
+    int skipped = 0;
+    for (int i = 0; i < items.size(); ++i) {
+        const TrophyListModel::Item &it = items.at(i);
+        const QByteArray bytes =
+            m_images->image(QStringLiteral("trophy/%1").arg(it.iconIndex));
+        if (it.iconIndex < 0 || bytes.isEmpty()
+            || bytes.left(8) != QByteArrayLiteral("\x89PNG\r\n\x1a\n")) {
+            ++skipped;
+            continue;
+        }
+        QString name = sanitizeFileNamePart(
+            QStringLiteral("%1_%2").arg(it.id, it.name));
+        if (name.isEmpty())
+            name = QStringLiteral("trophy_%1").arg(i);
+        QFile f(QDir(dest).filePath(name + QStringLiteral(".png")));
+        if (f.open(QIODevice::WriteOnly) && f.write(bytes) == bytes.size())
+            ++saved;
+        else
+            ++skipped;
+    }
+    QString msg = tr("Saved %1 trophy icons to %2")
+                      .arg(saved)
+                      .arg(QDir(dir).relativeFilePath(dest));
+    if (skipped > 0)
+        msg += tr(" (%1 skipped)").arg(skipped);
+    emit statusMessage(msg);
+    return msg;
+}
+
 void ViewerController::selectCover(const QString &key)
 {
     if (m_images->image(key).isEmpty())
