@@ -27,6 +27,10 @@ ExtractResult extractEntries(const QList<Entry> &entries,
                              const std::function<void(const QString &)> &progress
                              = nullptr);
 
+// Extract a single entry to an exact output path (no folder structure).
+bool extractEntryTo(const Entry &e, const QString &containerPath,
+                    const QString &outFile);
+
 // Write a minimal .gp4 project for orbis-pub-gen from parsed metadata.
 QString writeGp4(const GameInfo &info, const QString &extractedDir,
                  const QString &gp4Path);

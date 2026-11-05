@@ -10,8 +10,10 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
-find_package(Qt6 6.4 REQUIRED COMPONENTS Core Xml)
-find_package(Qt6 6.4 QUIET OPTIONAL_COMPONENTS Test)
+# the GUI needs Quick/Controls/Network (Qt 6.5+ for loadFromModule);
+# the core stays Core+Xml only
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Xml Quick QuickControls2 Network)
+find_package(Qt6 6.5 QUIET OPTIONAL_COMPONENTS Test)
 
 qt_standard_project_setup()
 
@@ -44,7 +46,81 @@ target_link_libraries(psgcore
     Qt6::Xml
 )
 
+qt_add_executable(psgame-viewer
+  src/app/main.cpp
+  src/app/appsettings.cpp
+  src/app/imagestore.cpp
+  src/app/entrytreemodel.cpp
+  src/app/trophylistmodel.cpp
+  src/app/online.cpp
+  src/app/viewercontroller.cpp
+)
+
+set_source_files_properties(src/qml/Theme.qml PROPERTIES
+  QT_QML_SINGLETON_TYPE TRUE)
+
+qt_add_qml_module(psgame-viewer
+  URI PSGameViewer
+  VERSION 1.0
+  QML_FILES
+    src/qml/Theme.qml
+    src/qml/Main.qml
+    src/qml/ViewerPage.qml
+    src/qml/CoverPanel.qml
+    src/qml/SpecCard.qml
+    src/qml/EmptyState.qml
+    src/qml/FilesTab.qml
+    src/qml/DetailsTab.qml
+    src/qml/TrophiesTab.qml
+    src/qml/NamePatternBar.qml
+    src/qml/RenameDialog.qml
+    src/qml/BatchDialog.qml
+    src/qml/AboutDialog.qml
+)
+
+set_target_properties(psgame-viewer PROPERTIES
+  MACOSX_BUNDLE TRUE
+  WIN32_EXECUTABLE TRUE)
+
+target_link_libraries(psgame-viewer
+  PRIVATE
+    psgcore
+    Qt6::Quick
+    Qt6::QuickControls2
+    Qt6::Network)
+
+# app icon + desktop entry
+set(APP_ICON_FILES
+  assets/icons/psgame-viewer-16.png
+  assets/icons/psgame-viewer-32.png
+  assets/icons/psgame-viewer-48.png
+  assets/icons/psgame-viewer-64.png
+  assets/icons/psgame-viewer-128.png
+  assets/icons/psgame-viewer-256.png)
+
+if(WIN32)
+  # placeholder for a proper .rc on Windows
+elseif(APPLE)
+  set(ICON_PATHS)
+  foreach(icon ${APP_ICON_FILES})
+    list(APPEND ICON_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/${icon})
+  endforeach()
+  set_target_properties(psgame-viewer PROPERTIES MACOSX_BUNDLE_ICON_FILE "")
+else()
+  foreach(icon ${APP_ICON_FILES})
+    get_filename_component(size ${icon} NAME_WE)
+    string(REGEX REPLACE "psgame-viewer-" "" size ${size})
+    install(FILES ${icon}
+            DESTINATION share/icons/hicolor/${size}x${size}/apps
+            RENAME psgame-viewer.png)
+  endforeach()
+  install(FILES assets/psgame-viewer.desktop
+          DESTINATION share/applications)
+  install(TARGETS psgame-viewer BUNDLE DESTINATION . RUNTIME DESTINATION bin)
+endif()
+
 if(BUILD_TESTING AND TARGET Qt6::Test)
   enable_testing()
   add_subdirectory(tests)
 endif()
+

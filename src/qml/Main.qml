@@ -1,0 +1,160 @@
+import QtQuick
+import QtQuick.Controls.Basic
+import QtQuick.Layouts
+import PSGameViewer
+import QtQuick.Dialogs
+
+ApplicationWindow {
+    id: root
+    width: 1180
+    height: 760
+    minimumWidth: 940
+    minimumHeight: 600
+    visible: true
+    title: qsTr("PSGame-Viewer")
+    color: Theme.bg
+
+    property string statusText: ""
+
+    header: ToolBar {
+        height: 52
+        background: Rectangle { color: Theme.card }
+
+        RowLayout {
+            anchors.fill: parent
+            anchors.leftMargin: 14
+            anchors.rightMargin: 14
+            spacing: 10
+
+            Rectangle {
+                width: 30; height: 30; radius: 6
+                color: Theme.accent
+                Text {
+                    anchors.centerIn: parent
+                    text: "PS"
+                    color: "#171717"
+                    font.bold: true
+                    font.pixelSize: 13
+                }
+            }
+            Label {
+                text: qsTr("PSGame-Viewer")
+                color: Theme.text
+                font.pixelSize: 16
+                font.bold: true
+            }
+            Item { Layout.fillWidth: true }
+
+            Button {
+                text: qsTr("Open")
+                highlighted: true
+                onClicked: fileDialog.open()
+            }
+            Button {
+                text: qsTr("Rename")
+                enabled: Viewer.hasFile
+                onClicked: renameDialog.open()
+            }
+            Button {
+                text: qsTr("Batch")
+                onClicked: batchDialog.open()
+            }
+            Button {
+                text: qsTr("About")
+                flat: true
+                onClicked: aboutDialog.open()
+            }
+        }
+    }
+
+    ViewerPage {
+        id: page
+        anchors.fill: parent
+        controller: Viewer
+        onStatusMessage: function(msg) { root.statusText = msg }
+    }
+
+    footer: ToolBar {
+        height: 34
+        background: Rectangle { color: Theme.card }
+        RowLayout {
+            anchors.fill: parent
+            anchors.leftMargin: 12
+            anchors.rightMargin: 12
+            Label {
+                text: root.statusText
+                color: Theme.muted
+                font.pixelSize: 12
+                elide: Text.ElideRight
+                Layout.fillWidth: true
+            }
+            Label {
+                visible: Viewer.hasFile
+                text: Viewer.statusSummary
+                color: Theme.text
+                font.pixelSize: 12
+            }
+        }
+    }
+
+    FileDialog {
+        id: fileDialog
+        title: qsTr("Open a game file")
+        nameFilters: [
+            qsTr("Game files (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)"),
+            qsTr("All files (*)")
+        ]
+        onAccepted: Viewer.openPath(selectedFile)
+    }
+
+    FolderDialog {
+        id: extractFolderDialog
+        title: qsTr("Extract to folder")
+        property int pendingEntry: -1
+        onAccepted: {
+            if (pendingEntry >= 0)
+                Viewer.extractEntry(pendingEntry, selectedFolder)
+            else
+                Viewer.extractAll(selectedFolder)
+            pendingEntry = -1
+        }
+    }
+
+    RenameDialog {
+        id: renameDialog
+        controller: Viewer
+        onStatusMessage: function(msg) { root.statusText = msg }
+    }
+
+    BatchDialog {
+        id: batchDialog
+        controller: Viewer
+        onStatusMessage: function(msg) { root.statusText = msg }
+    }
+
+    AboutDialog {
+        id: aboutDialog
+    }
+
+    // drag & drop: accept files and folders onto the window
+    DropArea {
+        anchors.fill: parent
+        onDropped: function(drop) {
+            if (drop.urls && drop.urls.length > 0) {
+                Viewer.openPath(drop.urls[0])
+                root.statusText = ""
+            }
+        }
+    }
+
+    Connections {
+        target: Viewer
+        function onStatusMessage(message) { root.statusText = message }
+    }
+
+    Component.onCompleted: {
+        // file passed on the command line
+        if (typeof initialFile !== "undefined" && initialFile)
+            Viewer.openPath(initialFile)
+    }
+}
