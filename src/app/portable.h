@@ -36,9 +36,11 @@ inline QString coversCacheDir()
 
 inline QString batchLogPath()
 {
+    // ms resolution: two applies in the same second must not overwrite
+    // each other's log
     return baseDir() + QStringLiteral("/batch_rename_%1.log").arg(
         QDateTime::currentDateTime().toString(
-            QStringLiteral("yyyyMMdd_hhmmss")));
+            QStringLiteral("yyyyMMdd_hhmmsszzz")));
 }
 
 } // namespace portable

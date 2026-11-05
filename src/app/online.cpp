@@ -21,24 +21,12 @@ const char kBrowserUa[] =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/126.0 Safari/537.36";
 
-QNetworkRequest makeRequest(const QUrl &url)
+QNetworkRequest makeRequest(const QString &url)
 {
     QNetworkRequest req(url);
     req.setHeader(QNetworkRequest::UserAgentHeader, QLatin1String(kBrowserUa));
     req.setTransferTimeout(15000);
     return req;
-}
-
-QString storeLocale(const QString &cid)
-{
-    const QString prefix = cid.left(2).toUpper();
-    static const QHash<QString, QString> map = {
-        {QStringLiteral("UP"), QStringLiteral("en-us")},
-        {QStringLiteral("EP"), QStringLiteral("en-gb")},
-        {QStringLiteral("JP"), QStringLiteral("ja-jp")},
-        {QStringLiteral("HP"), QStringLiteral("en-hk")},
-    };
-    return map.value(prefix, QStringLiteral("en-us"));
 }
 
 } // namespace
@@ -77,76 +65,22 @@ QByteArray OnlineService::getBlocking(QNetworkReply *reply, int timeoutMs)
 
 QByteArray OnlineService::get(const QString &url, int timeoutMs)
 {
-    QNetworkReply *reply = m_nam->get(makeRequest(QUrl(url)));
-    return getBlocking(reply, timeoutMs);
+    QNetworkReply *reply = m_nam->get(makeRequest(url));
+    const QByteArray out = getBlocking(reply, timeoutMs);
+    reply->deleteLater(); // replies are caller-owned; never parented
+    return out;
 }
 
 QByteArray OnlineService::post(const QString &url, const QByteArray &body,
                                int timeoutMs)
 {
-    QNetworkRequest req = makeRequest(QUrl(url));
+    QNetworkRequest req = makeRequest(url);
     req.setHeader(QNetworkRequest::ContentTypeHeader,
                   QStringLiteral("application/json"));
     QNetworkReply *reply = m_nam->post(req, body);
-    return getBlocking(reply, timeoutMs);
-}
-
-void OnlineService::fetchStoreCover(const QString &contentId)
-{
-    if (contentId.isEmpty() || !contentId.contains(u'-')) {
-        emit storeCoverReady(contentId, QString(), QString(), QString());
-        return;
-    }
-    if (m_storeCache.contains(contentId)) {
-        const QString cached = m_storeCache.value(contentId);
-        const QStringList parts = cached.split(u'\x1f');
-        emit storeCoverReady(contentId, parts.value(0), parts.value(1),
-                             parts.value(2));
-        return;
-    }
-    const QString url = QStringLiteral(
-        "https://store.playstation.com/%1/product/%2")
-                            .arg(storeLocale(contentId), contentId);
-    const QString html = QString::fromUtf8(get(url));
-
-    QString cover;
-    static const QRegularExpression re1(
-        QStringLiteral("\"role\":\"([A-Z_0-9]+)\"[^}]{0,400}?\"url\":\"(https://[^\"]+)\""));
-    auto it = re1.globalMatch(html);
-    QHash<QString, QString> arts;
-    while (it.hasNext()) {
-        const auto m = it.next();
-        if (!arts.contains(m.captured(1)))
-            arts.insert(m.captured(1), m.captured(2));
-    }
-    static const QRegularExpression re2(
-        QStringLiteral("\"url\":\"(https://[^\"]+)\"[^}]{0,400}?\"role\":\"([A-Z_0-9]+)\""));
-    auto it2 = re2.globalMatch(html);
-    while (it2.hasNext()) {
-        const auto m = it2.next();
-        if (!arts.contains(m.captured(2)))
-            arts.insert(m.captured(2), m.captured(1));
-    }
-    cover = arts.value(QStringLiteral("MASTER"));
-    if (cover.isEmpty())
-        cover = arts.value(QStringLiteral("GAMEHUB_COVER_ART"));
-
-    QString name;
-    static const QRegularExpression nameRe(
-        QStringLiteral("\"__typename\":\"Concept\",\"name\":\"([^\"]+)\""));
-    const auto nm = nameRe.match(html);
-    if (nm.hasMatch())
-        name = nm.captured(1);
-    QString release;
-    static const QRegularExpression relRe(
-        QStringLiteral("\"releaseDate\":\"(\\d{4}-\\d{2}-\\d{2})"));
-    const auto rm = relRe.match(html);
-    if (rm.hasMatch())
-        release = rm.captured(1);
-
-    m_storeCache.insert(contentId,
-                        QStringList{name, cover, release}.join(u'\x1f'));
-    emit storeCoverReady(contentId, name, cover, release);
+    const QByteArray out = getBlocking(reply, timeoutMs);
+    reply->deleteLater();
+    return out;
 }
 
 void OnlineService::fetchCoverBytes(const QString &key, const QString &tid,
@@ -281,17 +215,6 @@ void OnlineService::fetchLatestPatch(const QString &titleId)
                         QStringList{latest, QString::number(patches.size()), date}
                             .join(u'\x1f'));
     emit patchReady(tid, latest, patches.size(), date);
-}
-
-QString OnlineService::latestPatchBlocking(const QString &titleId)
-{
-    QString out;
-    connect(this, &OnlineService::patchReady, this,
-            [&out](const QString &, const QString &latest, int, const QString &) {
-                out = latest;
-            });
-    fetchLatestPatch(titleId);
-    return out;
 }
 
 } // namespace psg

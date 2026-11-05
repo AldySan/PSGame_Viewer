@@ -304,14 +304,22 @@ void ViewerController::loadTrophies()
 
         if (lower.endsWith(QLatin1String(".ucp"))) {
             const trophies::UcpResult res = ucpTrophies(data);
+            // carved PNGs in display order: the i-th trophy gets the i-th
+            // icon (same convention as the TRP branch)
+            const QList<QByteArray> iconBytes =
+                trophies::ucpIconsSorted(res);
+            if (!iconBytes.isEmpty())
+                m_images->setImages(QStringLiteral("trophy"), iconBytes);
             QList<TrophyListModel::Item> items;
-            for (const trophies::Trophy &t : res.trophies) {
+            for (int i = 0; i < res.trophies.size(); ++i) {
+                const trophies::Trophy &t = res.trophies.at(i);
                 TrophyListModel::Item it;
                 it.id = t.id;
                 it.name = t.name;
                 it.detail = t.detail;
                 it.grade = t.grade;
                 it.hidden = t.hidden;
+                it.iconIndex = i < iconBytes.size() ? i : -1;
                 items.append(it);
             }
             m_trophyModel->setTrophies(items);
