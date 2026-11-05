@@ -3,7 +3,9 @@
 #include "../bytes.h"
 #include "../util.h"
 #include "exfat.h"
+#include "pfs.h"
 #include "ps5pkg.h"
+#include "ufs2.h"
 
 #include <QDir>
 #include <QDirIterator>
@@ -19,9 +21,12 @@ namespace psg::ps5 {
 namespace {
 
 // Build the common PS5 result rows/entries once param.json is known.
+// With `cacheImages` set (PFS inner images), the icon entries carry
+// their bytes inline so the container view can close after parsing;
+// trophy packs stay lazy chain reads resolved through the container.
 GameInfo exfatResult(const ExfatImage &fs, const QString &path,
                      quint64 size, const QString &platformLabel,
-                     const QString &innerName)
+                     const QString &innerName, bool cacheImages = false)
 {
     GameInfo out;
     out.path = path;
@@ -35,8 +40,9 @@ GameInfo exfatResult(const ExfatImage &fs, const QString &path,
     ExfatImage::Found pj;
     if (fs.find({QStringLiteral("sce_sys"), QStringLiteral("param.json")}, &pj)
         && !pj.isDir && pj.size < 100000) {
-        const QByteArray raw = pj.noFat ? fs.readNoFat(pj.firstCluster, pj.size)
-                                        : fs.readChain(pj.firstCluster, pj.size);
+        const QByteArray raw = pj.noFat
+            ? fs.readNoFat(pj.firstCluster, pj.size)
+            : fs.readChain(pj.firstCluster, pj.size);
         const QJsonDocument doc = QJsonDocument::fromJson(raw);
         if (doc.isObject()) {
             meta = doc.object().toVariantMap();
@@ -53,23 +59,45 @@ GameInfo exfatResult(const ExfatImage &fs, const QString &path,
         out.addRow(QStringLiteral("Inner file"), innerName);
     out.rows += extra;
 
+    // With `cacheImages` the icon bytes are read through the view now;
+    // the entry then carries them inline. Otherwise the entry stays a
+    // lazy FAT-chain read resolved through the container on demand.
+    const auto fillImageEntry = [&](Entry &e, quint32 first,
+                                    bool noFat) -> bool {
+        if (cacheImages) {
+            const QByteArray data =
+                noFat ? fs.readNoFat(first, e.size)
+                      : fs.readChain(first, e.size);
+            if (data.isEmpty()
+                || data.left(8) != QByteArrayLiteral("\x89PNG\r\n\x1a\n"))
+                return false;
+            e.source = Entry::Source::Cached;
+            e.cached = data;
+        } else {
+            e.source = Entry::Source::ExfatChain;
+            e.exfatFirst = first;
+            e.exfatNoFat = noFat;
+        }
+        e.containerPath = path;
+        return true;
+    };
+
     // icon0.png first, then every other PNG in sce_sys for the gallery
     quint32 eid = 0;
     ExfatImage::Found icon;
-    if (fs.find({QStringLiteral("sce_sys"), QStringLiteral("icon0.png")}, &icon)
-        && !icon.isDir && icon.size > 0) {
+    if (fs.find({QStringLiteral("sce_sys"), QStringLiteral("icon0.png")},
+                &icon)
+        && !icon.isDir && icon.size > 0 && icon.size < 32000000) {
         Entry e;
         e.id = eid++;
         e.name = QStringLiteral("icon0.png");
         e.size = icon.size;
-        e.source = Entry::Source::ExfatChain;
-        e.exfatFirst = icon.firstCluster;
-        e.exfatNoFat = icon.noFat;
-        e.containerPath = path;
-        out.entries.append(e);
+        if (fillImageEntry(e, icon.firstCluster, icon.noFat))
+            out.entries.append(e);
     }
     QSet<QString> seen{{QStringLiteral("icon0.png")}};
-    const QList<ExfatImage::DirItem> sceSys = fs.listPath({QStringLiteral("sce_sys")});
+    const QList<ExfatImage::DirItem> sceSys =
+        fs.listPath({QStringLiteral("sce_sys")});
     for (const ExfatImage::DirItem &it : sceSys) {
         if (it.isDir || seen.contains(it.name.toLower())
             || !it.name.endsWith(QLatin1String(".png"), Qt::CaseInsensitive)
@@ -80,11 +108,8 @@ GameInfo exfatResult(const ExfatImage &fs, const QString &path,
         e.id = eid++;
         e.name = it.name;
         e.size = it.size;
-        e.source = Entry::Source::ExfatChain;
-        e.exfatFirst = it.firstCluster;
-        e.exfatNoFat = it.noFat;
-        e.containerPath = path;
-        out.entries.append(e);
+        if (fillImageEntry(e, it.firstCluster, it.noFat))
+            out.entries.append(e);
     }
 
     // trophy packs for the Trophies tab, read on demand
@@ -241,6 +266,93 @@ QList<AmprFile> scanAmpr(const QString &path)
     return out;
 }
 
+// Common builder for UFS2-backed results (.ffpkg and nested .ffpfsc):
+// sce_sys/param.json + icon0.png + every other sce_sys PNG, with the
+// icon bytes cached inline (small files, the device closes after parse).
+GameInfo ufs2Result(const Ufs2File &fs, const QString &path, quint64 size,
+                     const QString &platformLabel, const QString &innerName)
+{
+    GameInfo out;
+    out.path = path;
+    out.size = size;
+    out.platform = Platform::PS5;
+    out.iconEntry = QStringLiteral("icon0.png");
+
+    QVariantMap meta;
+    QString title;
+    QList<SpecRow> extra;
+    Ufs2File::Found pj;
+    if (fs.find({QStringLiteral("sce_sys"), QStringLiteral("param.json")}, &pj)
+        && !pj.isDir && pj.size > 0 && pj.size < 100000) {
+        const QByteArray raw = fs.readFile(pj, 100000);
+        const QJsonDocument doc = QJsonDocument::fromJson(raw);
+        if (doc.isObject()) {
+            meta = doc.object().toVariantMap();
+            std::tie(title, extra) = paramJsonMeta(meta);
+        }
+    }
+
+    out.ok = true;
+    out.title = title.isEmpty() ? QFileInfo(path).fileName() : title;
+    out.meta = meta;
+    out.addRow(QStringLiteral("Platform"), platformLabel);
+    out.addRow(QStringLiteral("Size"), fmtSize(size));
+    if (!innerName.isEmpty())
+        out.addRow(QStringLiteral("Inner file"), innerName);
+    out.rows += extra;
+
+    // icon0.png first, then the other sce_sys PNGs in name order
+    quint32 eid = 0;
+    Ufs2File::Found icon;
+    if (fs.find({QStringLiteral("sce_sys"), QStringLiteral("icon0.png")},
+                &icon)
+        && !icon.isDir && icon.size > 0 && icon.size < 32000000) {
+        const QByteArray data = fs.readFile(icon, 32000000);
+        if (!data.isEmpty()
+            && data.left(8) == QByteArrayLiteral("\x89PNG\r\n\x1a\n")) {
+            Entry e;
+            e.id = eid++;
+            e.name = QStringLiteral("icon0.png");
+            e.size = quint64(data.size());
+            e.source = Entry::Source::Cached;
+            e.cached = data;
+            out.entries.append(e);
+        }
+    }
+    Ufs2File::Found sceSysDir;
+    if (fs.find({QStringLiteral("sce_sys")}, &sceSysDir) && sceSysDir.isDir) {
+        QList<Ufs2File::DirEntry> sceSys = fs.listDir(sceSysDir.ino);
+        // icon0.png first, then the remaining PNGs in name order
+        std::sort(sceSys.begin(), sceSys.end(),
+                  [](const Ufs2File::DirEntry &a, const Ufs2File::DirEntry &b) {
+                      const bool aIcon = a.name == QLatin1String("icon0.png");
+                      const bool bIcon = b.name == QLatin1String("icon0.png");
+                      if (aIcon != bIcon)
+                          return aIcon;
+                      return a.name.compare(b.name, Qt::CaseInsensitive) < 0;
+                  });
+        for (const Ufs2File::DirEntry &it : sceSys) {
+            if (it.isDir || it.name == QLatin1String("icon0.png")
+                || !it.name.endsWith(QLatin1String(".png"), Qt::CaseInsensitive)
+                || it.size == 0 || it.size > 32000000)
+                continue;
+            const QByteArray data = fs.readFile({it.ino, it.size, false},
+                                                32000000);
+            if (data.isEmpty()
+                || data.left(8) != QByteArrayLiteral("\x89PNG\r\n\x1a\n"))
+                continue;
+            Entry e;
+            e.id = eid++;
+            e.name = it.name;
+            e.size = quint64(data.size());
+            e.source = Entry::Source::Cached;
+            e.cached = data;
+            out.entries.append(e);
+        }
+    }
+    return out;
+}
+
 } // namespace
 
 GameInfo parseExfatImage(const QString &path)
@@ -256,6 +368,61 @@ GameInfo parseExfatImage(const QString &path)
     }
     return exfatResult(fs, path, quint64(QFileInfo(path).size()),
                        QStringLiteral("PS5 exFAT image"), QString());
+}
+
+GameInfo parseFfpfscImage(const QString &path)
+{
+    const quint64 size = quint64(QFileInfo(path).size());
+    GameInfo bad;
+    bad.path = path;
+
+    PfsFile pfs(path);
+    if (!pfs.ok()) {
+        bad.error = pfs.error();
+        return bad;
+    }
+    PfsFile::InnerFile inner;
+    if (!pfs.openInner(&inner)) {
+        bad.error = pfs.error();
+        return bad;
+    }
+    if (inner.name.toLower().endsWith(QLatin1String(".ffpkg"))) {
+        bool ok = false;
+        QString err;
+        const Ufs2File fs(inner.device, inner.name, &ok, &err);
+        if (!ok) {
+            bad.error = QStringLiteral("inner file: %1").arg(err);
+            return bad;
+        }
+        return ufs2Result(fs, path, size, QStringLiteral("PS5 ffpfsc image"),
+                          inner.name);
+    }
+    bool ok = false;
+    QString err;
+    const ExfatImage fs(inner.device, inner.name, &ok, &err);
+    if (!ok) {
+        bad.error = QStringLiteral("inner file: %1").arg(err);
+        return bad;
+    }
+    return exfatResult(fs, path, size, QStringLiteral("PS5 ffpfsc image"),
+                       inner.name, /*cacheImages=*/true);
+}
+
+GameInfo parseFfpkgImage(const QString &path)
+{
+    const quint64 size = quint64(QFileInfo(path).size());
+    GameInfo bad;
+    bad.path = path;
+
+    bool ok = false;
+    QString err;
+    const Ufs2File fs(path, &ok, &err);
+    if (!ok) {
+        bad.error = err;
+        return bad;
+    }
+    return ufs2Result(fs, path, size, QStringLiteral("PS5 ffpkg image"),
+                      QString());
 }
 
 GameInfo parseAppFolder(const QString &path)
