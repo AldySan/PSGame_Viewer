@@ -1,0 +1,47 @@
+name: Feature request
+description: Suggest something the viewer should do (or do better)
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Tell us what you're trying to achieve — the "why" often points to a better solution than the "how".
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: The situation or task the app doesn't handle well today.
+      placeholder: |
+        I keep a folder of PS3 DLC pkgs and I want to see which ones are
+        already installed on my console, without opening each file.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: What would help?
+      description: Your idea, roughly. Sketches and examples from other tools are welcome.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What have you tried instead?
+      description: Other tools or workarounds you're using right now, if any.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of the app is this about?
+      options:
+        - Opening / parsing files
+        - Files, Details or Trophies tab
+        - Renaming / batch tools
+        - Library
+        - Settings / themes / language
+        - Command line
+        - Something else
+      default: 0
