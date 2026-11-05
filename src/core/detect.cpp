@@ -102,7 +102,6 @@ GameInfo parsePkgMagic(const QString &path)
         bad.error = QStringLiteral("cannot open file");
         return bad;
     }
-    const quint64 size = quint64(f.size());
     const QByteArray magic = f.read(4);
     if (magic == QByteArrayLiteral("\x01" "CD0"))
         return parseDiscIso(path);

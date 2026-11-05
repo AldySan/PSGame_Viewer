@@ -172,6 +172,8 @@ protected:
 private:
     bool readAt(quint64 at, quint64 len, QByteArray &out) const
     {
+        if (len > quint64(INT_MAX)) // int(len) below must stay positive
+            return false;
         if (at > m_payloadLength || len > m_payloadLength - at)
             return false;
         if (!m_backing->seek(qint64(m_payloadOffset + at)))
