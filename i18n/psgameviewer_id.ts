@@ -680,7 +680,7 @@
     <message>
       
         
-      <location filename="../src/qml/LibraryPage.qml" line="20"/>
+      <location filename="../src/qml/LibraryPage.qml" line="21"/>
       
         
       <source>Search title, Title ID or Content ID…</source>
@@ -695,7 +695,7 @@
     <message>
       
         
-      <location filename="../src/qml/LibraryPage.qml" line="31"/>
+      <location filename="../src/qml/LibraryPage.qml" line="32"/>
       
         
       <source>Scan folder…</source>
@@ -710,7 +710,7 @@
     <message>
       
         
-      <location filename="../src/qml/LibraryPage.qml" line="35"/>
+      <location filename="../src/qml/LibraryPage.qml" line="36"/>
       
         
       <source>Clean missing</source>
@@ -725,7 +725,7 @@
     <message>
       
         
-      <location filename="../src/qml/LibraryPage.qml" line="63"/>
+      <location filename="../src/qml/LibraryPage.qml" line="64"/>
       
         
       <source>Library is empty — open files or scan a folder</source>
@@ -740,7 +740,7 @@
     <message>
       
         
-      <location filename="../src/qml/LibraryPage.qml" line="140"/>
+      <location filename="../src/qml/LibraryPage.qml" line="141"/>
       
         
       <source>Open</source>
@@ -755,7 +755,7 @@
     <message>
       
         
-      <location filename="../src/qml/LibraryPage.qml" line="145"/>
+      <location filename="../src/qml/LibraryPage.qml" line="146"/>
       
         
       <source>Remove</source>
@@ -770,7 +770,7 @@
     <message>
       
         
-      <location filename="../src/qml/LibraryPage.qml" line="163"/>
+      <location filename="../src/qml/LibraryPage.qml" line="164"/>
       
         
       <source>Folder to scan</source>
@@ -1241,7 +1241,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="35"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="36"/>
       
         
       <source>Settings</source>
@@ -1256,7 +1256,52 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="42"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="43"/>
+      
+        
+      <source>Theme</source>
+      
+        
+      <translation>Tema</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/SettingsDialog.qml" line="52"/>
+      
+        
+      <source>Dark</source>
+      
+        
+      <translation>Gelap</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/SettingsDialog.qml" line="53"/>
+      
+        
+      <source>Light</source>
+      
+        
+      <translation>Terang</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/SettingsDialog.qml" line="60"/>
       
         
       <source>Language</source>
@@ -1271,7 +1316,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="52"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="70"/>
       
         
       <source>System default</source>
@@ -1286,7 +1331,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="61"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="79"/>
       
         
       <source>Restart the app to apply a language change.</source>
@@ -1301,7 +1346,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="69"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="87"/>
       
         
       <source>Online lookups (covers, latest patch)</source>
@@ -1316,7 +1361,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="79"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="97"/>
       
         
       <source>Cancel</source>
@@ -1331,7 +1376,7 @@
     <message>
       
         
-      <location filename="../src/qml/SettingsDialog.qml" line="84"/>
+      <location filename="../src/qml/SettingsDialog.qml" line="102"/>
       
         
       <source>Save</source>
