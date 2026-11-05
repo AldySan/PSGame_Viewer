@@ -1,0 +1,58 @@
+name: Bug report
+description: Something went wrong — a file won't open, a crash, or a UI glitch
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report it. A few details make fixes much faster — fill in what you know.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A short description of the problem. If there was an error message, paste the exact text.
+      placeholder: |
+        Opened a .pkg and the Files tab stayed empty. Status bar said:
+        "Could not open: ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: How can it be reproduced?
+      description: Step by step, starting from launching the app.
+      placeholder: |
+        1. Open the app
+        2. Drag <file> onto the window
+        3. ...
+    validations:
+      required: true
+
+  - type: input
+    id: file
+    attributes:
+      label: Which file triggers it?
+      description: Format and where it came from (e.g. "a retail PS4 update pkg", "PS5 .exfat dump"). Do not upload copyrighted files.
+      placeholder: ".pkg, PS4 update"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Operating system
+      options:
+        - Windows
+        - macOS
+        - Linux
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else?
+      description: App version (from the About dialog), screenshots, console output — anything that might help.
