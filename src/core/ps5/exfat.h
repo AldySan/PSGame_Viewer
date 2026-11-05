@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QFile>
+#include <QIODevice>
 #include <QList>
 #include <QString>
 #include <QStringList>
@@ -10,6 +11,8 @@ namespace psg {
 // Minimal read-only exFAT: boot sector, FAT walk, directory scan.
 // Handles the zeroed-FAT builder quirk by falling through to the next
 // contiguous cluster when the FAT entry is empty.
+// Works either from a file on disk or over any open readable device
+// (the inner exFAT image of a compressed PFS container).
 class ExfatImage {
 public:
     struct DirItem {
@@ -30,6 +33,10 @@ public:
 
     explicit ExfatImage(const QString &path, bool *ok = nullptr,
                         QString *error = nullptr);
+    // `device` must already be open for reading; it is not owned.
+    // `label` names the image in error messages.
+    ExfatImage(QIODevice *device, const QString &label, bool *ok = nullptr,
+               QString *error = nullptr);
 
     quint32 clusterSector(quint32 cluster) const;
     quint64 clusterOffset(quint32 cluster) const;
@@ -53,9 +60,12 @@ public:
 
 private:
     QList<DirItem> parseDir(const QByteArray &raw, const QString &want) const;
+    QIODevice *dev() const { return m_dev ? m_dev : &m_file; }
+    void construct(bool *ok, QString *error);
 
     QString m_path;
     mutable QFile m_file;
+    QIODevice *m_dev = nullptr; // external device (not owned)
     quint32 m_bytesPerSector = 0;
     quint32 m_sectorsPerCluster = 0;
     quint32 m_fatSector = 0;

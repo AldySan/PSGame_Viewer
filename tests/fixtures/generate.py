@@ -646,10 +646,311 @@ def make_trp():
     return bytes(hdr + recs + body)
 
 
+# ---------------------------------------------------------------- ffpfsc / ffpkg
+
+PFSC_BLOCK = 0x10000
+
+
+def make_exfat_trophy():
+    """exFAT image like make_exfat(), plus sce_sys/trophy/trophy00.trp so
+    .ffpfsc fixtures carry a lazily-read trophy pack entry."""
+    bps = 512
+    spc = 2
+    fat_lba = 128
+    data_lba = 256
+    root_cluster = 2
+    clus_bytes = bps * spc
+
+    param_json = json.dumps({
+        "contentId": "UP9000-PPSA90002_00-PSGAMEVIEWER02",
+        "titleId": "PPSA90002",
+        "contentVersion": "01.00",
+        "masterVersion": "01.00",
+        "conceptId": "10000002",
+        "applicationCategoryType": 0,
+        "applicationDrmType": "paid",
+        "requiredSystemSoftwareVersion": 0x0900 << 48,
+        "sdkVersion": 0x0900 << 48,
+        "localizedParameters": {
+            "defaultLanguage": "en-US",
+            "en-US": {"titleName": "PSGame-Viewer PS5 Image"},
+        },
+    }, separators=(",", ":")).encode()
+    trp = make_trp()
+
+    def name_entries(name):
+        u16 = name.encode("utf-16-le")
+        while len(u16) % 30:
+            u16 += b"\x00\x00"
+        out = b""
+        for i in range(0, len(u16), 30):
+            ent = bytearray(32)
+            ent[0] = 0xC1
+            ent[1] = i // 30 + 1
+            ent[2:32] = u16[i:i + 30]
+            out += bytes(ent)
+        return out
+
+    def file_set(name, first_cluster, size, is_dir=False):
+        ent85 = bytearray(32)
+        ent85[0] = 0x85
+        ent85[1] = 2
+        struct.pack_into("<H", ent85, 4, 0x10 if is_dir else 0x20)
+        entc0 = bytearray(32)
+        entc0[0] = 0xC0
+        struct.pack_into("<H", entc0, 2, 0x03)  # nofat
+        struct.pack_into("<I", entc0, 20, first_cluster)
+        struct.pack_into("<Q", entc0, 24, size)
+        return bytes(ent85) + bytes(entc0) + name_entries(name)
+
+    root_dir = pad_to(file_set("sce_sys", 3, clus_bytes, True), clus_bytes)
+    scesys_dir = pad_to(file_set("param.json", 4, len(param_json))
+                        + file_set("icon0.png", 5, len(ICON_PNG))
+                        + file_set("trophy", 6, clus_bytes, True), clus_bytes)
+    trophy_dir = pad_to(file_set("trophy00.trp", 7, len(trp)), clus_bytes)
+
+    boot = bytearray(bps)
+    boot[0:3] = b"\xEB\x76\x90"
+    boot[3:11] = b"EXFAT   "
+    struct.pack_into("<I", boot, 80, fat_lba)
+    struct.pack_into("<I", boot, 88, data_lba)
+    struct.pack_into("<I", boot, 96, root_cluster)
+    boot[108] = 9  # 512 bytes/sector
+    boot[109] = 1  # 2 sectors/cluster
+    boot[510] = 0x55
+    boot[511] = 0xAA
+
+    out = bytearray(boot)
+    out += b"\x00" * (fat_lba * bps - len(out))
+    fat = bytearray()
+    for c in range(0, 8):
+        fat += struct.pack("<I", 0xFFFFFFFF if 2 <= c <= 7 else 0x00000000)
+    out += fat
+    out += b"\x00" * (data_lba * bps - len(out))
+    out += root_dir          # cluster 2
+    out += scesys_dir         # cluster 3
+    out += pad_to(param_json, clus_bytes)  # cluster 4
+    out += pad_to(ICON_PNG, clus_bytes)    # cluster 5
+    out += trophy_dir                       # cluster 6
+    out += pad_to(trp, clus_bytes)          # cluster 7
+    return bytes(out)
+
+
+def make_ufs2():
+    """Minimal UFS2 image (FreeBSD layout): root inode 2 with sce_sys/
+    param.json + icon0.png + icon1.png. 256 KiB, one cylinder group."""
+    bsize = 4096
+    fsize = 512
+    frag = 8
+    inopb = bsize // 0x100        # 16 inodes per block
+    ipg = 32
+    fpg = 1024                    # frags per group (whole image)
+    image_blocks = 64             # 262144 bytes
+
+    param_json = json.dumps({
+        "contentId": "HP9000-PPSA90003_00-PSGAMEVIEWER03",
+        "titleId": "PPSA90003",
+        "contentVersion": "01.00",
+        "masterVersion": "01.00",
+        "conceptId": "10000003",
+        "applicationCategoryType": 0,
+        "applicationDrmType": "paid",
+        "requiredSystemSoftwareVersion": 0x0900 << 48,
+        "sdkVersion": 0x0900 << 48,
+        "localizedParameters": {
+            "defaultLanguage": "en-US",
+            "en-US": {"titleName": "PSGame-Viewer PS5 Image"},
+        },
+    }, separators=(",", ":")).encode()
+
+    # block addresses (frag units): root 184, sce_sys 192, files 200..
+    root_blk, scesys_blk = 184, 192
+    file_blocks = {"param.json": 200, "icon0.png": 208, "icon1.png": 216}
+
+    def dirent(ino, dtype, name):
+        namelen = len(name)
+        reclen = (8 + namelen + 1 + 3) & ~3  # DIRECTSIZ rounded to 4
+        out = struct.pack("<IHBB", ino, reclen, dtype, namelen)
+        out += name.encode() + b"\x00" * (reclen - 8 - namelen)
+        return out
+
+    DT_DIR, DT_REG = 4, 8
+    root_dir = (dirent(2, DT_DIR, ".") + dirent(2, DT_DIR, "..")
+                + dirent(3, DT_DIR, "sce_sys"))
+    scesys_dir = (dirent(3, DT_DIR, ".") + dirent(2, DT_DIR, "..")
+                  + dirent(4, DT_REG, "param.json")
+                  + dirent(5, DT_REG, "icon0.png")
+                  + dirent(6, DT_REG, "icon1.png"))
+
+    def dinode(mode, size, db0):
+        out = bytearray(0x100)
+        struct.pack_into("<H", out, 0x00, mode)
+        struct.pack_into("<Q", out, 0x10, size)
+        struct.pack_into("<Q", out, 0x70, db0)  # di_db[0] (frag address)
+        return bytes(out)
+
+    inodes = {}
+    inodes[2] = dinode(0o040755, bsize, root_blk)        # root dir
+    inodes[3] = dinode(0o040755, bsize, scesys_blk)      # sce_sys
+    inodes[4] = dinode(0o100644, len(param_json), file_blocks["param.json"])
+    inodes[5] = dinode(0o100644, len(ICON_PNG), file_blocks["icon0.png"])
+    inodes[6] = dinode(0o100644, len(ICON_PNG), file_blocks["icon1.png"])
+
+    img = bytearray(b"\x00" * (image_blocks * bsize))
+    # superblock at 64 KiB
+    sb = bytearray(0x560)
+    struct.pack_into("<i", sb, 0x08, 144)   # fs_sblkno
+    struct.pack_into("<i", sb, 0x0C, 160)   # fs_cblkno
+    struct.pack_into("<i", sb, 0x10, 168)   # fs_iblkno
+    struct.pack_into("<i", sb, 0x14, 184)   # fs_dblkno
+    struct.pack_into("<I", sb, 0x2C, 1)     # fs_ncg
+    struct.pack_into("<i", sb, 0x30, bsize)
+    struct.pack_into("<i", sb, 0x34, fsize)
+    struct.pack_into("<i", sb, 0x38, frag)
+    struct.pack_into("<I", sb, 0x78, inopb)
+    struct.pack_into("<Q", sb, 0x3E8, 65536)  # fs_sblockloc
+    struct.pack_into("<Q", sb, 0x438, image_blocks)  # fs_size (blocks)
+    struct.pack_into("<I", sb, 0xB8, ipg)   # fs_ipg
+    struct.pack_into("<i", sb, 0xBC, fpg)   # fs_fpg
+    struct.pack_into("<I", sb, 0x55C, 0x19540119)  # FS_UFS2_MAGIC
+    img[65536:65536 + len(sb)] = sb
+
+    # inode table at frag 168 (byte 86016), slots of 256 bytes
+    ino_base = 168 * fsize
+    for num, blob in inodes.items():
+        img[ino_base + num * 0x100:ino_base + num * 0x100 + 0x100] = blob
+
+    # directory and file blocks (frag addresses * fsize)
+    img[root_blk * fsize:root_blk * fsize + bsize] = pad_to(root_dir, bsize)
+    img[scesys_blk * fsize:scesys_blk * fsize + bsize] = pad_to(scesys_dir, bsize)
+    img[file_blocks["param.json"] * fsize:
+        file_blocks["param.json"] * fsize + bsize] = pad_to(param_json, bsize)
+    img[file_blocks["icon0.png"] * fsize:
+        file_blocks["icon0.png"] * fsize + bsize] = pad_to(ICON_PNG, bsize)
+    img[file_blocks["icon1.png"] * fsize:
+        file_blocks["icon1.png"] * fsize + bsize] = pad_to(ICON_PNG, bsize)
+    return bytes(img)
+
+
+def pfsc_encode(inner):
+    """inner bytes -> (stored PFSC payload, stored_blocks, logical_len)."""
+    blocks = -(-len(inner) // PFSC_BLOCK)
+    logical = blocks * PFSC_BLOCK
+    padded = inner + b"\x00" * (logical - len(inner))
+    stored_list = []
+    for i in range(blocks):
+        blk = padded[i * PFSC_BLOCK:(i + 1) * PFSC_BLOCK]
+        comp = zlib.compress(blk, 6)
+        stored_list.append(comp if len(comp) < PFSC_BLOCK else blk)
+    data_off = 0x10000
+    offsets = [data_off]
+    for s in stored_list:
+        offsets.append(offsets[-1] + len(s))
+    header = bytearray(data_off)
+    struct.pack_into("<iiiiqqQq", header, 0, 0x43534650, 0, 6,
+                     PFSC_BLOCK, PFSC_BLOCK, 0x400, data_off, logical)
+    struct.pack_into("<%dQ" % len(offsets), header, 0x400, *offsets)
+    payload = bytes(header) + b"".join(stored_list)
+    payload += b"\x00" * ((-len(payload)) % PFSC_BLOCK)
+    return payload, len(payload) // PFSC_BLOCK, logical
+
+
+def fpt_hash(s):
+    """mkpfs flat_path_table hash (case-sensitive Java-style 31 hash)."""
+    h = 0
+    for ch in s:
+        h = (ord(ch) + 31 * h) & 0xFFFFFFFF
+    return h
+
+
+def make_ffpfsc(inner_name, inner, compress=True):
+    """PFS image in the reference mkpfs shape: root holds flat_path_table
+    (internal 8-byte file) and uroot; uroot holds '.', '..' and the single
+    inner file, optionally PFSC block-compressed."""
+    bs = 0x10000
+    blocks = -(-len(inner) // bs)
+    logical = blocks * bs
+    if compress:
+        payload, stored_blocks, logical = pfsc_encode(inner)
+        flags = 0x11           # COMPRESSED | READONLY
+        size_field = len(inner)          # di_size
+        logical_field = logical          # di_size_compressed (mkpfs semantics)
+    else:
+        payload = inner + b"\x00" * (logical - len(inner))
+        payload += b"\x00" * ((-len(payload)) % bs)
+        stored_blocks = len(payload) // bs
+        flags = 0x10           # READONLY
+        size_field = len(inner)
+        logical_field = len(inner)
+
+    header_blk, ino_blk, root_blk, fpt_blk, uroot_blk = 0, 1, 2, 3, 4
+    payload_blk = 5
+    total_blocks = payload_blk + stored_blocks
+
+    def dirent(ino, dtype, name):
+        namelen = len(name)
+        entsize = (16 + namelen + 1 + 7) & ~7   # mkpfs: >= 17, 8-aligned
+        out = struct.pack("<Iiii", ino, dtype, namelen, entsize)
+        out += name.encode() + b"\x00" * (entsize - 16 - namelen)
+        return out
+
+    F, D, DOT, DOTDOT = 2, 3, 4, 5
+    # root dirents: flat_path_table + uroot (no dot entries, like mkpfs)
+    root_dir = (dirent(1, F, "flat_path_table")
+                + dirent(2, D, "uroot"))
+    # uroot dirents: '.', '..', inner file (".." points at uroot itself,
+    # like the reference images)
+    uroot_dir = (dirent(2, DOT, ".") + dirent(2, DOTDOT, "..")
+                 + dirent(3, F, inner_name))
+    # flat_path_table payload: (hash("/name"), file inode) pairs
+    fpt_data = struct.pack("<II", fpt_hash("/" + inner_name), 3)
+
+    def dinode(mode, flags_, size, logical, blocks_, db0):
+        out = bytearray(0xA8)
+        struct.pack_into("<H", out, 0x00, mode)
+        struct.pack_into("<I", out, 0x04, flags_)
+        struct.pack_into("<Q", out, 0x08, size)
+        struct.pack_into("<Q", out, 0x10, logical)
+        struct.pack_into("<I", out, 0x60, blocks_)
+        struct.pack_into("<i", out, 0x64, db0)
+        for i in range(1, 12):
+            struct.pack_into("<i", out, 0x64 + 4 * i, -1)
+        return bytes(out)
+
+    inodes = b"".join([
+        dinode(0x416D, 0x20010, bs, bs, 1, root_blk),   # 0: root dir
+        dinode(0x816D, 0x20010, 8, 8, 1, fpt_blk),      # 1: flat_path_table
+        dinode(0x416D, 0x10, bs, bs, 1, uroot_blk),     # 2: uroot
+        dinode(0x816D, flags, size_field, logical_field,
+               stored_blocks, payload_blk),              # 3: inner file
+    ])
+
+    hdr = bytearray(bs)
+    struct.pack_into("<q", hdr, 0x00, 2)            # version (PS5)
+    struct.pack_into("<q", hdr, 0x08, 20130315)     # magic
+    struct.pack_into("<H", hdr, 0x1C, 0)            # mode
+    struct.pack_into("<I", hdr, 0x20, bs)           # block size
+    struct.pack_into("<q", hdr, 0x28, 1)            # nblock
+    struct.pack_into("<q", hdr, 0x30, 4)            # inode count
+    struct.pack_into("<q", hdr, 0x38, total_blocks) # ndblock
+    struct.pack_into("<q", hdr, 0x40, 1)            # inode block count
+
+    img = bytearray(b"\x00" * (total_blocks * bs))
+    img[0:bs] = hdr
+    img[bs:bs + len(inodes)] = inodes
+    img[2 * bs:2 * bs + len(root_dir)] = root_dir
+    img[3 * bs:3 * bs + len(fpt_data)] = fpt_data
+    img[4 * bs:4 * bs + len(uroot_dir)] = uroot_dir
+    img[5 * bs:5 * bs + len(payload)] = payload
+    return bytes(img)
+
+
 # ---------------------------------------------------------------- main
 
 def main():
     here = os.path.dirname(os.path.abspath(__file__))
+    exfat_trophy = make_exfat_trophy()
+    ufs2 = make_ufs2()
     fixtures = {
         "ps4_cnt.pkg": make_ps4_cnt(),
         "ps5_fih.pkg": make_ps5_fih(),
@@ -659,6 +960,13 @@ def main():
         "ps3.iso": make_ps3_iso(),
         "ps5.exfat": make_exfat(),
         "trophy.trp": make_trp(),
+        "ffpkg.ffpkg": ufs2,
+        "ffpfsc_exfat.ffpfsc": make_ffpfsc("LOOP00002.exfat", exfat_trophy,
+                                          compress=True),
+        "ffpfsc_raw.ffpfsc": make_ffpfsc("LOOP00002.exfat", exfat_trophy,
+                                         compress=False),
+        "ffpfsc_ffpkg.ffpfsc": make_ffpfsc("PPSA90003-app.ffpkg", ufs2,
+                                           compress=True),
     }
     for name, data in fixtures.items():
         with open(os.path.join(here, name), "wb") as f:

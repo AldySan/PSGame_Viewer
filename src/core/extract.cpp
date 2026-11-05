@@ -2,6 +2,7 @@
 
 #include "ps3/ps3pkg.h"
 #include "ps5/exfat.h"
+#include "ps5/pfs.h"
 #include "sfo.h"
 #include "util.h"
 
@@ -43,10 +44,25 @@ QByteArray readEntryBytes(const Entry &e, const QString &containerPath,
                                  e.ps3EntryOff, e.size);
     }
     case Entry::Source::ExfatChain: {
+        const QString cp = e.containerPath.isEmpty() ? containerPath
+                                                    : e.containerPath;
         bool ok = false;
-        const ExfatImage fs(e.containerPath.isEmpty() ? containerPath
-                                                      : e.containerPath,
-                            &ok);
+        if (cp.endsWith(QLatin1String(".ffpfsc"),
+                        Qt::CaseInsensitive)) {
+            // FAT chains into the inner exFAT image of a PFS container
+            ps5::PfsFile pfs(cp);
+            ps5::PfsFile::InnerFile inner;
+            QString err;
+            if (!pfs.ok() || !pfs.openInner(&inner) || !inner.device) {
+                return QByteArray();
+            }
+            const ExfatImage fs(inner.device, inner.name, &ok, &err);
+            if (!ok)
+                return QByteArray();
+            return e.exfatNoFat ? fs.readNoFat(e.exfatFirst, e.size)
+                                : fs.readChain(e.exfatFirst, e.size);
+        }
+        const ExfatImage fs(cp, &ok);
         if (!ok)
             return QByteArray();
         return e.exfatNoFat ? fs.readNoFat(e.exfatFirst, e.size)
