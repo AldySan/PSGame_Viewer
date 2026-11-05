@@ -3,12 +3,12 @@ import QtQuick.Controls.Basic
 import QtQuick.Layouts
 import PSGameViewer
 
-// Settings dialog: interface language and online lookups.
+// Settings dialog: theme, interface language and online lookups.
 Popup {
     id: root
     anchors.centerIn: parent
     width: 420
-    height: 300
+    height: 360
     modal: true
     focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
@@ -25,6 +25,7 @@ Popup {
         var idx = langCombo.find(lang)
         langCombo.currentIndex = idx >= 0 ? idx : 0
         onlineBox.checked = AppSettings.onlineEnabled
+        themeCombo.currentIndex = AppSettings.theme === "light" ? 1 : 0
     }
 
     ColumnLayout {
@@ -36,6 +37,23 @@ Popup {
             color: Theme.text
             font.pixelSize: 16
             font.bold: true
+        }
+
+        Label {
+            text: qsTr("Theme")
+            color: Theme.muted
+            font.pixelSize: 12
+        }
+        ComboBox {
+            id: themeCombo
+            Layout.fillWidth: true
+            font.pixelSize: 13
+            model: ListModel {
+                ListElement { text: qsTr("Dark"); value: "dark" }
+                ListElement { text: qsTr("Light"); value: "light" }
+            }
+            textRole: "text"
+            valueRole: "value"
         }
 
         Label {
@@ -86,6 +104,7 @@ Popup {
                 onClicked: {
                     AppSettings.language = langCombo.currentValue
                     AppSettings.onlineEnabled = onlineBox.checked
+                    AppSettings.theme = themeCombo.currentValue
                     root.close()
                 }
             }
