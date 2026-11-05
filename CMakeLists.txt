@@ -12,7 +12,7 @@ endif()
 
 # the GUI needs Quick/Controls/Network (Qt 6.5+ for loadFromModule);
 # the core stays Core+Xml only
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Xml Quick QuickControls2 Network)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Xml Quick QuickControls2 Network Sql)
 find_package(Qt6 6.5 QUIET OPTIONAL_COMPONENTS Test)
 
 qt_standard_project_setup()
@@ -37,6 +37,7 @@ add_library(psgcore STATIC
   src/core/extract.cpp
   src/core/rename.cpp
   src/core/detect.cpp
+  src/core/db/library.cpp
 )
 
 target_include_directories(psgcore PUBLIC src)
@@ -44,10 +45,12 @@ target_link_libraries(psgcore
   PUBLIC
     Qt6::Core
     Qt6::Xml
+    Qt6::Sql
 )
 
 qt_add_executable(psgame-viewer
   src/app/main.cpp
+  src/app/librarycontroller.cpp
   src/app/appsettings.cpp
   src/app/imagestore.cpp
   src/app/entrytreemodel.cpp
@@ -76,6 +79,18 @@ qt_add_qml_module(psgame-viewer
     src/qml/RenameDialog.qml
     src/qml/BatchDialog.qml
     src/qml/AboutDialog.qml
+    src/qml/LibraryPage.qml
+    src/qml/SettingsDialog.qml
+)
+
+# translations: .ts sources live in i18n/, compiled .qm are committed
+# (regenerate with lrelease i18n/*.ts after updating the sources)
+qt_add_resources(psgame-viewer "i18n"
+  PREFIX "/i18n"
+  BASE "${CMAKE_CURRENT_SOURCE_DIR}/i18n"
+  FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/i18n/psgameviewer_zh_CN.qm"
+    "${CMAKE_CURRENT_SOURCE_DIR}/i18n/psgameviewer_id.qm"
 )
 
 set_target_properties(psgame-viewer PROPERTIES

@@ -51,6 +51,17 @@ ApplicationWindow {
                 onClicked: fileDialog.open()
             }
             Button {
+                text: stack.currentIndex === 0 ? qsTr("Library") : qsTr("Viewer")
+                onClicked: {
+                    if (stack.currentIndex === 0) {
+                        Library.refresh()
+                        stack.currentIndex = 1
+                    } else {
+                        stack.currentIndex = 0
+                    }
+                }
+            }
+            Button {
                 text: qsTr("Rename")
                 enabled: Viewer.hasFile
                 onClicked: renameDialog.open()
@@ -60,6 +71,11 @@ ApplicationWindow {
                 onClicked: batchDialog.open()
             }
             Button {
+                text: qsTr("Settings")
+                flat: true
+                onClicked: settingsDialog.open()
+            }
+            Button {
                 text: qsTr("About")
                 flat: true
                 onClicked: aboutDialog.open()
@@ -67,11 +83,23 @@ ApplicationWindow {
         }
     }
 
-    ViewerPage {
-        id: page
+    StackLayout {
+        id: stack
         anchors.fill: parent
-        controller: Viewer
-        onStatusMessage: function(msg) { root.statusText = msg }
+        currentIndex: 0
+
+        ViewerPage {
+            controller: Viewer
+            onStatusMessage: function(msg) { root.statusText = msg }
+        }
+
+        LibraryPage {
+            onOpenRequested: function(path) {
+                Viewer.openPath(path)
+                stack.currentIndex = 0
+            }
+            onStatusMessage: function(msg) { root.statusText = msg }
+        }
     }
 
     footer: ToolBar {
@@ -134,6 +162,10 @@ ApplicationWindow {
 
     AboutDialog {
         id: aboutDialog
+    }
+
+    SettingsDialog {
+        id: settingsDialog
     }
 
     // drag & drop: accept files and folders onto the window

@@ -212,6 +212,7 @@ void ViewerController::openPath(const QUrl &path)
     if (!m_info.ok) {
         emit statusMessage(tr("Could not open: %1").arg(m_info.error));
     } else {
+        emit fileOpened(m_info.path);
         emit statusMessage(tr("Opened %1").arg(
             QFileInfo(m_info.path).fileName()));
         startOnlineLookups();

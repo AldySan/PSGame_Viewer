@@ -15,9 +15,12 @@
 
 #include "app/appsettings.h"
 #include "app/imagestore.h"
+#include "app/librarycontroller.h"
 #include "app/viewercontroller.h"
+#include "core/db/library.h"
 #include "core/detect.h"
 #include "core/rename.h"
+#include "core/types.h"
 #include "core/util.h"
 
 #include <iostream>
@@ -187,6 +190,26 @@ int runGui(int argc, char *argv[])
     auto *provider = new PsgImageProvider(&images);
     ViewerController viewer(&settings, &images);
 
+    // game library (SQLite) + recent files
+    const QString dbPath =
+        QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+        + QStringLiteral("/library.db");
+    GameLibrary gameLibrary(dbPath);
+    LibraryController library(&gameLibrary);
+    QObject::connect(&viewer, &ViewerController::fileOpened, &app,
+                     [&](const QString &path) {
+                         if (!viewer.hasFile())
+                             return;
+                         gameLibrary.upsertGame(
+                             path, viewer.info().title,
+                             platformName(viewer.info().platform),
+                             viewer.info().titleId(),
+                             viewer.info().contentId(), viewer.info().region(),
+                             viewer.info().version(), viewer.info().size);
+                         gameLibrary.addRecent(path);
+                         library.refresh();
+                     });
+
     // translators (falls back to the source language when absent)
     const QString lang = settings.language();
     const QStringList locales = lang == QLatin1String("system")
@@ -208,6 +231,8 @@ int runGui(int argc, char *argv[])
     engine.addImageProvider(QStringLiteral("psg"), provider);
     engine.rootContext()->setContextProperty(QStringLiteral("Viewer"),
                                              &viewer);
+    engine.rootContext()->setContextProperty(QStringLiteral("Library"),
+                                             &library);
     engine.rootContext()->setContextProperty(QStringLiteral("AppSettings"),
                                              &settings);
     engine.rootContext()->setContextProperty(QStringLiteral("AppVersion"),
