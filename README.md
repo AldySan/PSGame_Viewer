@@ -40,6 +40,14 @@ work on.
   live preview, one-click Undo, and a batch dialog (folder scan, recursive,
   split-set aware) that writes a revert log
 - Drag & drop files or folders onto the window
+- Light and dark themes (Settings, applied live)
+- Trophy icon export: save every carved 240x240 icon as
+  `<game name>/<id>_<name>.png` from the Trophies tab
+- Update checks: manual (About dialog) and optional silent check on
+  startup against the GitHub releases
+- Portable build: settings (`PSGame-Viewer.ini`), the game library
+  (`library.db`), the cover cache and rename logs all stay next to the
+  executable — run from any folder, no installer
 - CLI mode for scripts: `psgame-viewer --info file.pkg`,
   `psgame-viewer --batch-rename folder [--recursive] [--apply]`,
   `psgame-viewer --revert batch_rename_*.log [--apply]`
