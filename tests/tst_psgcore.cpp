@@ -7,11 +7,13 @@
 #include "core/extract.h"
 #include "core/ps4/ps4pkg.h"
 #include "core/ps5/exfat.h"
+#include "core/ps5/ufs2.h"
 #include "core/rename.h"
 #include "core/sfo.h"
 #include "core/trophies.h"
 #include "core/util.h"
 
+#include <QBuffer>
 #include <QDir>
 #include <QFile>
 #include <QTemporaryDir>
@@ -57,6 +59,9 @@ private slots:
     void ps5RetailStub();
     void ps4SplitPart();
     void trophies();
+    void ucpTrophyIcons();
+    void trpBoundsNoWrap();
+    void ufs2TruncatedImage();
     void entryTree();
     void extraction();
     void renameEngine();
@@ -647,6 +652,80 @@ void TestPsgCore::trophies()
     QCOMPARE(icons.at(1).width, 4);
 }
 
+void TestPsgCore::ucpTrophyIcons()
+{
+    QFile f(fixture(QStringLiteral("trophy.ucp")));
+    QVERIFY(f.open(QIODevice::ReadOnly));
+    const QByteArray data = f.readAll();
+
+    const trophies::UcpResult res = trophies::ucpTrophies(data);
+    QCOMPARE(res.npCommId, QStringLiteral("NPWR90000_00"));
+    QCOMPARE(res.title, QStringLiteral("PSGame-Viewer UCP Sample"));
+    QCOMPARE(res.trophies.size(), 12);
+    QCOMPARE(res.trophies.at(0).name, QStringLiteral("Trophy 1"));
+    QCOMPARE(res.trophies.at(11).name, QStringLiteral("Trophy 12"));
+    QCOMPARE(res.icons.size(), 12);
+
+    // display order is the natural order of the icon names: the blob
+    // sizes grow with the trophy number (trophy_2.png < trophy_10.png,
+    // which a plain lexical sort would get wrong)
+    const QList<QByteArray> sorted = trophies::ucpIconsSorted(res);
+    QCOMPARE(sorted.size(), 12);
+    for (int i = 1; i < sorted.size(); ++i) {
+        QVERIFY(sorted.at(i - 1).startsWith(
+            QByteArrayLiteral("\x89PNG\r\n\x1a\n")));
+        QVERIFY(sorted.at(i - 1).size() < sorted.at(i).size());
+    }
+}
+
+void TestPsgCore::trpBoundsNoWrap()
+{
+    QFile f(fixture(QStringLiteral("trophy.trp")));
+    QVERIFY(f.open(QIODevice::ReadOnly));
+    QByteArray data = f.readAll();
+
+    // entry 1 starts at 0x38 + 0x40; patch its offset so that
+    // offset + size wraps around 2^64 and would pass an
+    // "offset + size > data.size()" check
+    const int offField = 0x38 + 0x40 + 8;
+    const quint64 wrap = Q_UINT64_C(0xFFFFFFFFFFFFF000);
+    for (int i = 0; i < 8; ++i)
+        data[offField + i] = char((wrap >> (56 - 8 * i)) & 0xFF);
+    QVERIFY(trophies::parseTrp(data).isEmpty());
+
+    // sanity: the untouched fixture still parses
+    QFile g(fixture(QStringLiteral("trophy.trp")));
+    QVERIFY(g.open(QIODevice::ReadOnly));
+    QCOMPARE(trophies::parseTrp(g.readAll()).size(), 3);
+}
+
+void TestPsgCore::ufs2TruncatedImage()
+{
+    QFile f(fixture(QStringLiteral("ffpkg.ffpkg")));
+    QVERIFY(f.open(QIODevice::ReadOnly));
+    const QByteArray whole = f.readAll();
+
+    // cut the image short: reads must fail cleanly (empty or partial
+    // data), never wrap around block ends
+    QByteArray trunc(whole.constData(), whole.size() * 2 / 3);
+    QBuffer buf(&trunc);
+    buf.open(QIODevice::ReadOnly);
+    bool ok = false;
+    const ps5::Ufs2File ufs(&buf, QStringLiteral("truncated"), &ok);
+    if (!ok)
+        QSKIP("truncated image rejected outright");
+    ps5::Ufs2File::Found found;
+    if (ufs.find({QStringLiteral("icon0.png")}, &found)) {
+        const QByteArray bytes = ufs.readFile(found);
+        QVERIFY(bytes.size() <= int(found.size));
+        QVERIFY(bytes == QByteArray()
+                || bytes.startsWith(QByteArrayLiteral("\x89PNG\r\n\x1a\n")));
+    }
+    // the root directory is still listable or cleanly empty
+    const QList<ps5::Ufs2File::DirEntry> root = ufs.listDir(2);
+    QVERIFY(root.size() <= 8);
+}
+
 // ---------------------------------------------------------------- tree
 
 void TestPsgCore::entryTree()
@@ -783,6 +862,7 @@ void TestPsgCore::renameEngine()
     const QString log = dir.filePath(QStringLiteral("batch.log"));
     const BatchOutcome applied = applyBatch(plan, log);
     QCOMPARE(applied.renamed.size(), 2);
+    QVERIFY(applied.logError.isEmpty());
     QVERIFY(!QFile::exists(p0));
     QVERIFY(QFile::exists(plan.at(0).newFiles.at(0)));
     const QList<QPair<QString, QString>> pairs = parseRevertLog(log);
@@ -791,6 +871,18 @@ void TestPsgCore::renameEngine()
     QCOMPARE(reverted.renamed.size(), 2);
     QVERIFY(QFile::exists(p0));
     QVERIFY(QFile::exists(p1));
+
+    // an unwritable log location is reported, not silently dropped
+    const QString p2 = dir.filePath(QStringLiteral("solo.pkg"));
+    QVERIFY(QFile::copy(fixture(QStringLiteral("ps4_cnt.pkg")), p2));
+    const QList<BatchItem> plan2 = previewBatch({p2});
+    QVERIFY(plan2.at(0).ok);
+    QCOMPARE(plan2.at(0).files.size(), 1);
+    const BatchOutcome failed = applyBatch(
+        plan2, dir.filePath(QStringLiteral("no/such/dir/batch.log")));
+    QCOMPARE(failed.renamed.size(), 1);
+    QVERIFY(!failed.logError.isEmpty());
+    QVERIFY(failed.logPath.isEmpty());
 }
 
 // ---------------------------------------------------------------- details
