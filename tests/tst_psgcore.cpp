@@ -48,6 +48,9 @@ private slots:
     void ps3Iso();
     void ps3Folder();
     void ps5ExfatImage();
+    void ps5FfpfscExfat();
+    void ps5FfpfscNestedFfpkg();
+    void ps5Ffpkg();
     void ps5AppFolder();
     void ps5RetailStub();
     void ps4SplitPart();
@@ -445,6 +448,73 @@ void TestPsgCore::ps5ExfatImage()
     QVERIFY(icon.startsWith(QByteArrayLiteral("\x89PNG\r\n\x1a\n")));
 }
 
+void TestPsgCore::ps5FfpfscExfat()
+{
+    // compressed and raw payloads take the same paths through the code
+    for (const char *name : {"ffpfsc_exfat.ffpfsc", "ffpfsc_raw.ffpfsc"}) {
+        const GameInfo info =
+            detect::openAny(fixture(QLatin1String(name)));
+        QVERIFY(info.ok);
+        QCOMPARE(info.platform, Platform::PS5);
+        QCOMPARE(info.title, QStringLiteral("PSGame-Viewer PS5 Image"));
+        QCOMPARE(rowOf(info, "Platform"), QStringLiteral("PS5 ffpfsc image"));
+        QCOMPARE(rowOf(info, "Inner file"), QStringLiteral("LOOP00002.exfat"));
+        QCOMPARE(rowOf(info, "Title ID"), QStringLiteral("PPSA90002"));
+        QCOMPARE(rowOf(info, "Min. System"), QStringLiteral("9.00"));
+
+        // icon0.png is cached inline at parse time, the trophy pack stays
+        // a lazy FAT-chain read resolved through the PFS view
+        QCOMPARE(info.entries.size(), 2);
+        QCOMPARE(info.entries.at(0).name, QStringLiteral("icon0.png"));
+        QCOMPARE(info.entries.at(0).source, Entry::Source::Cached);
+        QCOMPARE(info.entries.at(1).name,
+                 QStringLiteral("sce_sys/trophy/trophy00.trp"));
+        QCOMPARE(info.entries.at(1).source, Entry::Source::ExfatChain);
+
+        const QByteArray icon = readEntryBytes(info.entries.at(0), info.path);
+        QCOMPARE(icon.size(), 75);
+        QVERIFY(icon.startsWith(QByteArrayLiteral("\x89PNG\r\n\x1a\n")));
+
+        QFile trp(fixture(QStringLiteral("trophy.trp")));
+        QVERIFY(trp.open(QIODevice::ReadOnly));
+        QCOMPARE(readEntryBytes(info.entries.at(1), info.path), trp.readAll());
+    }
+}
+
+void TestPsgCore::ps5FfpfscNestedFfpkg()
+{
+    const GameInfo info =
+        detect::openAny(fixture(QStringLiteral("ffpfsc_ffpkg.ffpfsc")));
+    QVERIFY(info.ok);
+    QCOMPARE(info.platform, Platform::PS5);
+    QCOMPARE(info.title, QStringLiteral("PSGame-Viewer PS5 Image"));
+    QCOMPARE(rowOf(info, "Platform"), QStringLiteral("PS5 ffpfsc image"));
+    QCOMPARE(rowOf(info, "Inner file"),
+             QStringLiteral("PPSA90003-app.ffpkg"));
+    QCOMPARE(rowOf(info, "Title ID"), QStringLiteral("PPSA90003"));
+    QCOMPARE(info.entries.size(), 2); // icon0 + icon1, both cached
+    const QByteArray icon = readEntryBytes(info.entries.at(0), info.path);
+    QCOMPARE(icon.size(), 75);
+    QVERIFY(icon.startsWith(QByteArrayLiteral("\x89PNG\r\n\x1a\n")));
+}
+
+void TestPsgCore::ps5Ffpkg()
+{
+    const GameInfo info =
+        detect::openAny(fixture(QStringLiteral("ffpkg.ffpkg")));
+    QVERIFY(info.ok);
+    QCOMPARE(info.platform, Platform::PS5);
+    QCOMPARE(info.title, QStringLiteral("PSGame-Viewer PS5 Image"));
+    QCOMPARE(rowOf(info, "Platform"), QStringLiteral("PS5 ffpkg image"));
+    QCOMPARE(rowOf(info, "Title ID"), QStringLiteral("PPSA90003"));
+    QVERIFY(!info.hasRow(QStringLiteral("Inner file")));
+    QCOMPARE(info.entries.size(), 2);
+    QCOMPARE(info.entries.at(0).name, QStringLiteral("icon0.png"));
+    const QByteArray icon = readEntryBytes(info.entries.at(0), info.path);
+    QCOMPARE(icon.size(), 75);
+    QVERIFY(icon.startsWith(QByteArrayLiteral("\x89PNG\r\n\x1a\n")));
+}
+
 void TestPsgCore::ps5AppFolder()
 {
     const GameInfo fih = detect::openAny(fixture(QStringLiteral("ps5_fih.pkg")));
@@ -708,10 +778,21 @@ void TestPsgCore::detectErrors()
     QVERIFY(!bad.ok);
     QVERIFY(bad.error.contains(QStringLiteral("unknown magic")));
 
-    // unsupported formats report a clear reason
+    // broken containers report a clear reason
     const QString pfsc = dir.filePath(QStringLiteral("x.ffpfsc"));
-    QFile(pfsc).open(QIODevice::WriteOnly);
-    QVERIFY(detect::openAny(pfsc).error.contains(QStringLiteral("ffpfsc")));
+    {
+        QFile f(pfsc);
+        QVERIFY(f.open(QIODevice::WriteOnly));
+        f.write(QByteArray(128, 'x'));
+    }
+    QVERIFY(detect::openAny(pfsc).error.contains(QStringLiteral("not a PFS image")));
+    const QString ffpkg = dir.filePath(QStringLiteral("x.ffpkg"));
+    {
+        QFile f(ffpkg);
+        QVERIFY(f.open(QIODevice::WriteOnly));
+        f.write(QByteArrayLiteral("NOPE"));
+    }
+    QVERIFY(detect::openAny(ffpkg).error.contains(QStringLiteral("not a UFS2 image")));
 
     // missing file
     QVERIFY(!detect::openAny(dir.filePath(QStringLiteral("nope.pkg"))).ok);

@@ -18,13 +18,32 @@ constexpr quint64 kNoFatReadCap = 1ull << 20; // 1 MB cap for noFAT dirs
 ExfatImage::ExfatImage(const QString &path, bool *ok, QString *error)
     : m_path(path), m_file(path)
 {
-    if (ok) *ok = false;
     if (!m_file.open(QIODevice::ReadOnly)) {
+        if (ok) *ok = false;
         if (error) *error = QStringLiteral("cannot open image");
         return;
     }
-    m_imageSize = quint64(m_file.size());
-    const QByteArray bs = m_file.read(512);
+    construct(ok, error);
+}
+
+ExfatImage::ExfatImage(QIODevice *device, const QString &label, bool *ok,
+                       QString *error)
+    : m_path(label), m_dev(device)
+{
+    if (!m_dev || !m_dev->isOpen()
+        || !(m_dev->openMode() & QIODevice::ReadOnly)) {
+        if (ok) *ok = false;
+        if (error) *error = QStringLiteral("cannot open image");
+        return;
+    }
+    construct(ok, error);
+}
+
+void ExfatImage::construct(bool *ok, QString *error)
+{
+    if (ok) *ok = false;
+    m_imageSize = quint64(dev()->size());
+    const QByteArray bs = dev()->read(512);
     if (bs.size() < 512 || bs.mid(3, 8) != QByteArrayLiteral("EXFAT   ")
         || uchar(bs.at(510)) != 0x55 || uchar(bs.at(511)) != 0xAA) {
         if (error) *error = QStringLiteral("not an exFAT image");
@@ -61,8 +80,8 @@ QByteArray ExfatImage::readNoFat(quint32 first, quint64 size) const
 {
     if (size == 0 || size > 5000000)
         return QByteArray();
-    m_file.seek(qint64(clusterOffset(first)));
-    return m_file.read(int(size));
+    dev()->seek(qint64(clusterOffset(first)));
+    return dev()->read(int(size));
 }
 
 QByteArray ExfatImage::readChain(quint32 first, quint64 size) const
@@ -74,14 +93,14 @@ QByteArray ExfatImage::readChain(quint32 first, quint64 size) const
     QByteArray out;
     quint32 clus = first;
     while (clus >= 2 && clusterInImage(clus) && quint64(out.size()) < size) {
-        m_file.seek(qint64(clusterOffset(clus)));
+        dev()->seek(qint64(clusterOffset(clus)));
         const quint64 want = qMin(clusterBytes, size - quint64(out.size()));
-        out += m_file.read(int(want));
+        out += dev()->read(int(want));
         // FAT entry: >= 0xFFFFFFF8 marks the end of the chain
         quint32 next = 0xFFFFFFFF;
-        m_file.seek(qint64(quint64(m_fatSector) * m_bytesPerSector
+        dev()->seek(qint64(quint64(m_fatSector) * m_bytesPerSector
                            + quint64(clus) * 4));
-        if (m_file.read(reinterpret_cast<char *>(&next), 4) == 4)
+        if (dev()->read(reinterpret_cast<char *>(&next), 4) == 4)
             next = qFromLittleEndian(next);
         else
             next = 0xFFFFFFFF;
@@ -158,8 +177,8 @@ QList<ExfatImage::DirItem> ExfatImage::listDir(quint32 first, quint64 size,
                                                const QString &want) const
 {
     if (noFat) {
-        m_file.seek(qint64(clusterOffset(first)));
-        const QByteArray raw = m_file.read(int(qMin<quint64>(size, kNoFatReadCap)));
+        dev()->seek(qint64(clusterOffset(first)));
+        const QByteArray raw = dev()->read(int(qMin<quint64>(size, kNoFatReadCap)));
         return parseDir(raw, want);
     }
     const quint64 clusterBytes =
@@ -168,9 +187,9 @@ QList<ExfatImage::DirItem> ExfatImage::listDir(quint32 first, quint64 size,
     QByteArray out;
     quint32 clus = first;
     while (clus >= 2 && clusterInImage(clus) && quint64(out.size()) < cap) {
-        m_file.seek(qint64(clusterOffset(clus)));
+        dev()->seek(qint64(clusterOffset(clus)));
         const quint64 want2 = qMin(clusterBytes, size - quint64(out.size()));
-        out += m_file.read(int(want2));
+        out += dev()->read(int(want2));
         if (!want.isEmpty()) {
             const QList<DirItem> items = parseDir(out, want);
             for (const DirItem &it : items) {
@@ -179,9 +198,9 @@ QList<ExfatImage::DirItem> ExfatImage::listDir(quint32 first, quint64 size,
             }
         }
         quint32 next = 0xFFFFFFFF;
-        m_file.seek(qint64(quint64(m_fatSector) * m_bytesPerSector
+        dev()->seek(qint64(quint64(m_fatSector) * m_bytesPerSector
                            + quint64(clus) * 4));
-        if (m_file.read(reinterpret_cast<char *>(&next), 4) == 4)
+        if (dev()->read(reinterpret_cast<char *>(&next), 4) == 4)
             next = qFromLittleEndian(next);
         else
             next = 0xFFFFFFFF;

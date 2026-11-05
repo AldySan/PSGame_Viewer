@@ -25,6 +25,24 @@ void AppSettings::setLanguage(const QString &lang)
     emit languageChanged();
 }
 
+QString AppSettings::theme() const
+{
+    const QString t = m_s->value(QStringLiteral("theme"),
+                                QStringLiteral("dark")).toString();
+    return t == QLatin1String("light") ? QStringLiteral("light")
+                                       : QStringLiteral("dark");
+}
+
+void AppSettings::setTheme(const QString &theme)
+{
+    const QString t = theme == QLatin1String("light")
+        ? QStringLiteral("light") : QStringLiteral("dark");
+    if (t == AppSettings::theme())
+        return;
+    m_s->setValue(QStringLiteral("theme"), t);
+    emit themeChanged();
+}
+
 bool AppSettings::onlineEnabled() const
 {
     return m_s->value(QStringLiteral("onlineEnabled"), true).toBool();

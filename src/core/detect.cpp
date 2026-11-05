@@ -201,20 +201,10 @@ GameInfo openAny(const QString &path)
     const QString low = path.toLower();
     if (low.endsWith(QLatin1String(".iso")))
         return parseDiscIso(path);
-    if (low.endsWith(QLatin1String(".ffpfsc"))) {
-        GameInfo bad;
-        bad.path = path;
-        bad.error = QStringLiteral(
-            "compressed PFS images (.ffpfsc) are not supported in this version");
-        return bad;
-    }
-    if (low.endsWith(QLatin1String(".ffpkg"))) {
-        GameInfo bad;
-        bad.path = path;
-        bad.error = QStringLiteral(
-            "UFS2 images (.ffpkg) are not supported in this version");
-        return bad;
-    }
+    if (low.endsWith(QLatin1String(".ffpfsc")))
+        return ps5::parseFfpfscImage(path);
+    if (low.endsWith(QLatin1String(".ffpkg")))
+        return ps5::parseFfpkgImage(path);
     return parsePkgMagic(path);
 }
 
