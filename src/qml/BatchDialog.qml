@@ -28,6 +28,19 @@ Popup {
     property var plan: []
     property int okCount: 0
 
+    onAboutToShow: {
+        patternBar.loadPrefs()
+    }
+
+    // previewing re-parses every scanned file; debounce so typing a
+    // pattern does not parse on every keystroke
+    Timer {
+        id: refreshTimer
+        interval: 250
+        onTriggered: root.refresh()
+    }
+    function scheduleRefresh() { refreshTimer.restart() }
+
     ColumnLayout {
         anchors.fill: parent
         spacing: 10
@@ -43,8 +56,8 @@ Popup {
             id: patternBar
             controller: root.controller
             Layout.fillWidth: true
-            onPatternChanged: refresh()
-            onIncludeChanged: refresh()
+            onPatternChanged: root.scheduleRefresh()
+            onIncludeChanged: root.scheduleRefresh()
         }
 
         RowLayout {
@@ -61,7 +74,7 @@ Popup {
                 id: recursive
                 text: qsTr("Recursive")
                 font.pixelSize: 12
-                onCheckedChanged: refresh()
+                onCheckedChanged: root.scheduleRefresh()
             }
             Label {
                 id: scanInfo
@@ -207,7 +220,7 @@ Popup {
             paths.push(selectedFolder)
             root.scanPaths = paths
             root.controller.batchScan(root.scanPaths, recursive.checked)
-            refresh()
+            root.refresh()
         }
     }
 
@@ -222,7 +235,7 @@ Popup {
                 paths.push(selectedFiles[i])
             root.scanPaths = paths
             root.controller.batchScan(root.scanPaths, recursive.checked)
-            refresh()
+            root.refresh()
         }
     }
 
@@ -232,7 +245,7 @@ Popup {
         nameFilters: [qsTr("Revert logs (batch_rename_*.log)"), qsTr("All files (*)")]
         onAccepted: {
             root.statusMessage(root.controller.batchRevert(selectedFile, true))
-            refresh()
+            root.refresh()
         }
     }
 }

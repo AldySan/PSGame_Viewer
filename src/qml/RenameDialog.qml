@@ -24,7 +24,6 @@ Popup {
     }
 
     onAboutToShow: {
-        var settings = AppSettings
         patternBar.loadPrefs()
     }
 
@@ -51,22 +50,6 @@ Popup {
             id: patternBar
             controller: root.controller
             Layout.fillWidth: true
-
-            function loadPrefs() {
-                var pid = AppSettings.renamePreset
-                var idx = 0
-                for (var i = 0; i < presetBox.count; ++i) {
-                    if (presetBox.valueAt(i) === pid) { idx = i; break }
-                }
-                if (pid === "custom")
-                    idx = presetBox.count - 1
-                presetBox.currentIndex = idx
-                if (AppSettings.renamePattern)
-                    customField.text = AppSettings.renamePattern
-            }
-            function savePrefs() {
-                AppSettings.saveRenamePrefs(include, currentPresetId(), pattern)
-            }
         }
 
         Rectangle {

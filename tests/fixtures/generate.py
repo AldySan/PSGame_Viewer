@@ -651,9 +651,10 @@ def make_trp():
 PFSC_BLOCK = 0x10000
 
 
-def make_exfat_trophy():
+def make_exfat_trophy(pack_size=None):
     """exFAT image like make_exfat(), plus sce_sys/trophy/trophy00.trp so
-    .ffpfsc fixtures carry a lazily-read trophy pack entry."""
+    .ffpfsc fixtures carry a lazily-read trophy pack entry. `pack_size`
+    pads the pack out with zeros (exceeds the old 5 MB read cap)."""
     bps = 512
     spc = 2
     fat_lba = 128
@@ -677,6 +678,8 @@ def make_exfat_trophy():
         },
     }, separators=(",", ":")).encode()
     trp = make_trp()
+    if pack_size is not None and pack_size > len(trp):
+        trp = trp + b"\x00" * (pack_size - len(trp))
 
     def name_entries(name):
         u16 = name.encode("utf-16-le")
@@ -732,7 +735,7 @@ def make_exfat_trophy():
     out += pad_to(param_json, clus_bytes)  # cluster 4
     out += pad_to(ICON_PNG, clus_bytes)    # cluster 5
     out += trophy_dir                       # cluster 6
-    out += pad_to(trp, clus_bytes)          # cluster 7
+    out += pad_to(trp, len(trp) + (clus_bytes - len(trp) % clus_bytes) % clus_bytes)  # cluster 7..
     return bytes(out)
 
 
@@ -960,6 +963,9 @@ def main():
         "ps3.iso": make_ps3_iso(),
         "ps5.exfat": make_exfat(),
         "trophy.trp": make_trp(),
+        # regression fixture for the exFAT read cap: a >5 MB trophy pack
+        # must still be readable end to end
+        "ps5_bigpack.exfat": make_exfat_trophy(6 << 20),
         "ffpkg.ffpkg": ufs2,
         "ffpfsc_exfat.ffpfsc": make_ffpfsc("LOOP00002.exfat", exfat_trophy,
                                           compress=True),

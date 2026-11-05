@@ -49,6 +49,7 @@ private slots:
     void ps3Iso();
     void ps3Folder();
     void ps5ExfatImage();
+    void ps5ExfatBigPackRead();
     void ps5FfpfscExfat();
     void ps5FfpfscNestedFfpkg();
     void ps5Ffpkg();
@@ -473,6 +474,31 @@ void TestPsgCore::ps5ExfatImage()
     const QByteArray icon = readEntryBytes(info.entries.at(0), info.path);
     QCOMPARE(icon.size(), 75);
     QVERIFY(icon.startsWith(QByteArrayLiteral("\x89PNG\r\n\x1a\n")));
+}
+
+void TestPsgCore::ps5ExfatBigPackRead()
+{
+    // regression test for the exFAT payload read cap: a trophy pack above
+    // the old 5 MB limit (admitted by the 300 MB entry filter) must read
+    // back completely through the lazy ExfatChain source
+    const GameInfo info =
+        detect::openAny(fixture(QStringLiteral("ps5_bigpack.exfat")));
+    QVERIFY(info.ok);
+    QCOMPARE(info.platform, Platform::PS5);
+
+    const Entry *pack = nullptr;
+    for (const Entry &e : info.entries) {
+        if (e.name.endsWith(QLatin1String(".trp"), Qt::CaseInsensitive))
+            pack = &e;
+    }
+    QVERIFY(pack != nullptr);
+    QCOMPARE(pack->size, quint64(6) << 20);
+
+    const QByteArray data = readEntryBytes(*pack, info.path, 300000000);
+    QCOMPARE(quint64(data.size()), quint64(6) << 20);
+    // the fixture keeps a valid TRP at the head of the padded pack
+    QVERIFY(data.left(4) == QByteArrayLiteral("\xDC\xA2\x4D\x00"));
+    QVERIFY(data.right(4) == QByteArrayLiteral("\x00\x00\x00\x00"));
 }
 
 void TestPsgCore::ps5FfpfscExfat()

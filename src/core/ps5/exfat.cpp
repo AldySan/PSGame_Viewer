@@ -12,6 +12,13 @@ namespace {
 
 constexpr quint64 kDirReadCap = 1ull << 24; // 16 MB cap for chained dirs
 constexpr quint64 kNoFatReadCap = 1ull << 20; // 1 MB cap for noFAT dirs
+// Per-read cap for file payloads (trophy packs are admitted up to 300 MB,
+// and readChain/readNoFat must honor them; still bounded, still validated
+// against the image size).
+constexpr quint64 kFileReadCap = 320000000;
+// exFAT spec limits: BytesPerSectorShift <= 12, SectorsPerClusterShift <= 25.
+constexpr int kMaxSectorShift = 12;
+constexpr int kMaxClusterShift = 25;
 
 } // namespace
 
@@ -58,6 +65,13 @@ void ExfatImage::construct(bool *ok, QString *error)
         if (error) *error = QStringLiteral("bad exFAT boot sector");
         return;
     }
+    // guard the shifts: "1 << n" with n >= 32 is undefined behaviour, so a
+    // malformed boot sector must be rejected up front
+    if (uchar(bs.at(108)) > kMaxSectorShift
+        || uchar(bs.at(109)) > kMaxClusterShift) {
+        if (error) *error = QStringLiteral("bad exFAT boot sector (shift)");
+        return;
+    }
     if (ok) *ok = true;
 }
 
@@ -78,7 +92,9 @@ bool ExfatImage::clusterInImage(quint32 cluster) const
 
 QByteArray ExfatImage::readNoFat(quint32 first, quint64 size) const
 {
-    if (size == 0 || size > 5000000)
+    if (size == 0 || size > kFileReadCap)
+        return QByteArray();
+    if (!clusterInImage(first))
         return QByteArray();
     dev()->seek(qint64(clusterOffset(first)));
     return dev()->read(int(size));
@@ -86,7 +102,7 @@ QByteArray ExfatImage::readNoFat(quint32 first, quint64 size) const
 
 QByteArray ExfatImage::readChain(quint32 first, quint64 size) const
 {
-    if (size == 0 || size > 5000000)
+    if (size == 0 || size > kFileReadCap)
         return QByteArray();
     const quint64 clusterBytes =
         quint64(m_bytesPerSector) * m_sectorsPerCluster;

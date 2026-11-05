@@ -42,7 +42,6 @@ inline quint64 rdU64BE(const QByteArray &b, qsizetype off, bool *ok = nullptr)
         if (ok) *ok = false;
         return 0;
     }
-    const uchar *p = reinterpret_cast<const uchar *>(b.constData()) + off;
     if (ok) *ok = true;
     return (quint64(rdU32BE(b, off)) << 32) | rdU32BE(b, off + 4);
 }
