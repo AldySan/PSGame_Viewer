@@ -1424,7 +1424,37 @@
     <message>
       
         
-      <location filename="../src/qml/TrophiesTab.qml" line="31"/>
+      <location filename="../src/qml/TrophiesTab.qml" line="33"/>
+      
+        
+      <source>%1 trophies</source>
+      
+        
+      <translation>%1 trofi</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/TrophiesTab.qml" line="39"/>
+      
+        
+      <source>Export icons…</source>
+      
+        
+      <translation>Ekspor ikon…</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/TrophiesTab.qml" line="61"/>
       
         
       <source>No trophy pack in this file</source>
@@ -1439,13 +1469,28 @@
     <message>
       
         
-      <location filename="../src/qml/TrophiesTab.qml" line="103"/>
+      <location filename="../src/qml/TrophiesTab.qml" line="133"/>
       
         
       <source>hidden</source>
       
         
       <translation>tersembunyi</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/TrophiesTab.qml" line="160"/>
+      
+        
+      <source>Save trophy icons to folder</source>
+      
+        
+      <translation>Simpan ikon trofi ke folder</translation>
       
     
     </message>
@@ -1523,7 +1568,7 @@
     <message>
       
         
-      <location filename="../src/qml/ViewerPage.qml" line="115"/>
+      <location filename="../src/qml/ViewerPage.qml" line="117"/>
       
         
       <source>Extract to folder</source>
@@ -1724,7 +1769,70 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="441"/>
+      <location filename="../src/app/viewercontroller.cpp" line="435"/>
+      
+        
+      <location filename="../src/app/viewercontroller.cpp" line="439"/>
+      
+        
+      <source>No trophy icons loaded</source>
+      
+        
+      <translation>Belum ada ikon trofi</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/app/viewercontroller.cpp" line="452"/>
+      
+        
+      <source>Cannot create folder: %1</source>
+      
+        
+      <translation>Tidak bisa membuat folder: %1</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/app/viewercontroller.cpp" line="475"/>
+      
+        
+      <source>Saved %1 trophy icons to %2</source>
+      
+        
+      <translation>Menyimpan %1 ikon trofi ke %2</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/app/viewercontroller.cpp" line="479"/>
+      
+        
+      <source> (%1 skipped)</source>
+      
+        
+      <translation> (melewati %1)</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/app/viewercontroller.cpp" line="495"/>
       
         
       <source>Copied to clipboard</source>
@@ -1739,7 +1847,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="491"/>
+      <location filename="../src/app/viewercontroller.cpp" line="545"/>
       
         
       <source>Renamed to %1</source>
@@ -1754,7 +1862,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="506"/>
+      <location filename="../src/app/viewercontroller.cpp" line="560"/>
       
         
       <source>Rename undone</source>
@@ -1769,7 +1877,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="568"/>
+      <location filename="../src/app/viewercontroller.cpp" line="622"/>
       
         
       <source>Batch: renamed %1, skipped %2</source>
@@ -1784,7 +1892,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="580"/>
+      <location filename="../src/app/viewercontroller.cpp" line="634"/>
       
         
       <source>Nothing to revert in %1</source>
@@ -1799,7 +1907,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="582"/>
+      <location filename="../src/app/viewercontroller.cpp" line="636"/>
       
         
       <source>Dry run: %1 renames would be reverted. Run with apply.</source>
@@ -1814,7 +1922,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="585"/>
+      <location filename="../src/app/viewercontroller.cpp" line="639"/>
       
         
       <source>Reverted %1, skipped %2</source>
