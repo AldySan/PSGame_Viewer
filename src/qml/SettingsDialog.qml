@@ -6,6 +6,7 @@ import PSGameViewer
 // Settings dialog: theme, interface language and online lookups.
 Popup {
     id: root
+    objectName: "settingsDialog"
     anchors.centerIn: parent
     width: 420
     height: 400
@@ -16,7 +17,7 @@ Popup {
 
     background: Rectangle {
         color: Theme.card
-        radius: Theme.radius + 4
+        radius: Theme.radiusLg
         border.color: Theme.border
     }
 
@@ -45,7 +46,7 @@ Popup {
             color: Theme.muted
             font.pixelSize: 12
         }
-        ComboBox {
+        AppComboBox {
             id: themeCombo
             Layout.fillWidth: true
             font.pixelSize: 13
@@ -62,7 +63,7 @@ Popup {
             color: Theme.muted
             font.pixelSize: 12
         }
-        ComboBox {
+        AppComboBox {
             id: langCombo
             Layout.fillWidth: true
             font.pixelSize: 13
@@ -83,13 +84,13 @@ Popup {
             visible: langCombo.currentValue !== AppSettings.language
         }
 
-        CheckBox {
+        AppCheckBox {
             id: onlineBox
             text: qsTr("Online lookups (covers, latest patch)")
             font.pixelSize: 13
         }
 
-        CheckBox {
+        AppCheckBox {
             id: updatesBox
             text: qsTr("Check for updates on startup")
             font.pixelSize: 13
@@ -100,12 +101,12 @@ Popup {
         RowLayout {
             spacing: 8
             Item { Layout.fillWidth: true }
-            Button {
+            AppButton {
                 text: qsTr("Cancel")
                 flat: true
                 onClicked: root.close()
             }
-            Button {
+            AppButton {
                 text: qsTr("Save")
                 highlighted: true
                 onClicked: {

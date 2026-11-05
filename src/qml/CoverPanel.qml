@@ -45,10 +45,12 @@ Item {
                     model: controller.galleryKeys
                     delegate: Rectangle {
                         width: 40; height: 40
-                        radius: 4
+                        radius: Theme.radiusSm
                         color: modelData === controller.coverKey
-                               ? Theme.accent : Theme.card2
-                        border.color: Theme.border
+                               ? Theme.accentSoft : Theme.card2
+                        border.width: modelData === controller.coverKey ? 1 : 1
+                        border.color: modelData === controller.coverKey
+                                      ? Theme.accent : Theme.border
                         Image {
                             anchors.fill: parent
                             anchors.margins: 3
@@ -69,13 +71,13 @@ Item {
 
         RowLayout {
             spacing: 8
-            Button {
+            AppButton {
                 text: qsTr("Save")
                 enabled: controller.coverKey.length > 0
                 Layout.fillWidth: true
                 onClicked: coverSaveDialog.open()
             }
-            Button {
+            AppButton {
                 text: qsTr("Copy")
                 enabled: controller.coverKey.length > 0
                 Layout.fillWidth: true

@@ -50,7 +50,7 @@ Item {
                 Rectangle {
                     visible: controller.packageBadge.length > 0
                     width: badgeText.implicitWidth + 16
-                    height: 24; radius: 4
+                    height: 24; radius: Theme.radiusSm
                     color: controller.packageBadge === "OFC" ? Theme.good : Theme.accent
                     Text {
                         id: badgeText
@@ -76,11 +76,13 @@ Item {
 
             TabBar {
                 id: tabBar
+                objectName: "tabBar"
                 Layout.fillWidth: true
                 background: null
-                TabButton { text: qsTr("Files") }
-                TabButton { text: qsTr("Details") }
-                TabButton { text: qsTr("Trophies") }
+                spacing: 6
+                AppTabButton { text: qsTr("Files") }
+                AppTabButton { text: qsTr("Details") }
+                AppTabButton { text: qsTr("Trophies") }
             }
 
             StackLayout {

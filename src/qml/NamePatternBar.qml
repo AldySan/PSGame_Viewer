@@ -34,7 +34,7 @@ ColumnLayout {
     // ticks) from the settings. Shared by both rename dialogs so the
     // "remembered" promise holds everywhere.
     function loadPrefs() {
-        var inc = AppSettings.renameInclude
+        var inc = AppSettings.renameInclude || {}
         tickTitle.checked = inc.title !== false
         tickTid.checked = inc.tid !== false
         tickVer.checked = inc.ver !== false
@@ -64,7 +64,7 @@ ColumnLayout {
             color: Theme.muted
             font.pixelSize: 12
         }
-        ComboBox {
+        AppComboBox {
             id: presetBox
             Layout.fillWidth: true
             textRole: "label"
@@ -77,18 +77,12 @@ ColumnLayout {
                 return list
             }
         }
-        TextField {
+        AppTextField {
             id: customField
             Layout.preferredWidth: 180
             font.pixelSize: 12
             placeholderText: qsTr("custom pattern")
             enabled: presetBox.currentValue === "custom"
-            color: Theme.text
-            background: Rectangle {
-                radius: 4
-                color: Theme.card2
-                border.color: customField.activeFocus ? Theme.accent : Theme.border
-            }
         }
     }
 
@@ -98,14 +92,22 @@ ColumnLayout {
         Repeater {
             model: ["title", "tid", "cid", "version", "region", "type", "orig"]
             delegate: Label {
+                id: chip
                 required property string modelData
                 text: "{" + modelData + "}"
-                color: Theme.muted
+                color: chipMouse.containsMouse ? Theme.accent : Theme.muted
                 font.pixelSize: 11
-                padding: 3
-                background: Rectangle { color: Theme.card2; radius: 3 }
+                padding: 4
+                background: Rectangle {
+                    radius: Theme.radiusSm
+                    color: chipMouse.containsMouse ? Theme.accentSoft : Theme.card2
+                    border.width: 1
+                    border.color: chipMouse.containsMouse ? Theme.accent : Theme.border
+                }
                 MouseArea {
+                    id: chipMouse
                     anchors.fill: parent
+                    hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
                         presetBox.currentIndex = presetBox.count - 1
@@ -127,25 +129,25 @@ ColumnLayout {
             color: Theme.muted
             font.pixelSize: 12
         }
-        CheckBox {
+        AppCheckBox {
             id: tickTitle
             text: qsTr("Title")
             font.pixelSize: 12
             checked: true
         }
-        CheckBox {
+        AppCheckBox {
             id: tickTid
             text: qsTr("Title ID")
             font.pixelSize: 12
             checked: true
         }
-        CheckBox {
+        AppCheckBox {
             id: tickVer
             text: qsTr("Version")
             font.pixelSize: 12
             checked: true
         }
-        CheckBox {
+        AppCheckBox {
             id: tickRegion
             text: qsTr("Region")
             font.pixelSize: 12

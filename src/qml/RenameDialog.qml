@@ -6,6 +6,7 @@ import PSGameViewer
 // Single-file rename dialog: live preview, apply, and undo.
 Popup {
     id: root
+    objectName: "renameDialog"
     required property var controller
     signal statusMessage(string msg)
 
@@ -19,7 +20,7 @@ Popup {
 
     background: Rectangle {
         color: Theme.card
-        radius: Theme.radius + 4
+        radius: Theme.radiusLg
         border.color: Theme.border
     }
 
@@ -55,16 +56,24 @@ Popup {
         Rectangle {
             Layout.fillWidth: true
             implicitHeight: previewLabel.implicitHeight + 16
-            radius: 4
+            radius: Theme.radiusSm
             color: Theme.card2
+            border.width: 1
+            border.color: Theme.border
             Label {
                 id: previewLabel
                 anchors.fill: parent
                 anchors.margins: 8
-                text: patternBar.pattern.length === 0
-                      ? root.controller.renamePreview("", patternBar.include)
-                      : root.controller.renamePreview(patternBar.pattern,
-                                                      patternBar.include)
+                // `hasFile` is read here on purpose: the dialog (and this
+                // binding) is created before any file is opened, so the
+                // preview must re-run when the opened file changes
+                text: {
+                    const fileLoaded = root.controller.hasFile
+                    return patternBar.pattern.length === 0
+                        ? root.controller.renamePreview("", patternBar.include)
+                        : root.controller.renamePreview(patternBar.pattern,
+                                                        patternBar.include)
+                }
                 color: Theme.accent
                 font.pixelSize: 13
                 elide: Text.ElideMiddle
@@ -76,7 +85,7 @@ Popup {
 
         RowLayout {
             spacing: 8
-            Button {
+            AppButton {
                 text: qsTr("Undo")
                 enabled: root.controller.undoAvailable
                 onClicked: {
@@ -85,12 +94,12 @@ Popup {
                 }
             }
             Item { Layout.fillWidth: true }
-            Button {
+            AppButton {
                 text: qsTr("Cancel")
                 flat: true
                 onClicked: root.close()
             }
-            Button {
+            AppButton {
                 text: qsTr("Rename")
                 highlighted: true
                 enabled: previewLabel.text.length > 0

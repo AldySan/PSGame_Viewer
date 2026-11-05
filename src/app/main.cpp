@@ -257,19 +257,46 @@ int runGui(int argc, char *argv[])
     engine.loadFromModule(QStringLiteral("PSGameViewer"),
                           QStringLiteral("Main"));
 
-    // testing aid: open a file and/or grab the window (headless UI checks)
+    // testing aid: open a file and/or grab the window (headless UI checks);
+    // PSGV_DIALOG opens a named dialog and PSGV_TAB selects the viewer tab
+    // before the shot (settings, rename, batch, about, update dialogs;
+    // 0=Files, 1=Details, 2=Trophies) so those views can be checked too
     const QString screenshot = qEnvironmentVariable("PSGV_SCREENSHOT");
     const QString openFile = qEnvironmentVariable("PSGV_OPEN");
+    const QString openDialog = qEnvironmentVariable("PSGV_DIALOG");
+    const int openTab = qEnvironmentVariable("PSGV_TAB").toInt();
     if (!openFile.isEmpty())
         viewer.openPath(QUrl::fromLocalFile(openFile));
     if (!screenshot.isEmpty()) {
-        QTimer::singleShot(1500, [&engine, screenshot]() {
+        QTimer::singleShot(1500, [&engine, screenshot, openDialog, openTab]() {
             const auto roots = engine.rootObjects();
-            if (!roots.isEmpty()) {
-                if (auto *w = qobject_cast<QQuickWindow *>(roots.first()))
-                    w->grabWindow().save(screenshot);
+            for (QObject *root : roots) {
+                if (openTab > 0) {
+                    // "tabBar" is the objectName of the viewer's TabBar
+                    if (auto *bar = root->findChild<QObject *>(
+                            QStringLiteral("tabBar")))
+                        QMetaObject::invokeMethod(
+                            bar, "setCurrentIndex", Q_ARG(int, openTab));
+                }
+                if (!openDialog.isEmpty()) {
+                    // dialogs carry unique objectNames; "open" is resolved
+                    // by name so no Quick Controls headers are needed here
+                    const auto children = root->findChildren<QObject *>();
+                    for (QObject *p : children) {
+                        if (p->objectName() == openDialog)
+                            QMetaObject::invokeMethod(p, "open");
+                    }
+                }
             }
-            QCoreApplication::exit(0);
+            // give the view (and its contents) a frame to lay out
+            QTimer::singleShot(400, [&engine, screenshot]() {
+                const auto roots = engine.rootObjects();
+                if (!roots.isEmpty()) {
+                    if (auto *w = qobject_cast<QQuickWindow *>(roots.first()))
+                        w->grabWindow().save(screenshot);
+                }
+                QCoreApplication::exit(0);
+            });
         });
     }
 
