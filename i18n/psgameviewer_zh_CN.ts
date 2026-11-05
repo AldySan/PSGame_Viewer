@@ -110,7 +110,7 @@
     <message>
       
         
-      <location filename="../src/qml/BatchDialog.qml" line="36"/>
+      <location filename="../src/qml/BatchDialog.qml" line="49"/>
       
         
       <source>Batch rename</source>
@@ -125,7 +125,7 @@
     <message>
       
         
-      <location filename="../src/qml/BatchDialog.qml" line="53"/>
+      <location filename="../src/qml/BatchDialog.qml" line="66"/>
       
         
       <source>Add folder…</source>
@@ -140,7 +140,7 @@
     <message>
       
         
-      <location filename="../src/qml/BatchDialog.qml" line="57"/>
+      <location filename="../src/qml/BatchDialog.qml" line="70"/>
       
         
       <source>Add files…</source>
@@ -155,7 +155,7 @@
     <message>
       
         
-      <location filename="../src/qml/BatchDialog.qml" line="62"/>
+      <location filename="../src/qml/BatchDialog.qml" line="75"/>
       
         
       <source>Recursive</source>
@@ -170,7 +170,7 @@
     <message>
       
         
-      <location filename="../src/qml/BatchDialog.qml" line="97"/>
+      <location filename="../src/qml/BatchDialog.qml" line="110"/>
       
         
       <source>Add folders or files to see the preview</source>
@@ -185,7 +185,7 @@
     <message>
       
         
-      <location filename="../src/qml/BatchDialog.qml" line="146"/>
+      <location filename="../src/qml/BatchDialog.qml" line="159"/>
       
         
       <source>%1 of %2 ready</source>
@@ -200,7 +200,7 @@
     <message>
       
         
-      <location filename="../src/qml/BatchDialog.qml" line="154"/>
+      <location filename="../src/qml/BatchDialog.qml" line="167"/>
       
         
       <source>Revert from log…</source>
@@ -215,7 +215,7 @@
     <message>
       
         
-      <location filename="../src/qml/BatchDialog.qml" line="159"/>
+      <location filename="../src/qml/BatchDialog.qml" line="172"/>
       
         
       <source>Close</source>
@@ -230,7 +230,7 @@
     <message>
       
         
-      <location filename="../src/qml/BatchDialog.qml" line="164"/>
+      <location filename="../src/qml/BatchDialog.qml" line="177"/>
       
         
       <source>Apply</source>
@@ -245,7 +245,22 @@
     <message>
       
         
-      <location filename="../src/qml/BatchDialog.qml" line="170"/>
+      <location filename="../src/qml/BatchDialog.qml" line="184"/>
+      
+        
+      <source>Renamed %1, skipped %2. WARNING: the revert log could not be written (%3) — these renames cannot be reverted from a log.</source>
+      
+        
+      <translation>已重命名 %1 个，跳过 %2 个。警告：无法写入回滚日志（%3）——这些重命名无法通过日志撤销。</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/BatchDialog.qml" line="192"/>
       
         
       <source>Renamed %1, skipped %2</source>
@@ -260,7 +275,7 @@
     <message>
       
         
-      <location filename="../src/qml/BatchDialog.qml" line="174"/>
+      <location filename="../src/qml/BatchDialog.qml" line="188"/>
       
         
       <source>Renamed %1, skipped %2. Log: %3</source>
@@ -275,7 +290,7 @@
     <message>
       
         
-      <location filename="../src/qml/BatchDialog.qml" line="196"/>
+      <location filename="../src/qml/BatchDialog.qml" line="209"/>
       
         
       <source>%1 file(s) scanned</source>
@@ -290,7 +305,7 @@
     <message>
       
         
-      <location filename="../src/qml/BatchDialog.qml" line="204"/>
+      <location filename="../src/qml/BatchDialog.qml" line="224"/>
       
         
       <source>Folder to scan</source>
@@ -305,7 +320,7 @@
     <message>
       
         
-      <location filename="../src/qml/BatchDialog.qml" line="216"/>
+      <location filename="../src/qml/BatchDialog.qml" line="236"/>
       
         
       <source>Add game files</source>
@@ -320,7 +335,7 @@
     <message>
       
         
-      <location filename="../src/qml/BatchDialog.qml" line="218"/>
+      <location filename="../src/qml/BatchDialog.qml" line="238"/>
       
         
       <source>Game files (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</source>
@@ -335,7 +350,7 @@
     <message>
       
         
-      <location filename="../src/qml/BatchDialog.qml" line="231"/>
+      <location filename="../src/qml/BatchDialog.qml" line="251"/>
       
         
       <source>Revert log file</source>
@@ -350,7 +365,7 @@
     <message>
       
         
-      <location filename="../src/qml/BatchDialog.qml" line="232"/>
+      <location filename="../src/qml/BatchDialog.qml" line="252"/>
       
         
       <source>Revert logs (batch_rename_*.log)</source>
@@ -365,7 +380,7 @@
     <message>
       
         
-      <location filename="../src/qml/BatchDialog.qml" line="232"/>
+      <location filename="../src/qml/BatchDialog.qml" line="252"/>
       
         
       <source>All files (*)</source>
@@ -740,7 +755,22 @@
     <message>
       
         
-      <location filename="../src/qml/LibraryPage.qml" line="64"/>
+      <location filename="../src/qml/LibraryPage.qml" line="68"/>
+      
+        
+      <source>The library database could not be opened:&lt;br&gt;%1&lt;br&gt;Check that the folder with the executable is writable.</source>
+      
+        
+      <translation>无法打开游戏库数据库：&lt;br&gt;%1&lt;br&gt;请确认可执行文件所在文件夹可写。</translation>
+      
+    
+    </message>
+    
+    
+    <message>
+      
+        
+      <location filename="../src/qml/LibraryPage.qml" line="70"/>
       
         
       <source>Library is empty — open files or scan a folder</source>
@@ -755,7 +785,7 @@
     <message>
       
         
-      <location filename="../src/qml/LibraryPage.qml" line="141"/>
+      <location filename="../src/qml/LibraryPage.qml" line="147"/>
       
         
       <source>Open</source>
@@ -770,7 +800,7 @@
     <message>
       
         
-      <location filename="../src/qml/LibraryPage.qml" line="146"/>
+      <location filename="../src/qml/LibraryPage.qml" line="152"/>
       
         
       <source>Remove</source>
@@ -785,7 +815,7 @@
     <message>
       
         
-      <location filename="../src/qml/LibraryPage.qml" line="164"/>
+      <location filename="../src/qml/LibraryPage.qml" line="170"/>
       
         
       <source>Folder to scan</source>
@@ -812,7 +842,7 @@
       <location filename="../src/qml/Main.qml" line="14"/>
       
         
-      <location filename="../src/qml/Main.qml" line="66"/>
+      <location filename="../src/qml/Main.qml" line="68"/>
       
         
       <source>PSGame-Viewer</source>
@@ -827,7 +857,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="74"/>
+      <location filename="../src/qml/Main.qml" line="76"/>
       
         
       <source>Open</source>
@@ -842,7 +872,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="79"/>
+      <location filename="../src/qml/Main.qml" line="81"/>
       
         
       <source>Library</source>
@@ -857,7 +887,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="79"/>
+      <location filename="../src/qml/Main.qml" line="81"/>
       
         
       <source>Viewer</source>
@@ -872,7 +902,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="90"/>
+      <location filename="../src/qml/Main.qml" line="92"/>
       
         
       <source>Rename</source>
@@ -887,7 +917,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="95"/>
+      <location filename="../src/qml/Main.qml" line="97"/>
       
         
       <source>Batch</source>
@@ -902,7 +932,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="99"/>
+      <location filename="../src/qml/Main.qml" line="101"/>
       
         
       <source>Settings</source>
@@ -917,7 +947,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="104"/>
+      <location filename="../src/qml/Main.qml" line="106"/>
       
         
       <source>About</source>
@@ -932,7 +962,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="155"/>
+      <location filename="../src/qml/Main.qml" line="157"/>
       
         
       <source>Open a game file</source>
@@ -947,7 +977,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="157"/>
+      <location filename="../src/qml/Main.qml" line="159"/>
       
         
       <source>Game files (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</source>
@@ -962,7 +992,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="158"/>
+      <location filename="../src/qml/Main.qml" line="160"/>
       
         
       <source>All files (*)</source>
@@ -977,7 +1007,7 @@
     <message>
       
         
-      <location filename="../src/qml/Main.qml" line="165"/>
+      <location filename="../src/qml/Main.qml" line="167"/>
       
         
       <source>Extract to folder</source>
@@ -1001,7 +1031,7 @@
     <message>
       
         
-      <location filename="../src/qml/NamePatternBar.qml" line="38"/>
+      <location filename="../src/qml/NamePatternBar.qml" line="63"/>
       
         
       <source>Name:</source>
@@ -1016,7 +1046,7 @@
     <message>
       
         
-      <location filename="../src/qml/NamePatternBar.qml" line="50"/>
+      <location filename="../src/qml/NamePatternBar.qml" line="75"/>
       
         
       <source>Custom pattern</source>
@@ -1031,7 +1061,7 @@
     <message>
       
         
-      <location filename="../src/qml/NamePatternBar.qml" line="59"/>
+      <location filename="../src/qml/NamePatternBar.qml" line="84"/>
       
         
       <source>custom pattern</source>
@@ -1046,7 +1076,7 @@
     <message>
       
         
-      <location filename="../src/qml/NamePatternBar.qml" line="101"/>
+      <location filename="../src/qml/NamePatternBar.qml" line="126"/>
       
         
       <source>Include:</source>
@@ -1061,7 +1091,7 @@
     <message>
       
         
-      <location filename="../src/qml/NamePatternBar.qml" line="107"/>
+      <location filename="../src/qml/NamePatternBar.qml" line="132"/>
       
         
       <source>Title</source>
@@ -1076,7 +1106,7 @@
     <message>
       
         
-      <location filename="../src/qml/NamePatternBar.qml" line="113"/>
+      <location filename="../src/qml/NamePatternBar.qml" line="138"/>
       
         
       <source>Title ID</source>
@@ -1091,7 +1121,7 @@
     <message>
       
         
-      <location filename="../src/qml/NamePatternBar.qml" line="119"/>
+      <location filename="../src/qml/NamePatternBar.qml" line="144"/>
       
         
       <source>Version</source>
@@ -1106,7 +1136,7 @@
     <message>
       
         
-      <location filename="../src/qml/NamePatternBar.qml" line="125"/>
+      <location filename="../src/qml/NamePatternBar.qml" line="150"/>
       
         
       <source>Region</source>
@@ -1169,10 +1199,10 @@
     <message>
       
         
-      <location filename="../src/qml/RenameDialog.qml" line="36"/>
+      <location filename="../src/qml/RenameDialog.qml" line="35"/>
       
         
-      <location filename="../src/qml/RenameDialog.qml" line="111"/>
+      <location filename="../src/qml/RenameDialog.qml" line="94"/>
       
         
       <source>Rename</source>
@@ -1187,7 +1217,7 @@
     <message>
       
         
-      <location filename="../src/qml/RenameDialog.qml" line="97"/>
+      <location filename="../src/qml/RenameDialog.qml" line="80"/>
       
         
       <source>Undo</source>
@@ -1202,7 +1232,7 @@
     <message>
       
         
-      <location filename="../src/qml/RenameDialog.qml" line="101"/>
+      <location filename="../src/qml/RenameDialog.qml" line="84"/>
       
         
       <source>Rename undone</source>
@@ -1217,7 +1247,7 @@
     <message>
       
         
-      <location filename="../src/qml/RenameDialog.qml" line="106"/>
+      <location filename="../src/qml/RenameDialog.qml" line="89"/>
       
         
       <source>Cancel</source>
@@ -1232,7 +1262,7 @@
     <message>
       
         
-      <location filename="../src/qml/RenameDialog.qml" line="121"/>
+      <location filename="../src/qml/RenameDialog.qml" line="104"/>
       
         
       <source>Rename failed (target exists or not writable)</source>
@@ -1538,7 +1568,7 @@
     <message>
       
         
-      <location filename="../src/qml/UpdateDialog.qml" line="52"/>
+      <location filename="../src/qml/UpdateDialog.qml" line="65"/>
       
         
       <source>Checking for updates…</source>
@@ -1553,7 +1583,7 @@
     <message>
       
         
-      <location filename="../src/qml/UpdateDialog.qml" line="53"/>
+      <location filename="../src/qml/UpdateDialog.qml" line="66"/>
       
         
       <source>Update checker</source>
@@ -1568,7 +1598,7 @@
     <message>
       
         
-      <location filename="../src/qml/UpdateDialog.qml" line="55"/>
+      <location filename="../src/qml/UpdateDialog.qml" line="68"/>
       
         
       <source>Update available</source>
@@ -1583,7 +1613,7 @@
     <message>
       
         
-      <location filename="../src/qml/UpdateDialog.qml" line="57"/>
+      <location filename="../src/qml/UpdateDialog.qml" line="70"/>
       
         
       <source>Up to date</source>
@@ -1598,7 +1628,7 @@
     <message>
       
         
-      <location filename="../src/qml/UpdateDialog.qml" line="59"/>
+      <location filename="../src/qml/UpdateDialog.qml" line="72"/>
       
         
       <source>No release published yet</source>
@@ -1613,7 +1643,7 @@
     <message>
       
         
-      <location filename="../src/qml/UpdateDialog.qml" line="60"/>
+      <location filename="../src/qml/UpdateDialog.qml" line="73"/>
       
         
       <source>Update check failed</source>
@@ -1628,7 +1658,7 @@
     <message>
       
         
-      <location filename="../src/qml/UpdateDialog.qml" line="77"/>
+      <location filename="../src/qml/UpdateDialog.qml" line="90"/>
       
         
       <source>Contacting the release server…</source>
@@ -1643,7 +1673,7 @@
     <message>
       
         
-      <location filename="../src/qml/UpdateDialog.qml" line="85"/>
+      <location filename="../src/qml/UpdateDialog.qml" line="98"/>
       
         
       <source>PSGame-Viewer %1 is available (you are running %2).</source>
@@ -1658,7 +1688,7 @@
     <message>
       
         
-      <location filename="../src/qml/UpdateDialog.qml" line="97"/>
+      <location filename="../src/qml/UpdateDialog.qml" line="110"/>
       
         
       <source>You are running the latest version (%1).</source>
@@ -1673,7 +1703,7 @@
     <message>
       
         
-      <location filename="../src/qml/UpdateDialog.qml" line="108"/>
+      <location filename="../src/qml/UpdateDialog.qml" line="121"/>
       
         
       <source>Could not reach the release server: %1</source>
@@ -1688,7 +1718,7 @@
     <message>
       
         
-      <location filename="../src/qml/UpdateDialog.qml" line="119"/>
+      <location filename="../src/qml/UpdateDialog.qml" line="132"/>
       
         
       <source>Nothing to check against yet. Publish a GitHub release to enable update checks.</source>
@@ -1703,7 +1733,7 @@
     <message>
       
         
-      <location filename="../src/qml/UpdateDialog.qml" line="158"/>
+      <location filename="../src/qml/UpdateDialog.qml" line="171"/>
       
         
       <source>Open release page</source>
@@ -1718,7 +1748,7 @@
     <message>
       
         
-      <location filename="../src/qml/UpdateDialog.qml" line="164"/>
+      <location filename="../src/qml/UpdateDialog.qml" line="177"/>
       
         
       <source>Cancel</source>
@@ -1733,7 +1763,7 @@
     <message>
       
         
-      <location filename="../src/qml/UpdateDialog.qml" line="171"/>
+      <location filename="../src/qml/UpdateDialog.qml" line="184"/>
       
         
       <source>Close</source>
@@ -1841,7 +1871,7 @@
     <message>
       
         
-      <location filename="../src/app/librarycontroller.cpp" line="123"/>
+      <location filename="../src/app/librarycontroller.cpp" line="125"/>
       
         
       <source>Scanned %1, added %2</source>
@@ -1856,7 +1886,7 @@
     <message>
       
         
-      <location filename="../src/app/librarycontroller.cpp" line="132"/>
+      <location filename="../src/app/librarycontroller.cpp" line="134"/>
       
         
       <source>Removed %1 missing entries</source>
@@ -1880,7 +1910,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="81"/>
+      <location filename="../src/app/viewercontroller.cpp" line="94"/>
       
         
       <source>patches</source>
@@ -1895,7 +1925,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="108"/>
+      <location filename="../src/app/viewercontroller.cpp" line="131"/>
       
         
       <source>No file opened</source>
@@ -1910,7 +1940,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="213"/>
+      <location filename="../src/app/viewercontroller.cpp" line="239"/>
       
         
       <source>Could not open: %1</source>
@@ -1925,7 +1955,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="216"/>
+      <location filename="../src/app/viewercontroller.cpp" line="242"/>
       
         
       <source>Opened %1</source>
@@ -1940,7 +1970,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="386"/>
+      <location filename="../src/app/viewercontroller.cpp" line="425"/>
       
         
       <source>Could not extract %1</source>
@@ -1955,7 +1985,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="390"/>
+      <location filename="../src/app/viewercontroller.cpp" line="429"/>
       
         
       <source>Extracted %1</source>
@@ -1970,7 +2000,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="399"/>
+      <location filename="../src/app/viewercontroller.cpp" line="438"/>
       
         
       <source>Extracted %1, failed %2</source>
@@ -1985,10 +2015,10 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="421"/>
+      <location filename="../src/app/viewercontroller.cpp" line="460"/>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="425"/>
+      <location filename="../src/app/viewercontroller.cpp" line="464"/>
       
         
       <source>Nothing to copy</source>
@@ -2003,7 +2033,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="427"/>
+      <location filename="../src/app/viewercontroller.cpp" line="466"/>
       
         
       <source>Cover copied to clipboard</source>
@@ -2018,10 +2048,10 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="435"/>
+      <location filename="../src/app/viewercontroller.cpp" line="474"/>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="439"/>
+      <location filename="../src/app/viewercontroller.cpp" line="478"/>
       
         
       <source>No trophy icons loaded</source>
@@ -2036,7 +2066,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="452"/>
+      <location filename="../src/app/viewercontroller.cpp" line="491"/>
       
         
       <source>Cannot create folder: %1</source>
@@ -2051,7 +2081,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="475"/>
+      <location filename="../src/app/viewercontroller.cpp" line="514"/>
       
         
       <source>Saved %1 trophy icons to %2</source>
@@ -2066,7 +2096,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="479"/>
+      <location filename="../src/app/viewercontroller.cpp" line="518"/>
       
         
       <source> (%1 skipped)</source>
@@ -2081,7 +2111,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="495"/>
+      <location filename="../src/app/viewercontroller.cpp" line="534"/>
       
         
       <source>Copied to clipboard</source>
@@ -2096,7 +2126,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="545"/>
+      <location filename="../src/app/viewercontroller.cpp" line="584"/>
       
         
       <source>Renamed to %1</source>
@@ -2111,7 +2141,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="560"/>
+      <location filename="../src/app/viewercontroller.cpp" line="599"/>
       
         
       <source>Rename undone</source>
@@ -2126,7 +2156,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="619"/>
+      <location filename="../src/app/viewercontroller.cpp" line="658"/>
       
         
       <source>Batch: renamed %1, skipped %2</source>
@@ -2141,7 +2171,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="631"/>
+      <location filename="../src/app/viewercontroller.cpp" line="670"/>
       
         
       <source>Nothing to revert in %1</source>
@@ -2156,7 +2186,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="633"/>
+      <location filename="../src/app/viewercontroller.cpp" line="672"/>
       
         
       <source>Dry run: %1 renames would be reverted. Run with apply.</source>
@@ -2171,7 +2201,7 @@
     <message>
       
         
-      <location filename="../src/app/viewercontroller.cpp" line="636"/>
+      <location filename="../src/app/viewercontroller.cpp" line="675"/>
       
         
       <source>Reverted %1, skipped %2</source>

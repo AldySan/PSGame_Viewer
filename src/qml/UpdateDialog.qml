@@ -32,6 +32,13 @@ Popup {
         Updater.checkNow()
     }
 
+    function cancelCheck() {
+        // stop claiming the result: a check finished after cancelling is
+        // dropped instead of popping the dialog open again
+        root.busy = false
+        close()
+    }
+
     background: Rectangle {
         color: Theme.card
         radius: Theme.radius + 4
@@ -41,6 +48,12 @@ Popup {
     onOpened: {
         if (!root.result && !root.busy)
             startCheck()
+    }
+
+    // Escape / outside click while a check is in flight is a cancel too
+    onClosed: {
+        if (root.busy)
+            root.busy = false
     }
 
     ColumnLayout {
@@ -163,7 +176,7 @@ Popup {
                 visible: root.busy
                 text: qsTr("Cancel")
                 flat: true
-                onClicked: root.close()
+                onClicked: root.cancelCheck()
             }
             Item { Layout.fillWidth: true }
             Button {

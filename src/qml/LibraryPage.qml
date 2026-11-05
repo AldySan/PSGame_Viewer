@@ -61,7 +61,13 @@ ColumnLayout {
             Label {
                 anchors.centerIn: parent
                 visible: Library.count === 0
-                text: qsTr("Library is empty — open files or scan a folder")
+                width: Math.min(parent.width - 24, implicitWidth)
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.WordWrap
+                text: Library.error !== ""
+                      ? qsTr("The library database could not be opened:<br>%1<br>Check that the folder with the executable is writable.")
+                        .arg(Library.error)
+                      : qsTr("Library is empty — open files or scan a folder")
                 color: Theme.muted
             }
 

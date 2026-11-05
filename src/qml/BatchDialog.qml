@@ -180,13 +180,18 @@ Popup {
                 onClicked: {
                     patternBar.savePrefs()
                     var res = root.controller.batchApply()
-                    root.statusMessage(qsTr(
-                        "Renamed %1, skipped %2").arg(res.renamed)
-                        .arg(res.skipped))
-                    if (res.logPath)
+                    if (res.logError)
+                        root.statusMessage(qsTr(
+                            "Renamed %1, skipped %2. WARNING: the revert log could not be written (%3) — these renames cannot be reverted from a log.")
+                            .arg(res.renamed).arg(res.skipped).arg(res.logError))
+                    else if (res.logPath)
                         root.statusMessage(qsTr(
                             "Renamed %1, skipped %2. Log: %3")
                             .arg(res.renamed).arg(res.skipped).arg(res.logPath))
+                    else
+                        root.statusMessage(qsTr(
+                            "Renamed %1, skipped %2").arg(res.renamed)
+                            .arg(res.skipped))
                     refresh()
                 }
             }
@@ -199,6 +204,10 @@ Popup {
             root.okCount = 0
             return
         }
+        // re-scan first: the preview (and the plan Apply executes) must
+        // reflect the current scan paths and the Recursive tick
+        scanInfo.text = qsTr("%1 file(s) scanned").arg(root.controller.batchScan(
+            scanPaths, recursive.checked))
         root.plan = root.controller.batchPreview(patternBar.pattern,
                                                  patternBar.include)
         var ok = 0
@@ -206,8 +215,6 @@ Popup {
             if (root.plan[i].ok)
                 ++ok
         root.okCount = ok
-        scanInfo.text = qsTr("%1 file(s) scanned").arg(root.controller.batchScan(
-            scanPaths, recursive.checked))
     }
 
     property var scanPaths: []
