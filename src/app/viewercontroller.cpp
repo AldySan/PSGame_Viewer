@@ -121,8 +121,14 @@ ViewerController::ViewerController(AppSettings *settings, ImageStore *images,
 ViewerController::~ViewerController()
 {
     if (m_onlineThread) {
+        // Ask the worker to drop any in-flight HTTP first: a blocking
+        // lookup can otherwise keep the thread busy for many seconds
+        // (up to 4 transfers x 15 s timeout), and destroying a QThread
+        // that is still running aborts the process.
+        if (m_online)
+            m_online->requestAbort();
         m_onlineThread->quit();
-        m_onlineThread->wait(3000);
+        m_onlineThread->wait();
     }
 }
 

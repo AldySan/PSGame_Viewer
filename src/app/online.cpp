@@ -11,6 +11,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QMutexLocker>
 #include <QRegularExpression>
 #include <QTimer>
 
@@ -45,8 +46,24 @@ QString OnlineService::coversCacheDir()
     return dir;
 }
 
+void OnlineService::requestAbort()
+{
+    m_abort.store(true, std::memory_order_relaxed);
+    QMutexLocker lock(&m_inFlightMutex);
+    if (m_inFlight && !m_inFlight->isFinished()) {
+        // queued to the worker thread: safe from any thread, and it lands
+        // while getBlocking()'s local event loop is running
+        QMetaObject::invokeMethod(m_inFlight, &QNetworkReply::abort,
+                                  Qt::QueuedConnection);
+    }
+}
+
 QByteArray OnlineService::getBlocking(QNetworkReply *reply, int timeoutMs)
 {
+    {
+        QMutexLocker lock(&m_inFlightMutex);
+        m_inFlight = reply;
+    }
     QEventLoop loop;
     QTimer timer;
     timer.setSingleShot(true);
@@ -54,17 +71,23 @@ QByteArray OnlineService::getBlocking(QNetworkReply *reply, int timeoutMs)
     connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
     timer.start(timeoutMs);
     loop.exec();
+    QByteArray out;
     if (!reply->isFinished()) {
         reply->abort();
-        return QByteArray();
+    } else if (reply->error() == QNetworkReply::NoError) {
+        out = reply->read(5000000);
     }
-    if (reply->error() != QNetworkReply::NoError)
-        return QByteArray();
-    return reply->read(5000000);
+    {
+        QMutexLocker lock(&m_inFlightMutex);
+        m_inFlight = nullptr;
+    }
+    return out;
 }
 
 QByteArray OnlineService::get(const QString &url, int timeoutMs)
 {
+    if (m_abort.load(std::memory_order_relaxed))
+        return QByteArray();
     QNetworkReply *reply = m_nam->get(makeRequest(url));
     const QByteArray out = getBlocking(reply, timeoutMs);
     reply->deleteLater(); // replies are caller-owned; never parented
@@ -74,6 +97,8 @@ QByteArray OnlineService::get(const QString &url, int timeoutMs)
 QByteArray OnlineService::post(const QString &url, const QByteArray &body,
                                int timeoutMs)
 {
+    if (m_abort.load(std::memory_order_relaxed))
+        return QByteArray();
     QNetworkRequest req = makeRequest(url);
     req.setHeader(QNetworkRequest::ContentTypeHeader,
                   QStringLiteral("application/json"));
@@ -133,6 +158,8 @@ void OnlineService::fetchCoverBytes(const QString &key, const QString &tid,
         }
     }
     for (const QString &url : urls) {
+        if (m_abort.load(std::memory_order_relaxed))
+            break;
         const QByteArray raw = get(url);
         if (raw.isEmpty())
             continue;

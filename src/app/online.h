@@ -1,8 +1,11 @@
 #pragma once
 
 #include <QHash>
+#include <QMutex>
 #include <QObject>
 #include <QString>
+
+#include <atomic>
 
 class QNetworkAccessManager;
 class QNetworkReply;
@@ -19,6 +22,12 @@ class OnlineService : public QObject
 
 public:
     explicit OnlineService(QObject *parent = nullptr);
+
+    // Stop the running lookups as soon as possible. Thread-safe: sets the
+    // abort flag and queues abort() on the in-flight network reply, so a
+    // blocking lookup unwinds quickly instead of holding its thread busy
+    // for the full transfer timeout.
+    void requestAbort();
 
     // cover bytes for a PS2 serial (SCUS-97399) or PS3 Title ID (BCUS98111).
     // invokable so the GUI can run them on the OnlineService thread.
@@ -40,6 +49,9 @@ private:
                     int timeoutMs = 15000);
     QByteArray getBlocking(QNetworkReply *reply, int timeoutMs);
 
+    std::atomic<bool> m_abort { false };
+    QMutex m_inFlightMutex;
+    QNetworkReply *m_inFlight = nullptr; // guarded by m_inFlightMutex
     QNetworkAccessManager *m_nam;
     QHash<QString, QString> m_patchCache;
 };

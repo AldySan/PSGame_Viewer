@@ -2,27 +2,32 @@
 
 #include <QBuffer>
 #include <QImage>
+#include <QMutexLocker>
 
 namespace psg {
 
 void ImageStore::setImage(const QString &key, const QByteArray &bytes)
 {
+    QMutexLocker lock(&m_mutex);
     m_images.insert(key, bytes);
 }
 
 void ImageStore::setImages(const QString &prefix, const QList<QByteArray> &list)
 {
+    QMutexLocker lock(&m_mutex);
     for (int i = 0; i < list.size(); ++i)
         m_images.insert(QStringLiteral("%1/%2").arg(prefix).arg(i), list.at(i));
 }
 
 void ImageStore::clear()
 {
+    QMutexLocker lock(&m_mutex);
     m_images.clear();
 }
 
 QByteArray ImageStore::image(const QString &key) const
 {
+    QMutexLocker lock(&m_mutex);
     return m_images.value(key);
 }
 
