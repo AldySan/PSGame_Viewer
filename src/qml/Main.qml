@@ -19,6 +19,11 @@ ApplicationWindow {
 
     // startup update check: silent, but a found update opens the dialog
     function onUpdaterFinished(map) {
+        // a check initiated from the Update dialog owns the result
+        if (updateDialog.busy) {
+            updateDialog.showResult(map)
+            return
+        }
         if (!startupCheckDone)
             return
         startupCheckDone = false
@@ -27,9 +32,6 @@ ApplicationWindow {
     }
 
     Component.onCompleted: {
-        // file passed on the command line
-        if (typeof initialFile !== "undefined" && initialFile)
-            Viewer.openPath(initialFile)
         // background release check
         if (AppSettings.checkUpdatesOnStartup) {
             startupCheckDone = true

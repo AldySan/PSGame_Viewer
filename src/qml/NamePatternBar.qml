@@ -30,6 +30,31 @@ ColumnLayout {
 
     function currentPresetId() { return presetBox.currentValue }
 
+    // Restore the last choice (preset, custom pattern and the include
+    // ticks) from the settings. Shared by both rename dialogs so the
+    // "remembered" promise holds everywhere.
+    function loadPrefs() {
+        var inc = AppSettings.renameInclude
+        tickTitle.checked = inc.title !== false
+        tickTid.checked = inc.tid !== false
+        tickVer.checked = inc.ver !== false
+        tickRegion.checked = inc.region !== false
+        var pid = AppSettings.renamePreset
+        var idx = 0
+        for (var i = 0; i < presetBox.count; ++i) {
+            if (presetBox.valueAt(i) === pid) { idx = i; break }
+        }
+        if (pid === "custom")
+            idx = presetBox.count - 1
+        presetBox.currentIndex = idx
+        if (AppSettings.renamePattern)
+            customField.text = AppSettings.renamePattern
+    }
+
+    function savePrefs() {
+        AppSettings.saveRenamePrefs(include, currentPresetId(), pattern)
+    }
+
     RowLayout {
         spacing: 8
         Layout.fillWidth: true
