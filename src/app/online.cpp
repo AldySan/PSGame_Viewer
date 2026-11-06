@@ -202,15 +202,31 @@ void OnlineService::fetchLatestPatch(const QString &titleId)
         return;
     }
     const QString html = QString::fromUtf8(get(host + u'/' + tid));
+    // The per-title key is embedded in the game page. Both sites used to
+    // serve it as data-key="…"; orbispatches moved it into the #dynpatch
+    // loader as data-loadparams="{ 'titleid': …, 'key': … }" (JSON-ish,
+    // single or double quotes). Accept every shape so a lookup survives
+    // either template.
     QString keyHex;
-    static const QRegularExpression re(
-        QStringLiteral("data-key=\"([0-9a-f]{64})\""));
-    const auto m = re.match(html);
-    if (!m.hasMatch()) {
+    static const QRegularExpression keyPatterns[] = {
+        QRegularExpression(
+            QStringLiteral("data-key=\"([0-9a-f]{64})\"")),
+        QRegularExpression(
+            QStringLiteral("['\"]key['\"]\\s*:\\s*'([0-9a-f]{64})'")),
+        QRegularExpression(
+            QStringLiteral("\"key\"\\s*:\\s*\"([0-9a-f]{64})\"")),
+    };
+    for (const QRegularExpression &re : keyPatterns) {
+        const auto m = re.match(html);
+        if (m.hasMatch()) {
+            keyHex = m.captured(1);
+            break;
+        }
+    }
+    if (keyHex.isEmpty()) {
         emit patchReady(tid, QString(), 0, QString());
         return;
     }
-    keyHex = m.captured(1);
     const QByteArray body = QStringLiteral(
         "{\"titleid\":\"%1\",\"key\":\"%2\"}").arg(tid, keyHex).toUtf8();
     const QByteArray resp = post(host + QStringLiteral("/api/internal/loadpatches"),

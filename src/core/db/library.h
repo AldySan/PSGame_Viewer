@@ -43,7 +43,11 @@ public:
                    const QString &contentId, const QString &region,
                    const QString &version, quint64 size);
     void removePath(const QString &path);
-    // drop rows whose files no longer exist
+    // keep the library and the recent list in sync after a rename
+    // (GUI rename, undo or batch apply): the games row and the recent
+    // row move to the new path, replacing any row already there
+    void renamePath(const QString &oldPath, const QString &newPath);
+    // drop rows whose files no longer exist (games and recents)
     int removeMissing();
 
     // search across title, Title ID and Content ID (newest first)

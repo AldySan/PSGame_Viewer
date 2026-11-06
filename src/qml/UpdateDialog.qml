@@ -40,6 +40,33 @@ Popup {
         close()
     }
 
+    // Release notes arrive as Markdown; this dialog is plain text, so
+    // flatten the common syntax instead of showing raw "##" and "**".
+    function plainNotes(md) {
+        var lines = String(md).split("\n")
+        var out = []
+        for (var i = 0; i < lines.length; ++i) {
+            var l = lines[i]
+            // images are noise in a small dialog
+            l = l.replace(/!\[[^\]]*\]\([^)]*\)/g, "")
+            // links keep only their text
+            l = l.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+            // headings: keep the text, drop the hashes
+            l = l.replace(/^\s{0,3}#{1,6}\s*/, "")
+            // bullets -> dots
+            l = l.replace(/^\s*[-*+]\s+/, "\u2022 ")
+            // bold / italic / inline code markers
+            l = l.replace(/\*\*([^*]+)\*\*/g, "$1")
+            l = l.replace(/\*([^*]+)\*/g, "$1")
+            l = l.replace(/`([^`]+)`/g, "$1")
+            out.push(l)
+        }
+        var text = out.join("\n")
+        // collapse runs of blank lines
+        text = text.replace(/\n{3,}/g, "\n\n")
+        return text.trim()
+    }
+
     background: Rectangle {
         color: Theme.card
         radius: Theme.radiusLg
@@ -151,7 +178,7 @@ Popup {
             Text {
                 id: notesText
                 width: parent.width
-                text: root.result ? (root.result.notes || "") : ""
+                text: root.result ? root.plainNotes(root.result.notes || "") : ""
                 color: Theme.muted
                 font.pixelSize: 12
                 wrapMode: Text.Wrap

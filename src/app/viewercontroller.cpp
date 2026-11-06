@@ -587,6 +587,7 @@ QString ViewerController::applyRename(const QString &pattern,
     m_undoNew = target;
     m_info.path = target;
     emit infoChanged();
+    emit pathsRenamed({m_undoOld}, {m_undoNew});
     emit statusMessage(tr("Renamed to %1").arg(newName));
     return target;
 }
@@ -598,10 +599,13 @@ bool ViewerController::undoRename()
     QFile f(m_undoNew);
     if (!f.rename(m_undoOld))
         return false;
+    const QString undoNew = m_undoNew;
+    const QString undoOld = m_undoOld;
     m_info.path = m_undoOld;
     m_undoOld.clear();
     m_undoNew.clear();
     emit infoChanged();
+    emit pathsRenamed({undoNew}, {undoOld});
     emit statusMessage(tr("Rename undone"));
     return true;
 }
@@ -661,6 +665,18 @@ QVariantMap ViewerController::batchApply()
     m.insert(QStringLiteral("renamed"), out.renamed.size());
     m.insert(QStringLiteral("skipped"), out.skipped.size());
     m.insert(QStringLiteral("logPath"), out.logPath);
+    // surfaced so the dialog can warn that these renames cannot be
+    // reverted from a log (the renames themselves still happened)
+    if (!out.logError.isEmpty())
+        m.insert(QStringLiteral("logError"), out.logError);
+    if (!out.renamed.isEmpty()) {
+        QStringList olds, news;
+        for (const auto &pair : out.renamed) {
+            olds.append(pair.first);
+            news.append(pair.second);
+        }
+        emit pathsRenamed(olds, news);
+    }
     emit statusMessage(tr("Batch: renamed %1, skipped %2")
                            .arg(out.renamed.size())
                            .arg(out.skipped.size()));

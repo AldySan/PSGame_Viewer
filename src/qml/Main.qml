@@ -89,14 +89,7 @@ ApplicationWindow {
             }
             AppButton {
                 text: stack.currentIndex === 0 ? qsTr("Library") : qsTr("Viewer")
-                onClicked: {
-                    if (stack.currentIndex === 0) {
-                        Library.refresh()
-                        stack.currentIndex = 1
-                    } else {
-                        stack.currentIndex = 0
-                    }
-                }
+                onClicked: stack.currentIndex = stack.currentIndex === 0 ? 1 : 0
             }
             AppButton {
                 text: qsTr("Rename")
@@ -122,12 +115,22 @@ ApplicationWindow {
 
     StackLayout {
         id: stack
+        objectName: "pages"
         anchors.fill: parent
         currentIndex: 0
+        // re-sync from the database every time the page is shown: the
+        // rows may have changed while the page was hidden
+        onCurrentIndexChanged: {
+            if (currentIndex === 1)
+                Library.refresh()
+        }
 
         ViewerPage {
             controller: Viewer
             onStatusMessage: function(msg) { root.statusText = msg }
+            onOpenRecentRequested: function(path) {
+                Viewer.openPath(path)
+            }
         }
 
         LibraryPage {
@@ -180,19 +183,6 @@ ApplicationWindow {
             qsTr("All files (*)")
         ]
         onAccepted: Viewer.openPath(selectedFile)
-    }
-
-    FolderDialog {
-        id: extractFolderDialog
-        title: qsTr("Extract to folder")
-        property int pendingEntry: -1
-        onAccepted: {
-            if (pendingEntry >= 0)
-                Viewer.extractEntry(pendingEntry, selectedFolder)
-            else
-                Viewer.extractAll(selectedFolder)
-            pendingEntry = -1
-        }
     }
 
     RenameDialog {

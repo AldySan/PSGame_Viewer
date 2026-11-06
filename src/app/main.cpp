@@ -222,6 +222,15 @@ int runGui(int argc, char *argv[])
                          library.refresh();
                      });
 
+    // renames (single, undo, batch) must not orphan the library rows and
+    // recent entries that still point at the old paths
+    QObject::connect(&viewer, &ViewerController::pathsRenamed, &app,
+                     [&](const QStringList &olds, const QStringList &news) {
+                         for (int i = 0; i < olds.size() && i < news.size(); ++i)
+                             gameLibrary.renamePath(olds.at(i), news.at(i));
+                         library.refresh();
+                     });
+
     // translators (falls back to the source language when absent)
     const QString lang = settings.language();
     const QStringList locales = lang == QLatin1String("system")
@@ -260,17 +269,41 @@ int runGui(int argc, char *argv[])
     // testing aid: open a file and/or grab the window (headless UI checks);
     // PSGV_DIALOG opens a named dialog and PSGV_TAB selects the viewer tab
     // before the shot (settings, rename, batch, about, update dialogs;
-    // 0=Files, 1=Details, 2=Trophies) so those views can be checked too
+    // 0=Files, 1=Details, 2=Trophies) so those views can be checked too.
+    // PSGV_PAGE picks the top-level page (0=Viewer, 1=Library), and
+    // PSGV_OPEN accepts several files separated by '|' which are opened
+    // in sequence — the reopen path (model resets, late lookups, image
+    // store clears) is where flicker-class bugs live
     const QString screenshot = qEnvironmentVariable("PSGV_SCREENSHOT");
-    const QString openFile = qEnvironmentVariable("PSGV_OPEN");
+    const QString openEnv = qEnvironmentVariable("PSGV_OPEN");
     const QString openDialog = qEnvironmentVariable("PSGV_DIALOG");
+    const QString openPage = qEnvironmentVariable("PSGV_PAGE");
     const int openTab = qEnvironmentVariable("PSGV_TAB").toInt();
-    if (!openFile.isEmpty())
-        viewer.openPath(QUrl::fromLocalFile(openFile));
+    // with a queue of files the shot must wait for the last open to land
+    int shotDelayMs = 1500;
+    if (openEnv.contains(u'|')) {
+        // sequential opens: one every 350 ms, screenshot afterwards
+        const QStringList queue = openEnv.split(u'|');
+        for (int i = 0; i < queue.size(); ++i) {
+            QTimer::singleShot(350 * i, [&viewer, i, queue]() {
+                viewer.openPath(QUrl::fromLocalFile(queue.at(i)));
+            });
+        }
+        shotDelayMs = 350 * queue.size() + 900;
+    } else if (!openEnv.isEmpty()) {
+        viewer.openPath(QUrl::fromLocalFile(openEnv));
+    }
     if (!screenshot.isEmpty()) {
-        QTimer::singleShot(1500, [&engine, screenshot, openDialog, openTab]() {
+        QTimer::singleShot(shotDelayMs, [&engine, screenshot, openDialog, openTab,
+                                  openPage]() {
             const auto roots = engine.rootObjects();
             for (QObject *root : roots) {
+                if (!openPage.isEmpty()) {
+                    // "pages" is the objectName of the viewer/library stack
+                    if (auto *stack = root->findChild<QObject *>(
+                            QStringLiteral("pages")))
+                        stack->setProperty("currentIndex", openPage.toInt());
+                }
                 if (openTab > 0) {
                     // "tabBar" is the objectName of the viewer's TabBar
                     if (auto *bar = root->findChild<QObject *>(
