@@ -27,7 +27,7 @@
 #include <iostream>
 
 #ifndef PSGV_VERSION
-#define PSGV_VERSION "1.0.0"
+#define PSGV_VERSION "0.0.1"
 #endif
 
 using namespace psg;
@@ -139,6 +139,9 @@ int runRevert(const QString &logPath, bool apply)
 int runCli(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
+    app.setOrganizationName(QStringLiteral("PSGame-Viewer"));
+    app.setApplicationName(QStringLiteral("PSGame-Viewer"));
+    app.setApplicationVersion(QStringLiteral(PSGV_VERSION));
     QCommandLineParser parser;
     parser.setApplicationDescription(
         QStringLiteral("PSGame-Viewer — PS2/PS3/PS4/PS5 game file viewer"));
