@@ -59,7 +59,11 @@ jobs:
         run: cmake --build build -- -k 100
 
       - name: Test
-        run: ctest --test-dir build --output-on-failure
+        run: |
+          # a crashing process must terminate the step instead of waiting
+          # forever on the Windows Error Reporting dialog
+          reg add "HKLM\Software\Microsoft\Windows\Windows Error Reporting" /v DontShowUI /t REG_DWORD /d 1 /f | Out-Null
+          ctest --test-dir build --output-on-failure --verbose --timeout 120
 
       - name: Package the portable archive
         run: pwsh packaging/make-portable.ps1 -BuildDir build
