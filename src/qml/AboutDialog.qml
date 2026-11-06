@@ -5,6 +5,7 @@ import PSGameViewer
 
 Popup {
     id: root
+    objectName: "aboutDialog"
     anchors.centerIn: parent
     width: 440
     height: 400
@@ -19,7 +20,7 @@ Popup {
 
     background: Rectangle {
         color: Theme.card
-        radius: Theme.radius + 4
+        radius: Theme.radiusLg
         border.color: Theme.border
     }
 
@@ -30,7 +31,7 @@ Popup {
         RowLayout {
             spacing: 12
             Rectangle {
-                width: 46; height: 46; radius: 10
+                width: 46; height: 46; radius: Theme.radiusLg
                 color: Theme.accent
                 Text {
                     anchors.centerIn: parent
@@ -74,15 +75,17 @@ Popup {
 
         Item { Layout.fillHeight: true }
 
-        Button {
+        AppButton {
             Layout.alignment: Qt.AlignHCenter
             text: qsTr("Check for updates")
+            highlighted: true
             onClicked: updateCheckRequested()
         }
 
-        Button {
+        AppButton {
             Layout.alignment: Qt.AlignHCenter
             text: qsTr("Close")
+            flat: true
             onClicked: root.close()
         }
     }

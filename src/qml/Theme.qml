@@ -17,6 +17,22 @@ QtObject {
     readonly property color border: light ? "#d9dde5" : "#333333"
     readonly property color danger: light ? "#c0392b" : "#e0564b"
     readonly property color good: light ? "#27863a" : "#5bbf6b"
-    readonly property int radius: 6
+
+    // text color used on top of an accent-filled surface
+    readonly property color accentText: light ? "#ffffff" : "#0e1116"
+    // accent-tinted fill for selected tabs, menu highlights, hovers
+    readonly property color accentSoft: light ? "#e3edfb" : "#20395f"
+    // neutral overlay for hover states on transparent controls
+    readonly property color hoverOverlay: light ? "#0d000000" : "#12ffffff"
+    // pressed overlay darkens whatever base the control has
+    readonly property color pressOverlay: light ? "#14000000" : "#1af0f0f0"
+    // input surfaces sit slightly apart from cards
+    readonly property color inputBg: light ? "#ffffff" : "#1b1b1b"
+
+    // corner radius scale: small chips -> cards -> dialogs
+    readonly property int radiusSm: 6
+    readonly property int radius: 8
+    readonly property int radiusLg: 12
+
     readonly property string fontFamily: "Segoe UI"
 }

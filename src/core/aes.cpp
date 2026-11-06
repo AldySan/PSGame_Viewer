@@ -83,8 +83,14 @@ inline uchar mul(uchar x, uchar y)
 
 Aes128::Aes128(const QByteArray &key)
 {
-    Q_ASSERT(key.size() == 16);
-    expandKey(reinterpret_cast<const uchar *>(key.constData()));
+    // Q_ASSERT compiles out in release builds, so never feed expandKey()
+    // a short key buffer (it reads 16 bytes): expand from a zero-padded
+    // local copy instead. Overlong keys use their first 16 bytes.
+    uchar kbuf[16] = {};
+    const qsizetype n = qMin<qsizetype>(key.size(), 16);
+    if (n > 0)
+        memcpy(kbuf, key.constData(), size_t(n));
+    expandKey(kbuf);
 }
 
 void Aes128::expandKey(const uchar *key)

@@ -35,7 +35,7 @@ Frame {
                 font.pixelSize: 12
             }
             Item { Layout.fillWidth: true }
-            Button {
+            AppButton {
                 text: qsTr("Export icons…")
                 flat: true
                 font.pixelSize: 12
@@ -53,7 +53,7 @@ Frame {
             boundsBehavior: Flickable.StopAtBounds
             spacing: 4
             model: root.model
-            ScrollBar.vertical: ScrollBar {}
+            ScrollBar.vertical: AppScrollBar {}
 
             Label {
                 anchors.centerIn: parent
@@ -76,7 +76,8 @@ Frame {
 
                 Rectangle {
                     anchors.fill: parent
-                    radius: 4
+                    anchors.margins: 1
+                    radius: Theme.radiusSm
                     color: mouse.containsMouse ? Theme.card2 : "transparent"
                 }
 
@@ -112,7 +113,7 @@ Frame {
                             Rectangle {
                                 visible: grade.length > 0
                                 width: gradeText.implicitWidth + 10
-                                height: 16; radius: 3
+                                height: 16; radius: Theme.radiusSm - 2
                                 color: {
                                     if (grade === "P") return "#e0b94b"
                                     if (grade === "G") return "#c8cdd6"

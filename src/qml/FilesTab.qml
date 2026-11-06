@@ -20,17 +20,17 @@ ColumnLayout {
             font.pixelSize: 12
             Layout.fillWidth: true
         }
-        Button {
+        AppButton {
             text: qsTr("Expand")
             flat: true
             onClicked: root.model ? root.model.expandAll() : 0
         }
-        Button {
+        AppButton {
             text: qsTr("Collapse")
             flat: true
             onClicked: root.model ? root.model.collapseAll() : 0
         }
-        Button {
+        AppButton {
             text: qsTr("Extract all…")
             onClicked: root.extractAllRequested()
         }
@@ -52,7 +52,7 @@ ColumnLayout {
             clip: true
             model: root.model
             boundsBehavior: Flickable.StopAtBounds
-            ScrollBar.vertical: ScrollBar {}
+            ScrollBar.vertical: AppScrollBar {}
 
             // header
             header: Item {
@@ -103,6 +103,8 @@ ColumnLayout {
 
                 Rectangle {
                     anchors.fill: parent
+                    anchors.margins: 1
+                    radius: Theme.radiusSm
                     color: mouse.containsMouse ? Theme.card2 : "transparent"
                 }
 

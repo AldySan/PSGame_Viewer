@@ -13,7 +13,8 @@ class EntryTreeModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
-    Q_PROPERTY(int totalEntries READ totalEntries CONSTANT)
+    // NOT constant: the count follows setEntries() while the app runs
+    Q_PROPERTY(int totalEntries READ totalEntries NOTIFY countChanged)
 
 public:
     enum Roles {

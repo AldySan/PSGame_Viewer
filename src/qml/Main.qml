@@ -45,7 +45,17 @@ ApplicationWindow {
     }
     header: ToolBar {
         height: 52
-        background: Rectangle { color: Theme.card }
+        background: Item {
+            Rectangle { anchors.fill: parent; color: Theme.card }
+            // hairline separator under the header
+            Rectangle {
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                height: 1
+                color: Theme.border
+            }
+        }
 
         RowLayout {
             anchors.fill: parent
@@ -54,7 +64,7 @@ ApplicationWindow {
             spacing: 10
 
             Rectangle {
-                width: 30; height: 30; radius: 6
+                width: 30; height: 30; radius: Theme.radiusSm + 2
                 color: Theme.accent
                 Text {
                     anchors.centerIn: parent
@@ -72,12 +82,12 @@ ApplicationWindow {
             }
             Item { Layout.fillWidth: true }
 
-            Button {
+            AppButton {
                 text: qsTr("Open")
                 highlighted: true
                 onClicked: fileDialog.open()
             }
-            Button {
+            AppButton {
                 text: stack.currentIndex === 0 ? qsTr("Library") : qsTr("Viewer")
                 onClicked: {
                     if (stack.currentIndex === 0) {
@@ -88,21 +98,21 @@ ApplicationWindow {
                     }
                 }
             }
-            Button {
+            AppButton {
                 text: qsTr("Rename")
                 enabled: Viewer.hasFile
                 onClicked: renameDialog.open()
             }
-            Button {
+            AppButton {
                 text: qsTr("Batch")
                 onClicked: batchDialog.open()
             }
-            Button {
+            AppButton {
                 text: qsTr("Settings")
                 flat: true
                 onClicked: settingsDialog.open()
             }
-            Button {
+            AppButton {
                 text: qsTr("About")
                 flat: true
                 onClicked: aboutDialog.open()
@@ -131,7 +141,17 @@ ApplicationWindow {
 
     footer: ToolBar {
         height: 34
-        background: Rectangle { color: Theme.card }
+        background: Item {
+            Rectangle { anchors.fill: parent; color: Theme.card }
+            // hairline separator above the footer
+            Rectangle {
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                height: 1
+                color: Theme.border
+            }
+        }
         RowLayout {
             anchors.fill: parent
             anchors.leftMargin: 12

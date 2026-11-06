@@ -205,7 +205,10 @@ QList<ExfatImage::DirItem> ExfatImage::listDir(quint32 first, quint64 size,
     while (clus >= 2 && clusterInImage(clus) && quint64(out.size()) < cap) {
         dev()->seek(qint64(clusterOffset(clus)));
         const quint64 want2 = qMin(clusterBytes, size - quint64(out.size()));
-        out += dev()->read(int(want2));
+        // `size` comes from directory entries and clusterBytes from the
+        // boot sector; both are attacker-controlled and can exceed INT_MAX,
+        // so clamp before the int cast (a negative read size is UB-adjacent)
+        out += dev()->read(int(qMin<quint64>(want2, quint64(INT_MAX))));
         if (!want.isEmpty()) {
             const QList<DirItem> items = parseDir(out, want);
             for (const DirItem &it : items) {

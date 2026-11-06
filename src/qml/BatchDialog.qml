@@ -8,6 +8,7 @@ import QtQuick.Dialogs
 // log, and revert from an earlier log.
 Popup {
     id: root
+    objectName: "batchDialog"
     required property var controller
     signal statusMessage(string msg)
 
@@ -21,7 +22,7 @@ Popup {
 
     background: Rectangle {
         color: Theme.card
-        radius: Theme.radius + 4
+        radius: Theme.radiusLg
         border.color: Theme.border
     }
 
@@ -62,15 +63,15 @@ Popup {
 
         RowLayout {
             spacing: 8
-            Button {
+            AppButton {
                 text: qsTr("Add folder…")
                 onClicked: scanDialog.open()
             }
-            Button {
+            AppButton {
                 text: qsTr("Add files…")
                 onClicked: addDialog.open()
             }
-            CheckBox {
+            AppCheckBox {
                 id: recursive
                 text: qsTr("Recursive")
                 font.pixelSize: 12
@@ -90,7 +91,7 @@ Popup {
             Layout.fillHeight: true
             background: Rectangle {
                 color: Theme.bg
-                radius: 4
+                radius: Theme.radiusSm
                 border.color: Theme.border
             }
 
@@ -102,7 +103,7 @@ Popup {
                 boundsBehavior: Flickable.StopAtBounds
                 spacing: 2
                 model: root.plan
-                ScrollBar.vertical: ScrollBar {}
+                ScrollBar.vertical: AppScrollBar {}
 
                 Label {
                     anchors.centerIn: parent
@@ -163,17 +164,17 @@ Popup {
                 font.pixelSize: 12
                 Layout.fillWidth: true
             }
-            Button {
+            AppButton {
                 text: qsTr("Revert from log…")
                 flat: true
                 onClicked: revertDialog.open()
             }
-            Button {
+            AppButton {
                 text: qsTr("Close")
                 flat: true
                 onClicked: root.close()
             }
-            Button {
+            AppButton {
                 text: qsTr("Apply")
                 highlighted: true
                 enabled: root.okCount > 0

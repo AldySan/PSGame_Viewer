@@ -28,7 +28,7 @@ Frame {
                 font.pixelSize: 12
                 Layout.fillWidth: true
             }
-            CheckBox {
+            AppCheckBox {
                 id: showAll
                 text: qsTr("Show all")
                 font.pixelSize: 12
@@ -41,7 +41,7 @@ Frame {
             Layout.fillHeight: true
             clip: true
             boundsBehavior: Flickable.StopAtBounds
-            ScrollBar.vertical: ScrollBar {}
+            ScrollBar.vertical: AppScrollBar {}
             model: showAll.checked ? root.full : root.curated
 
             delegate: Item {
@@ -62,6 +62,8 @@ Frame {
                 }
                 Rectangle {
                     anchors.fill: parent
+                    anchors.margins: 1
+                    radius: Theme.radiusSm
                     color: Theme.card2
                     visible: mouse.containsMouse
                 }

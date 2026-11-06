@@ -60,8 +60,29 @@ Frame {
     Menu {
         id: valueMenu
         property string textToCopy: ""
+        padding: 6
+        background: Rectangle {
+            radius: Theme.radius
+            color: Theme.card
+            border.color: Theme.border
+        }
         MenuItem {
+            id: copyItem
             text: qsTr("Copy")
+            padding: 6
+            leftPadding: 10
+            rightPadding: 10
+            contentItem: Text {
+                text: copyItem.text
+                color: Theme.text
+                font.pixelSize: 12
+                verticalAlignment: Text.AlignVCenter
+            }
+            background: Rectangle {
+                radius: Theme.radiusSm
+                color: copyItem.hovered || copyItem.highlighted
+                       ? Theme.accentSoft : "transparent"
+            }
             onTriggered: {
                 // small helper via controller-free clipboard access
                 Viewer.copyText(valueMenu.textToCopy)

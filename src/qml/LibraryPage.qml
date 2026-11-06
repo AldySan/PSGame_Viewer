@@ -15,24 +15,18 @@ ColumnLayout {
         spacing: 8
         Layout.fillWidth: true
 
-        TextField {
+        AppTextField {
             id: searchField
             Layout.fillWidth: true
             placeholderText: qsTr("Search title, Title ID or Content ID…")
             font.pixelSize: 13
-            color: Theme.text
             onTextChanged: Library.setSearch(text)
-            background: Rectangle {
-                radius: 4
-                color: Theme.card2
-                border.color: searchField.activeFocus ? Theme.accent : Theme.border
-            }
         }
-        Button {
+        AppButton {
             text: qsTr("Scan folder…")
             onClicked: scanDialog.open()
         }
-        Button {
+        AppButton {
             text: qsTr("Clean missing")
             flat: true
             onClicked: Library.removeMissing()
@@ -56,7 +50,7 @@ ColumnLayout {
             boundsBehavior: Flickable.StopAtBounds
             spacing: 2
             model: Library
-            ScrollBar.vertical: ScrollBar {}
+            ScrollBar.vertical: AppScrollBar {}
 
             Label {
                 anchors.centerIn: parent
@@ -86,7 +80,8 @@ ColumnLayout {
 
                 Rectangle {
                     anchors.fill: parent
-                    radius: 4
+                    anchors.margins: 1
+                    radius: Theme.radiusSm
                     color: mouse.containsMouse ? Theme.card2 : "transparent"
                 }
 
@@ -97,9 +92,9 @@ ColumnLayout {
                     spacing: 10
 
                     Rectangle {
-                        Layout.preferredWidth: 44
+                        Layout.preferredWidth: 46
                         Layout.preferredHeight: 30
-                        radius: 4
+                        radius: Theme.radiusSm
                         color: {
                             if (platform === "PS2") return "#1d4ed8"
                             if (platform === "PS3") return "#0e7490"
@@ -143,12 +138,12 @@ ColumnLayout {
                         }
                     }
 
-                    Button {
+                    AppButton {
                         text: qsTr("Open")
                         flat: true
                         onClicked: Library.openPath(path)
                     }
-                    Button {
+                    AppButton {
                         text: qsTr("Remove")
                         flat: true
                         onClicked: Library.removeAt(index)

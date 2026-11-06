@@ -8,6 +8,7 @@ import PSGameViewer
 // automatically when the startup check finds a newer release.
 Popup {
     id: root
+    objectName: "updateDialog"
     anchors.centerIn: parent
     width: 480
     height: 420
@@ -41,7 +42,7 @@ Popup {
 
     background: Rectangle {
         color: Theme.card
-        radius: Theme.radius + 4
+        radius: Theme.radiusLg
         border.color: Theme.border
     }
 
@@ -145,7 +146,7 @@ Popup {
             clip: true
             contentWidth: width
             contentHeight: notesText.implicitHeight
-            ScrollBar.vertical: ScrollBar {}
+            ScrollBar.vertical: AppScrollBar {}
 
             Text {
                 id: notesText
@@ -164,7 +165,7 @@ Popup {
             Layout.fillWidth: true
             spacing: 8
 
-            Button {
+            AppButton {
                 visible: !root.busy && root.result
                          && root.result.state === "update-available"
                          && (root.result.pageUrl || "").length > 0
@@ -172,14 +173,14 @@ Popup {
                 highlighted: true
                 onClicked: Qt.openUrlExternally(root.result.pageUrl)
             }
-            Button {
+            AppButton {
                 visible: root.busy
                 text: qsTr("Cancel")
                 flat: true
                 onClicked: root.cancelCheck()
             }
             Item { Layout.fillWidth: true }
-            Button {
+            AppButton {
                 visible: !root.busy
                 text: qsTr("Close")
                 onClicked: root.close()

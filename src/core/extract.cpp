@@ -33,7 +33,10 @@ QString sanitizePkgPath(const QString &name)
 QByteArray readEntryBytes(const Entry &e, const QString &containerPath,
                           quint64 limit)
 {
-    if (e.size == 0 || e.size > limit)
+    // The read sizes below are `int`; cap at INT_MAX as well so a crafted
+    // entry size of 2 GiB or more cannot overflow the cast (extract
+    // callers pass a 2 GiB limit, which equals INT_MAX + 1).
+    if (e.size == 0 || e.size > qMin<quint64>(limit, quint64(INT_MAX)))
         return QByteArray();
     switch (e.source) {
     case Entry::Source::Ps3Crypto: {
