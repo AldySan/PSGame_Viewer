@@ -65,25 +65,21 @@ jobs:
           reg add "HKLM\Software\Microsoft\Windows\Windows Error Reporting" /v DontShowUI /t REG_DWORD /d 1 /f | Out-Null
           ctest --test-dir build --output-on-failure --verbose --timeout 120
 
-      # TEMPORARY diagnosis: the full ctest run hangs with buffered output,
-      # so run every test function in its own short-lived process. Whatever
-      # reports HANG (or a startup-wide hang) is the culprit. Remove once
-      # the Windows test run is green.
-      - name: Diagnose tests one by one
+      # TEMPORARY diagnosis: every test function exits with 0xC0000135
+      # (STATUS_DLL_NOT_FOUND) — something the test executable imports is
+      # not on the runner. List the imports and capture the loader error,
+      # which names the missing DLL. Remove once the Windows run is green.
+      - name: Diagnose the missing DLL
         if: always()
         run: |
-          $names = Select-String -Path tests/tst_psgcore.cpp -Pattern '^\s*void (\w+)\(\);' |
-                   ForEach-Object { $_.Matches[0].Groups[1].Value }
-          Write-Host "found $($names.Count) test functions"
-          foreach ($t in $names) {
-            $p = Start-Process -FilePath "build\tst_psgcore.exe" -ArgumentList $t -NoNewWindow -PassThru
-            if ($p.WaitForExit(20000)) {
-              Write-Host "OK   $t (exit $($p.ExitCode))"
-            } else {
-              Write-Host "HANG $t"
-              $p.Kill()
-            }
-          }
+          dumpbin /dependents build\tst_psgcore.exe
+          $p = Start-Process -FilePath "build\tst_psgcore.exe" -ArgumentList "aesNistVectors" -NoNewWindow -PassThru -RedirectStandardError diag_err.txt -RedirectStandardOutput diag_out.txt
+          $null = $p.WaitForExit(15000)
+          Write-Host "--- exit code: $($p.ExitCode)"
+          Write-Host "--- stderr:"
+          Get-Content diag_err.txt -ErrorAction SilentlyContinue
+          Write-Host "--- stdout:"
+          Get-Content diag_out.txt -ErrorAction SilentlyContinue
 
       - name: Package the portable archive
         run: pwsh packaging/make-portable.ps1 -BuildDir build
