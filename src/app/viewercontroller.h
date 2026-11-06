@@ -103,6 +103,10 @@ signals:
     void patchInfoChanged();
     void statusMessage(const QString &message);
     void fileOpened(const QString &path);
+    // every successful rename (single rename, undo, batch apply) so the
+    // library and recent list can follow the files to their new paths
+    void pathsRenamed(const QStringList &oldPaths,
+                      const QStringList &newPaths);
 
 private:
     void loadTrophies();

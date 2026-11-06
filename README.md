@@ -49,7 +49,7 @@ The demo file shown here is a synthetic sample package — no copyrighted game d
 
 - Rename to a clean uniform name (`Title - TID - vVersion - Region`) or your own token pattern (`{title} {tid} {cid} {version} {region} {type} {orig}`), with live preview and one-click Undo
 - Batch rename across whole folders — recursive scans, split-set aware, with a revert log for every run
-- Game library (SQLite) that remembers what you opened, with search and a recent-files list
+- Game library (SQLite) that remembers what you opened — searchable, with recent files one click away on the start screen
 
 **The app itself**
 

@@ -10,12 +10,15 @@ Item {
     required property var controller
 
     signal statusMessage(string msg)
+    signal openRecentRequested(url path)
 
     readonly property bool empty: !controller.hasFile
 
     EmptyState {
         anchors.fill: parent
         visible: root.empty
+        recents: Library.recentFiles
+        onOpenRecent: function(path) { root.openRecentRequested(path) }
     }
 
     RowLayout {

@@ -3,6 +3,7 @@
 #include "core/aes.h"
 #include "core/detect.h"
 #include "core/details.h"
+#include "core/db/library.h"
 #include "core/entrytree.h"
 #include "core/extract.h"
 #include "core/ps4/ps4pkg.h"
@@ -65,6 +66,7 @@ private slots:
     void entryTree();
     void extraction();
     void renameEngine();
+    void libraryDb();
     void detailsLines();
     void detectErrors();
 };
@@ -886,6 +888,73 @@ void TestPsgCore::renameEngine()
 }
 
 // ---------------------------------------------------------------- details
+
+void TestPsgCore::libraryDb()
+{
+    QTemporaryDir dir;
+    {
+        GameLibrary db(dir.filePath(QStringLiteral("library.db")));
+        QVERIFY(db.isValid());
+
+        // upsert + recent; the null contentId is on purpose: formats
+        // without one (PS2 disc images) used to bind SQL NULL, fail the
+        // NOT NULL constraint and silently drop out of the library
+        QVERIFY2(db.upsertGame(QStringLiteral("/games/a.pkg"),
+                               QStringLiteral("Game A"), QStringLiteral("PS4"),
+                               QStringLiteral("CUSA00001"), QString(),
+                               QStringLiteral("US"), QStringLiteral("1.00"),
+                               1234) > 0,
+                 qPrintable(db.lastError()));
+        db.addRecent(QStringLiteral("/games/a.pkg"));
+        QCOMPARE(db.games().size(), 1);
+        QCOMPARE(db.recentFiles(),
+                 QStringList{QStringLiteral("/games/a.pkg")});
+
+        // rename sync: the games row and the recent entry follow the file
+        db.renamePath(QStringLiteral("/games/a.pkg"),
+                      QStringLiteral("/games/Game A - CUSA00001.pkg"));
+        const QList<LibraryEntry> after = db.games();
+        QCOMPARE(after.size(), 1);
+        QCOMPARE(after.at(0).path,
+                 QStringLiteral("/games/Game A - CUSA00001.pkg"));
+        QCOMPARE(after.at(0).title, QStringLiteral("Game A"));
+        QCOMPARE(db.recentFiles(),
+                 QStringList{QStringLiteral("/games/Game A - CUSA00001.pkg")});
+
+        // a stale row already living at the new path is replaced, not
+        // duplicated (this happens when the renamed file was opened first)
+        QVERIFY(db.upsertGame(QStringLiteral("/games/Game A - CUSA00001.pkg"),
+                              QStringLiteral("Game A"), QStringLiteral("PS4"),
+                              QStringLiteral("CUSA00001"), QString(),
+                              QStringLiteral("US"), QStringLiteral("1.00"),
+                              1234) > 0);
+        db.renamePath(QStringLiteral("/games/Game A - CUSA00001.pkg"),
+                      QStringLiteral("/games/final.pkg"));
+        QCOMPARE(db.games().size(), 1);
+        QCOMPARE(db.games().at(0).path, QStringLiteral("/games/final.pkg"));
+
+        // no-op rename must not delete anything
+        db.renamePath(QStringLiteral("/games/final.pkg"),
+                      QStringLiteral("/games/final.pkg"));
+        QCOMPARE(db.games().size(), 1);
+    }
+
+    // removeMissing also prunes the recent list
+    {
+        GameLibrary db(dir.filePath(QStringLiteral("library.db")));
+        QVERIFY(db.isValid());
+        QCOMPARE(db.games().size(), 1); // /games/final.pkg from above
+        db.addRecent(QStringLiteral("/gone/b.pkg"));
+        db.upsertGame(QStringLiteral("/gone/b.pkg"),
+                      QStringLiteral("Game B"), QStringLiteral("PS3"),
+                      QStringLiteral("BLJS00002"), QString(),
+                      QStringLiteral("JP"), QStringLiteral("1.00"), 5);
+        QCOMPARE(db.games().size(), 2);
+        db.removeMissing(); // neither path exists on disk
+        QCOMPARE(db.games().size(), 0);
+        QCOMPARE(db.recentFiles().size(), 0);
+    }
+}
 
 void TestPsgCore::detailsLines()
 {

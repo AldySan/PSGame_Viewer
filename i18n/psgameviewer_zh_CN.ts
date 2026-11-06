@@ -181,19 +181,24 @@
 <context>
     <name>EmptyState</name>
     <message>
-        <location filename="../src/qml/EmptyState.qml" line="25"/>
+        <location filename="../src/qml/EmptyState.qml" line="33"/>
         <source>Drop a game file here</source>
         <translation>将游戏文件拖到这里</translation>
     </message>
     <message>
-        <location filename="../src/qml/EmptyState.qml" line="32"/>
+        <location filename="../src/qml/EmptyState.qml" line="40"/>
         <source>PKG · ISO · exFAT images · game folders</source>
         <translation>PKG · ISO · exFAT 镜像 · 游戏文件夹</translation>
     </message>
     <message>
-        <location filename="../src/qml/EmptyState.qml" line="38"/>
+        <location filename="../src/qml/EmptyState.qml" line="46"/>
         <source>or use Open in the header</source>
         <translation>或使用顶栏的“打开”按钮</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/EmptyState.qml" line="55"/>
+        <source>Recent files</source>
+        <translation>最近文件</translation>
     </message>
 </context>
 <context>
@@ -326,24 +331,23 @@
         <translation>关于</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="177"/>
+        <location filename="../src/qml/Main.qml" line="181"/>
         <source>Open a game file</source>
         <translation>打开游戏文件</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="179"/>
+        <location filename="../src/qml/Main.qml" line="183"/>
         <source>Game files (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</source>
         <translation>游戏文件 (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="180"/>
+        <location filename="../src/qml/Main.qml" line="184"/>
         <source>All files (*)</source>
         <translation>所有文件 (*)</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="187"/>
         <source>Extract to folder</source>
-        <translation>解压到文件夹</translation>
+        <translation type="vanished">解压到文件夹</translation>
     </message>
 </context>
 <context>
@@ -392,12 +396,14 @@
 <context>
     <name>QObject</name>
     <message>
+        <location filename="../src/app/entrytreemodel.cpp" line="153"/>
         <source>1 file</source>
-        <translation type="vanished">1 个文件</translation>
+        <translation>1 个文件</translation>
     </message>
     <message>
+        <location filename="../src/app/entrytreemodel.cpp" line="154"/>
         <source>%1 files</source>
-        <translation type="vanished">%1 个文件</translation>
+        <translation>%1 个文件</translation>
     </message>
 </context>
 <context>
@@ -531,72 +537,72 @@
 <context>
     <name>UpdateDialog</name>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="66"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="93"/>
         <source>Checking for updates…</source>
         <translation>正在检查更新…</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="67"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="94"/>
         <source>Update checker</source>
         <translation>更新检查器</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="69"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="96"/>
         <source>Update available</source>
         <translation>有可用更新</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="71"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="98"/>
         <source>Up to date</source>
         <translation>已是最新版本</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="73"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="100"/>
         <source>No release published yet</source>
         <translation>尚未发布任何版本</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="74"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="101"/>
         <source>Update check failed</source>
         <translation>更新检查失败</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="91"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="118"/>
         <source>Contacting the release server…</source>
         <translation>正在连接发布服务器…</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="99"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="126"/>
         <source>PSGame-Viewer %1 is available (you are running %2).</source>
         <translation>PSGame-Viewer %1 已发布（当前版本 %2）。</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="111"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="138"/>
         <source>You are running the latest version (%1).</source>
         <translation>当前已是最新版本（%1）。</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="122"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="149"/>
         <source>Could not reach the release server: %1</source>
         <translation>无法连接发布服务器：%1</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="133"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="160"/>
         <source>Nothing to check against yet. Publish a GitHub release to enable update checks.</source>
         <translation>暂时没有可检查的版本。发布 GitHub Release 后即可启用更新检查。</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="172"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="199"/>
         <source>Open release page</source>
         <translation>打开发布页面</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="178"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="205"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="185"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="212"/>
         <source>Close</source>
         <translation>关闭</translation>
     </message>
@@ -604,27 +610,27 @@
 <context>
     <name>ViewerPage</name>
     <message>
-        <location filename="../src/qml/ViewerPage.qml" line="67"/>
+        <location filename="../src/qml/ViewerPage.qml" line="70"/>
         <source>Latest patch: %1</source>
         <translation>最新补丁：%1</translation>
     </message>
     <message>
-        <location filename="../src/qml/ViewerPage.qml" line="83"/>
+        <location filename="../src/qml/ViewerPage.qml" line="86"/>
         <source>Files</source>
         <translation>文件</translation>
     </message>
     <message>
-        <location filename="../src/qml/ViewerPage.qml" line="84"/>
+        <location filename="../src/qml/ViewerPage.qml" line="87"/>
         <source>Details</source>
         <translation>详情</translation>
     </message>
     <message>
-        <location filename="../src/qml/ViewerPage.qml" line="85"/>
+        <location filename="../src/qml/ViewerPage.qml" line="88"/>
         <source>Trophies</source>
         <translation>奖杯</translation>
     </message>
     <message>
-        <location filename="../src/qml/ViewerPage.qml" line="119"/>
+        <location filename="../src/qml/ViewerPage.qml" line="122"/>
         <source>Extract to folder</source>
         <translation>解压到文件夹</translation>
     </message>
@@ -632,95 +638,119 @@
 <context>
     <name>psg::LibraryController</name>
     <message>
+        <location filename="../src/app/librarycontroller.cpp" line="112"/>
         <source>Scanned %1, added %2</source>
-        <translation type="vanished">已扫描 %1 个，新增 %2 个</translation>
+        <translation>已扫描 %1 个，新增 %2 个</translation>
     </message>
     <message>
+        <location filename="../src/app/librarycontroller.cpp" line="121"/>
         <source>Removed %1 missing entries</source>
-        <translation type="vanished">已移除 %1 个失效条目</translation>
+        <translation>已移除 %1 个失效条目</translation>
     </message>
 </context>
 <context>
     <name>psg::ViewerController</name>
     <message>
+        <location filename="../src/app/viewercontroller.cpp" line="94"/>
         <source>patches</source>
-        <translation type="vanished">个补丁</translation>
+        <translation>个补丁</translation>
     </message>
     <message>
+        <location filename="../src/app/viewercontroller.cpp" line="137"/>
         <source>No file opened</source>
-        <translation type="vanished">未打开文件</translation>
+        <translation>未打开文件</translation>
     </message>
     <message>
+        <location filename="../src/app/viewercontroller.cpp" line="245"/>
         <source>Could not open: %1</source>
-        <translation type="vanished">无法打开：%1</translation>
+        <translation>无法打开：%1</translation>
     </message>
     <message>
+        <location filename="../src/app/viewercontroller.cpp" line="248"/>
         <source>Opened %1</source>
-        <translation type="vanished">已打开 %1</translation>
+        <translation>已打开 %1</translation>
     </message>
     <message>
+        <location filename="../src/app/viewercontroller.cpp" line="431"/>
         <source>Could not extract %1</source>
-        <translation type="vanished">无法解压 %1</translation>
+        <translation>无法解压 %1</translation>
     </message>
     <message>
+        <location filename="../src/app/viewercontroller.cpp" line="435"/>
         <source>Extracted %1</source>
-        <translation type="vanished">已解压 %1</translation>
+        <translation>已解压 %1</translation>
     </message>
     <message>
+        <location filename="../src/app/viewercontroller.cpp" line="444"/>
         <source>Extracted %1, failed %2</source>
-        <translation type="vanished">已解压 %1 个，失败 %2 个</translation>
+        <translation>已解压 %1 个，失败 %2 个</translation>
     </message>
     <message>
+        <location filename="../src/app/viewercontroller.cpp" line="466"/>
+        <location filename="../src/app/viewercontroller.cpp" line="470"/>
         <source>Nothing to copy</source>
-        <translation type="vanished">没有可复制的内容</translation>
+        <translation>没有可复制的内容</translation>
     </message>
     <message>
+        <location filename="../src/app/viewercontroller.cpp" line="472"/>
         <source>Cover copied to clipboard</source>
-        <translation type="vanished">封面已复制到剪贴板</translation>
+        <translation>封面已复制到剪贴板</translation>
     </message>
     <message>
+        <location filename="../src/app/viewercontroller.cpp" line="480"/>
+        <location filename="../src/app/viewercontroller.cpp" line="484"/>
         <source>No trophy icons loaded</source>
-        <translation type="vanished">未加载奖杯图标</translation>
+        <translation>未加载奖杯图标</translation>
     </message>
     <message>
+        <location filename="../src/app/viewercontroller.cpp" line="497"/>
         <source>Cannot create folder: %1</source>
-        <translation type="vanished">无法创建文件夹：%1</translation>
+        <translation>无法创建文件夹：%1</translation>
     </message>
     <message>
+        <location filename="../src/app/viewercontroller.cpp" line="520"/>
         <source>Saved %1 trophy icons to %2</source>
-        <translation type="vanished">已保存 %1 个奖杯图标到 %2</translation>
+        <translation>已保存 %1 个奖杯图标到 %2</translation>
     </message>
     <message>
+        <location filename="../src/app/viewercontroller.cpp" line="524"/>
         <source> (%1 skipped)</source>
-        <translation type="vanished">（跳过 %1 个）</translation>
+        <translation>（跳过 %1 个）</translation>
     </message>
     <message>
+        <location filename="../src/app/viewercontroller.cpp" line="540"/>
         <source>Copied to clipboard</source>
-        <translation type="vanished">已复制到剪贴板</translation>
+        <translation>已复制到剪贴板</translation>
     </message>
     <message>
+        <location filename="../src/app/viewercontroller.cpp" line="591"/>
         <source>Renamed to %1</source>
-        <translation type="vanished">已重命名为 %1</translation>
+        <translation>已重命名为 %1</translation>
     </message>
     <message>
+        <location filename="../src/app/viewercontroller.cpp" line="609"/>
         <source>Rename undone</source>
-        <translation type="vanished">已撤销重命名</translation>
+        <translation>已撤销重命名</translation>
     </message>
     <message>
+        <location filename="../src/app/viewercontroller.cpp" line="680"/>
         <source>Batch: renamed %1, skipped %2</source>
-        <translation type="vanished">批量处理：已重命名 %1 个，跳过 %2 个</translation>
+        <translation>批量处理：已重命名 %1 个，跳过 %2 个</translation>
     </message>
     <message>
+        <location filename="../src/app/viewercontroller.cpp" line="692"/>
         <source>Nothing to revert in %1</source>
-        <translation type="vanished">%1 中没有可还原的内容</translation>
+        <translation>%1 中没有可还原的内容</translation>
     </message>
     <message>
+        <location filename="../src/app/viewercontroller.cpp" line="694"/>
         <source>Dry run: %1 renames would be reverted. Run with apply.</source>
-        <translation type="vanished">试运行：将还原 %1 个重命名。请以应用模式运行。</translation>
+        <translation>试运行：将还原 %1 个重命名。请以应用模式运行。</translation>
     </message>
     <message>
+        <location filename="../src/app/viewercontroller.cpp" line="697"/>
         <source>Reverted %1, skipped %2</source>
-        <translation type="vanished">已还原 %1 个，跳过 %2 个</translation>
+        <translation>已还原 %1 个，跳过 %2 个</translation>
     </message>
 </context>
 </TS>

@@ -75,6 +75,12 @@ int GameLibrary::upsertGame(const QString &path, const QString &title,
 {
     if (!m_valid || path.isEmpty())
         return 0;
+    // every column is NOT NULL: a null QString binds as SQL NULL and the
+    // whole insert would fail (formats without a Content ID, e.g. PS2
+    // disc images, hit this), so normalize nulls to empty strings
+    const auto nz = [](const QString &s) {
+        return s.isNull() ? QString(QStringLiteral("")) : s;
+    };
     QSqlQuery q(*m_db);
     q.prepare(QStringLiteral(
         "INSERT INTO games (path, title, platform, title_id, content_id,"
@@ -86,13 +92,13 @@ int GameLibrary::upsertGame(const QString &path, const QString &title,
         " title_id=excluded.title_id, content_id=excluded.content_id,"
         " region=excluded.region, version=excluded.version,"
         " size=excluded.size"));
-    q.bindValue(QStringLiteral(":path"), path);
-    q.bindValue(QStringLiteral(":title"), title);
-    q.bindValue(QStringLiteral(":platform"), platform);
-    q.bindValue(QStringLiteral(":title_id"), titleId);
-    q.bindValue(QStringLiteral(":content_id"), contentId);
-    q.bindValue(QStringLiteral(":region"), region);
-    q.bindValue(QStringLiteral(":version"), version);
+    q.bindValue(QStringLiteral(":path"), nz(path));
+    q.bindValue(QStringLiteral(":title"), nz(title));
+    q.bindValue(QStringLiteral(":platform"), nz(platform));
+    q.bindValue(QStringLiteral(":title_id"), nz(titleId));
+    q.bindValue(QStringLiteral(":content_id"), nz(contentId));
+    q.bindValue(QStringLiteral(":region"), nz(region));
+    q.bindValue(QStringLiteral(":version"), nz(version));
     q.bindValue(QStringLiteral(":size"), QVariant(qulonglong(size)));
     q.bindValue(QStringLiteral(":added"),
                 QDateTime::currentSecsSinceEpoch());
@@ -118,6 +124,35 @@ void GameLibrary::removePath(const QString &path)
     q.exec();
 }
 
+void GameLibrary::renamePath(const QString &oldPath, const QString &newPath)
+{
+    if (!m_valid || oldPath.isEmpty() || newPath.isEmpty()
+        || oldPath == newPath) {
+        return;
+    }
+    // a row may already exist under the new path (the renamed file was
+    // re-opened before this sync): drop it, then move the old row over
+    QSqlQuery del(*m_db);
+    del.prepare(QStringLiteral("DELETE FROM games WHERE path = :new"));
+    del.bindValue(QStringLiteral(":new"), newPath);
+    del.exec();
+    QSqlQuery delRecent(*m_db);
+    delRecent.prepare(QStringLiteral("DELETE FROM recent WHERE path = :new"));
+    delRecent.bindValue(QStringLiteral(":new"), newPath);
+    delRecent.exec();
+
+    QSqlQuery q(*m_db);
+    q.prepare(QStringLiteral("UPDATE games SET path = :new WHERE path = :old"));
+    q.bindValue(QStringLiteral(":new"), newPath);
+    q.bindValue(QStringLiteral(":old"), oldPath);
+    q.exec();
+    QSqlQuery qr(*m_db);
+    qr.prepare(QStringLiteral("UPDATE recent SET path = :new WHERE path = :old"));
+    qr.bindValue(QStringLiteral(":new"), newPath);
+    qr.bindValue(QStringLiteral(":old"), oldPath);
+    qr.exec();
+}
+
 int GameLibrary::removeMissing()
 {
     if (!m_valid)
@@ -128,6 +163,17 @@ int GameLibrary::removeMissing()
         if (!QFileInfo::exists(e.path)) {
             removePath(e.path);
             ++removed;
+        }
+    }
+    // the recent list must not advertise files that are gone either
+    const QStringList recents = recentFiles();
+    for (const QString &path : recents) {
+        if (!QFileInfo::exists(path)) {
+            QSqlQuery q(*m_db);
+            q.prepare(QStringLiteral(
+                "DELETE FROM recent WHERE path = :path"));
+            q.bindValue(QStringLiteral(":path"), path);
+            q.exec();
         }
     }
     return removed;
