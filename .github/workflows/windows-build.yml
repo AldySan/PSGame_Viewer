@@ -54,7 +54,9 @@ jobs:
         run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON "-DCMAKE_PREFIX_PATH=$env:RUNNER_TEMP/zlib-install"
 
       - name: Build
-        run: cmake --build build
+        # -k 100 keeps going past compile errors, so one run surfaces
+        # every platform-specific problem instead of only the first
+        run: cmake --build build -- -k 100
 
       - name: Test
         run: ctest --test-dir build --output-on-failure

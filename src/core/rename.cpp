@@ -45,7 +45,7 @@ QString buildCleanName(const GameInfo &info, const RenameParts &parts)
     const QString title = info.title.trimmed();
     const QString tid = info.row(QStringLiteral("Title ID")).trimmed();
     QString ver = info.version().trimmed();
-    if (ver.startsWith(u'v', Qt::CaseInsensitive))
+    if (ver.startsWith(QChar(u'v'), Qt::CaseInsensitive))
         ver = ver.mid(1);
     ver = normalizeVersion(ver);
     QString region = info.region().trimmed();
@@ -79,7 +79,7 @@ FormatResult formatName(const GameInfo &info, const QString &pattern,
     const QString tid = info.row(QStringLiteral("Title ID")).trimmed();
     const QString cid = info.row(QStringLiteral("Content ID")).trimmed();
     QString ver = info.version().trimmed();
-    if (ver.startsWith(u'v', Qt::CaseInsensitive))
+    if (ver.startsWith(QChar(u'v'), Qt::CaseInsensitive))
         ver = ver.mid(1);
     ver = normalizeVersion(ver);
     QString region = info.region().trimmed();

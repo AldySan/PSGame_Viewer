@@ -127,7 +127,7 @@ void OnlineService::fetchCoverBytes(const QString &key, const QString &tid,
     }
 
     QList<QString> urls;
-    if (key.contains(u'-') && key.count(u'-') == 1 && key.at(4) == u'-') {
+    if (key.contains(u'-') && key.count(u'-') == 1 && key.at(4) == QChar(u'-')) {
         // PS2 serial "SCUS-97399": xlenore flat then 3d
         urls.append(QStringLiteral(
             "https://raw.githubusercontent.com/xlenore/ps2-covers/main/covers/default/%1.jpg").arg(key));

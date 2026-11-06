@@ -216,7 +216,7 @@ GameInfo parsePs5Pkg(const QString &path, const QString &containerPath,
     const auto entryNameAt = [&](quint32 nameOff) -> QString {
         if (namesBlob.isEmpty())
             return QString();
-        const int end = namesBlob.indexOf(u'\x00', int(nameOff));
+        const int end = namesBlob.indexOf(QChar(u'\x00'), int(nameOff));
         if (end < 0)
             return QString();
         return namesBlob.mid(int(nameOff), end - int(nameOff));
