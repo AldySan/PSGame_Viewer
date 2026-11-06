@@ -1,19 +1,34 @@
-# PSGame-Viewer
+<div align="center">
+  <p>
+    <img src="assets/icons/psgame-viewer-256.png" width="128" alt="PSGame-Viewer logo" />
+  </p>
+  <h1>PSGame-Viewer</h1>
+  <p>A desktop viewer for PlayStation game files — look inside a PKG, an ISO or a PS5 disc image without extracting a thing.</p>
+  <p>
+    <a href="https://github.com/AldySan/PSGame_Viewer/actions/workflows/ci.yml"><img src="https://github.com/AldySan/PSGame_Viewer/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg" alt="License: GPL-3.0" /></a>
+  </p>
+</div>
 
-[![CI](https://github.com/AldySan/PSGame_Viewer/actions/workflows/ci.yml/badge.svg)](https://github.com/AldySan/PSGame_Viewer/actions/workflows/ci.yml)
-[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
-
-PSGame-Viewer is a desktop viewer for PlayStation game files. Point it at a PKG, an ISO or a PS5 disc image and it shows you what is inside: the title, Title ID, region, version, required firmware, cover art, the file listing and the trophy list — all without extracting a thing.
+Point it at a game file and it shows you what is inside: the title, Title ID, region, version, required firmware, cover art, the file listing and the trophy list.
 
 It is read-only by design. Your game files are never modified, and nothing is installed system-wide: the app is portable, keeps its settings next to its own executable, and runs on Windows, macOS and Linux.
 
 ## Screenshots
 
-| Dark theme | Light theme |
-| --- | --- |
-| ![A PS4 package open in the dark theme](docs/screenshots/main-view.png) | ![A PS5 package open in the light theme, Details tab](docs/screenshots/light-theme.png) |
+Every shot below is the real app opened on synthetic demo packages built with the project's own fixture generators — original artwork, no copyrighted game data is bundled with this project.
 
-Both demo files are synthetic sample packages with original artwork — no copyrighted game data is bundled with this project.
+| Dark theme · a PS4 package | Light theme · a PS5 package |
+| --- | --- |
+| ![A PS4 package open in the dark theme, Files tab](docs/screenshots/main-view.png) | ![A PS5 package open in the light theme, Details tab](docs/screenshots/light-theme.png) |
+
+| The Files tree of a PS3 disc image | The trophy list of a PS4 package |
+| --- | --- |
+| ![The Files tab showing the folder tree of a PS3 disc image, light theme](docs/screenshots/files-tab.png) | ![The Trophies tab of a PS4 package with icons, dark theme](docs/screenshots/trophies.png) |
+
+| Rename with a live preview | Settings |
+| --- | --- |
+| ![The rename dialog with a live preview of the new file name, light theme](docs/screenshots/rename-dialog.png) | ![The settings dialog with theme, language and online options, dark theme](docs/screenshots/settings.png) |
 
 ## Supported formats
 
