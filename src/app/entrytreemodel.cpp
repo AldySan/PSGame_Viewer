@@ -21,8 +21,20 @@ EntryTreeModel::EntryTreeModel(QObject *parent)
 void EntryTreeModel::setEntries(const QList<Entry> &entries)
 {
     beginResetModel();
-    m_entries = entries;
-    m_nodes = buildEntryTree(entries);
+    // PS4/PS5 CNT containers carry a system entry (id 0x200) that holds
+    // the file-name table and has no name of its own; listing it just
+    // shows a blank row. Keep nameless entries out of the listing but
+    // remember where each listed entry came from, so the row -> entry
+    // indices handed to the extraction flow stay valid.
+    m_entries.clear();
+    m_map.clear();
+    for (int i = 0; i < entries.size(); ++i) {
+        if (entries.at(i).name.trimmed().isEmpty())
+            continue;
+        m_entries.append(entries.at(i));
+        m_map.append(i);
+    }
+    m_nodes = buildEntryTree(m_entries);
     m_expanded.clear();
     // root level starts open (like the reference's open_depth=1)
     if (!m_nodes.isEmpty()) {
@@ -113,17 +125,21 @@ int EntryTreeModel::entryIndexAt(int row) const
     if (row < 0 || row >= m_visible.size())
         return -1;
     const VisibleRow vr = m_visible.at(row);
-    return vr.folder ? -1 : -1 - vr.node;
+    if (vr.folder)
+        return -1;
+    const int idx = -1 - vr.node;
+    return idx >= 0 && idx < m_map.size() ? m_map.at(idx) : -1;
 }
 
 QString EntryTreeModel::pathAt(int row) const
 {
-    const int idx = entryIndexAt(row);
-    if (idx < 0 || idx >= m_entries.size())
-        return m_visible.value(row).node < m_nodes.size()
-            ? m_nodes.at(m_visible.at(row).node).path
-            : QString();
-    return m_entries.at(idx).name;
+    if (row < 0 || row >= m_visible.size())
+        return QString();
+    const VisibleRow vr = m_visible.at(row);
+    if (vr.folder)
+        return vr.node < m_nodes.size() ? m_nodes.at(vr.node).path
+                                        : QString();
+    return m_entries.value(-1 - vr.node).name;
 }
 
 bool EntryTreeModel::isFolderAt(int row) const
@@ -174,7 +190,10 @@ QVariant EntryTreeModel::data(const QModelIndex &index, int role) const
     case DepthRole: return vr.depth;
     case IsFolderRole: return false;
     case ExpandedRole: return false;
-    case EntryIndexRole: return entryIndex;
+    case EntryIndexRole: {
+        const int idx = -1 - vr.node;
+        return idx >= 0 && idx < m_map.size() ? m_map.at(idx) : -1;
+    }
     default: return QVariant();
     }
 }
