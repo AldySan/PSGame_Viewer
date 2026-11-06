@@ -141,7 +141,9 @@ ColumnLayout {
                     AppButton {
                         text: qsTr("Open")
                         flat: true
-                        onClicked: Library.openPath(path)
+                        // route through the page signal: Main.qml opens the
+                        // file in the viewer and switches the page
+                        onClicked: root.openRequested(path)
                     }
                     AppButton {
                         text: qsTr("Remove")
@@ -154,7 +156,7 @@ ColumnLayout {
                     id: mouse
                     anchors.fill: parent
                     hoverEnabled: true
-                    onDoubleClicked: Library.openPath(path)
+                    onDoubleClicked: root.openRequested(path)
                 }
             }
         }

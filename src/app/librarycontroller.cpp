@@ -81,19 +81,6 @@ void LibraryController::refresh()
     emit countChanged();
 }
 
-void LibraryController::openAt(int row)
-{
-    if (row < 0 || row >= m_entries.size())
-        return;
-    emit openRequested(QUrl::fromLocalFile(m_entries.at(row).path));
-}
-
-void LibraryController::openPath(const QString &path)
-{
-    if (!path.isEmpty())
-        emit openRequested(QUrl::fromLocalFile(path));
-}
-
 void LibraryController::removeAt(int row)
 {
     if (row < 0 || row >= m_entries.size())

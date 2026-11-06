@@ -49,8 +49,6 @@ public:
     QString error() const { return m_error; }
 
     Q_INVOKABLE void refresh();
-    Q_INVOKABLE void openAt(int row);
-    Q_INVOKABLE void openPath(const QString &path);
     Q_INVOKABLE void removeAt(int row);
     // scan a folder for game files and add them to the library
     Q_INVOKABLE int scanFolder(const QUrl &folder, bool recursive);
@@ -58,7 +56,6 @@ public:
 
 signals:
     void countChanged();
-    void openRequested(const QUrl &path);
     void statusMessage(const QString &message);
 
 private:
