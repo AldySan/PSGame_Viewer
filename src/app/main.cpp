@@ -13,6 +13,7 @@
 #include <QUrl>
 
 #include "app/appsettings.h"
+#include "app/entrytreemodel.h"
 #include "app/imagestore.h"
 #include "app/librarycontroller.h"
 #include "app/portable.h"
@@ -282,6 +283,9 @@ int runGui(int argc, char *argv[])
     const QString openDialog = qEnvironmentVariable("PSGV_DIALOG");
     const QString openPage = qEnvironmentVariable("PSGV_PAGE");
     const int openTab = qEnvironmentVariable("PSGV_TAB").toInt();
+    // PSGV_EXPAND>0 expands every Files folder before the shot
+    const bool expandAll =
+        qEnvironmentVariable("PSGV_EXPAND").toInt() > 0;
     // with a queue of files the shot must wait for the last open to land
     int shotDelayMs = 1500;
     if (openEnv.contains(u'|')) {
@@ -298,7 +302,7 @@ int runGui(int argc, char *argv[])
     }
     if (!screenshot.isEmpty()) {
         QTimer::singleShot(shotDelayMs, [&engine, screenshot, openDialog, openTab,
-                                  openPage]() {
+                                  openPage, expandAll]() {
             const auto roots = engine.rootObjects();
             for (QObject *root : roots) {
                 if (!openPage.isEmpty()) {
@@ -313,6 +317,15 @@ int runGui(int argc, char *argv[])
                             QStringLiteral("tabBar")))
                         QMetaObject::invokeMethod(
                             bar, "setCurrentIndex", Q_ARG(int, openTab));
+                }
+                if (expandAll) {
+                    // fully expand the Files tree (folder-view screenshots)
+                    const QVariant v = engine.rootContext()
+                                           ->contextProperty(
+                                               QStringLiteral("Viewer"));
+                    if (auto *ctrl = v.value<QObject *>())
+                        if (auto *m = ctrl->findChild<EntryTreeModel *>())
+                            m->expandAll();
                 }
                 if (!openDialog.isEmpty()) {
                     // dialogs carry unique objectNames; "open" is resolved
