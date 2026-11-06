@@ -62,6 +62,8 @@ private:
     void insertSubtree(int node, int depth);
 
     QList<Entry> m_entries;
+    // row-entry index (into m_entries) -> index in the caller's full list
+    QList<int> m_map;
     QList<EntryTreeNode> m_nodes;
     QList<VisibleRow> m_visible;
     QSet<int> m_expanded;
