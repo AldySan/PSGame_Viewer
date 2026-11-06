@@ -11,9 +11,9 @@ It is read-only by design. Your game files are never modified, and nothing is in
 
 | Dark theme | Light theme |
 | --- | --- |
-| ![Main view with a PS4 package open](docs/screenshots/main-view.png) | ![The same file in the light theme](docs/screenshots/light-theme.png) |
+| ![A PS4 package open in the dark theme](docs/screenshots/main-view.png) | ![A PS5 package open in the light theme, Details tab](docs/screenshots/light-theme.png) |
 
-The demo file shown here is a synthetic sample package — no copyrighted game data is bundled with this project.
+Both demo files are synthetic sample packages with original artwork — no copyrighted game data is bundled with this project.
 
 ## Supported formats
 
