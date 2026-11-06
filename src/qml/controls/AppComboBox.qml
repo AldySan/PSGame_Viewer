@@ -1,10 +1,12 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Controls.Basic as Controls
 import PSGameViewer
 
 // Rounded combo box with a floating rounded dropdown. Mirrors the Basic
-// style's structure (including the array/ListModel textRole handling) but
-// takes every color from the Theme singleton.
+// style's structure (ListModel and array-of-maps models with a textRole)
+// but takes every color from the Theme singleton.
 Controls.ComboBox {
     id: root
 
@@ -46,12 +48,12 @@ Controls.ComboBox {
         required property int index
 
         width: ListView.view.width
-        text: root.textRole
-              ? (Array.isArray(root.model) ? modelData[root.textRole]
-                                          : model[root.textRole])
-              : modelData
-        font.weight: root.currentIndex === index ? Font.DemiBold : Font.Normal
-        highlighted: root.highlightedIndex === index
+        // "model" resolves to the element for both array-of-maps and
+        // ListModel models, so no unqualified "modelData" access is needed
+        text: root.textRole ? item.model[root.textRole] : ""
+        font.weight: root.currentIndex === item.index ? Font.DemiBold
+                                                     : Font.Normal
+        highlighted: root.highlightedIndex === item.index
         hoverEnabled: root.hoverEnabled
 
         contentItem: Text {

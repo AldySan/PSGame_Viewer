@@ -44,17 +44,19 @@ Item {
                 Repeater {
                     model: controller.galleryKeys
                     delegate: Rectangle {
+                        id: shot
+                        required property var modelData
+                        readonly property bool selected:
+                            shot.modelData === controller.coverKey
                         width: 40; height: 40
                         radius: Theme.radiusSm
-                        color: modelData === controller.coverKey
-                               ? Theme.accentSoft : Theme.card2
-                        border.width: modelData === controller.coverKey ? 1 : 1
-                        border.color: modelData === controller.coverKey
-                                      ? Theme.accent : Theme.border
+                        color: shot.selected ? Theme.accentSoft : Theme.card2
+                        border.width: 1
+                        border.color: shot.selected ? Theme.accent : Theme.border
                         Image {
                             anchors.fill: parent
                             anchors.margins: 3
-                            source: "image://psg/" + modelData
+                            source: "image://psg/" + shot.modelData
                             fillMode: Image.PreserveAspectFit
                             asynchronous: true
                             cache: false
@@ -62,7 +64,7 @@ Item {
                         MouseArea {
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
-                            onClicked: controller.selectCover(modelData)
+                            onClicked: controller.selectCover(shot.modelData)
                         }
                     }
                 }
