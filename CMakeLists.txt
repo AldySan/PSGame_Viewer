@@ -79,10 +79,11 @@ if(WIN32)
   # the resource file is generated from a template: the icon path is
   # absolute and the version fields come from the project version, so the
   # resource compiles the same way whatever working directory rc.exe runs
-  # in (Ninja and the Visual Studio generators differ there)
-  file(TO_NATIVE_PATH
-    "${CMAKE_CURRENT_SOURCE_DIR}/assets/icons/psgame-viewer.ico"
-    PSGV_ICON_PATH)
+  # in (Ninja and the Visual Studio generators differ there). Keep the
+  # forward-slash form of the path — rc.exe eats single backslashes as
+  # C-style escapes (\a in "D:\a\..." would swallow the drive directory)
+  set(PSGV_ICON_PATH
+    "${CMAKE_CURRENT_SOURCE_DIR}/assets/icons/psgame-viewer.ico")
   configure_file(src/app/psgame-viewer.rc.in src/app/psgame-viewer.rc @ONLY)
   target_sources(psgame-viewer PRIVATE
     "${CMAKE_CURRENT_BINARY_DIR}/src/app/psgame-viewer.rc")
