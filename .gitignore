@@ -1,0 +1,38 @@
+# Build directories
+build*/
+cmake-build-*/
+
+# IDE
+.vscode/
+.idea/
+*.user
+*.user.*
+
+# CMake / compiler artifacts
+CMakeCache.txt
+CMakeFiles/
+Makefile
+*.obj
+*.o
+*.a
+*.so
+*.exe
+
+# Qt generated (i18n/*.qm are intentionally committed)
+*.qm
+!i18n/*.qm
+moc_*.cpp
+qrc_*.cpp
+.qtc_clangd/
+CMakeLists.txt.user
+
+# Translation tooling scratch
+*.ts.bak
+
+# OS
+.DS_Store
+Thumbs.db
+
+# portable packaging output (regenerate with packaging/make-portable.*)
+PSGame-Viewer-*-linux-portable.tar.gz
+PSGame-Viewer-*-win64-portable.zip
