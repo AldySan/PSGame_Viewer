@@ -51,7 +51,17 @@ jobs:
           cmake --install "$env:RUNNER_TEMP/zlib-build"
 
       - name: Configure
-        run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON "-DCMAKE_PREFIX_PATH=$env:RUNNER_TEMP/zlib-install"
+        # zlib's CMake builds BOTH the shared and the static library even
+        # with BUILD_SHARED_LIBS=OFF, and FindZLIB prefers the shared
+        # import library (zlib.lib -> zlib.dll) — which then is not on the
+        # runtime PATH and the executables die with STATUS_DLL_NOT_FOUND.
+        # Point FindZLIB at the static library explicitly.
+        run: >-
+          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+          -DBUILD_TESTING=ON
+          "-DCMAKE_PREFIX_PATH=$env:RUNNER_TEMP/zlib-install"
+          "-DZLIB_LIBRARY=$env:RUNNER_TEMP/zlib-install/lib/zlibstatic.lib"
+          "-DZLIB_INCLUDE_DIR=$env:RUNNER_TEMP/zlib-install/include"
 
       - name: Build
         # -k 100 keeps going past compile errors, so one run surfaces
@@ -64,22 +74,6 @@ jobs:
           # forever on the Windows Error Reporting dialog
           reg add "HKLM\Software\Microsoft\Windows\Windows Error Reporting" /v DontShowUI /t REG_DWORD /d 1 /f | Out-Null
           ctest --test-dir build --output-on-failure --verbose --timeout 120
-
-      # TEMPORARY diagnosis: every test function exits with 0xC0000135
-      # (STATUS_DLL_NOT_FOUND) — something the test executable imports is
-      # not on the runner. List the imports and capture the loader error,
-      # which names the missing DLL. Remove once the Windows run is green.
-      - name: Diagnose the missing DLL
-        if: always()
-        run: |
-          dumpbin /dependents build\tst_psgcore.exe
-          $p = Start-Process -FilePath "build\tst_psgcore.exe" -ArgumentList "aesNistVectors" -NoNewWindow -PassThru -RedirectStandardError diag_err.txt -RedirectStandardOutput diag_out.txt
-          $null = $p.WaitForExit(15000)
-          Write-Host "--- exit code: $($p.ExitCode)"
-          Write-Host "--- stderr:"
-          Get-Content diag_err.txt -ErrorAction SilentlyContinue
-          Write-Host "--- stdout:"
-          Get-Content diag_out.txt -ErrorAction SilentlyContinue
 
       - name: Package the portable archive
         run: pwsh packaging/make-portable.ps1 -BuildDir build
