@@ -14,8 +14,13 @@ ColumnLayout {
     RowLayout {
         spacing: 8
         Label {
-            text: root.model
-                  ? qsTr("%1 entries").arg(root.model.totalEntries) : ""
+            text: {
+                if (!root.model)
+                    return ""
+                const n = root.model.totalEntries
+                return n === 1 ? qsTr("1 entry")
+                               : qsTr("%1 entries").arg(n)
+            }
             color: Theme.muted
             font.pixelSize: 12
             Layout.fillWidth: true
@@ -147,11 +152,10 @@ ColumnLayout {
                     id: mouse
                     anchors.fill: parent
                     hoverEnabled: true
+                    // only folders fold; toggle() already ignores files
                     onClicked: {
                         if (isFolder)
                             root.model.toggle(index)
-                        else
-                            root.model.toggle(index) // no-op for files
                     }
                     onDoubleClicked: {
                         if (!isFolder && entryIndex >= 0)

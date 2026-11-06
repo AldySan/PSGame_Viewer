@@ -30,7 +30,11 @@ Frame {
             spacing: 8
 
             Label {
-                text: qsTr("%1 trophies").arg(root.model ? root.model.count : 0)
+                text: {
+                    const n = root.model ? root.model.count : 0
+                    return n === 1 ? qsTr("1 trophy")
+                                   : qsTr("%1 trophies").arg(n)
+                }
                 color: Theme.muted
                 font.pixelSize: 12
             }
@@ -115,10 +119,12 @@ Frame {
                                 width: gradeText.implicitWidth + 10
                                 height: 16; radius: Theme.radiusSm - 2
                                 color: {
-                                    if (grade === "P") return "#e0b94b"
-                                    if (grade === "G") return "#c8cdd6"
-                                    if (grade === "S") return "#e08a4e"
-                                    return "#b06fc4" // B(ronze)
+                                    // conventional grade colors:
+                                    // platinum, gold, silver, bronze
+                                    if (grade === "P") return "#d8dde7"
+                                    if (grade === "G") return "#e0b94b"
+                                    if (grade === "S") return "#aab3c0"
+                                    return "#c07a45"
                                 }
                                 Text {
                                     id: gradeText

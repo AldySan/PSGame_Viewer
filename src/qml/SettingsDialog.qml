@@ -22,9 +22,15 @@ Popup {
     }
 
     onAboutToShow: {
+        // resolve the saved language by VALUE: find() would match the
+        // translated display text ("English", "中文 (简体)", ...) and never
+        // the saved code ("en", "zh_CN", "id", "system")
         var lang = AppSettings.language
-        var idx = langCombo.find(lang)
-        langCombo.currentIndex = idx >= 0 ? idx : 0
+        var idx = 0
+        for (var i = 0; i < langCombo.count; ++i) {
+            if (langCombo.valueAt(i) === lang) { idx = i; break }
+        }
+        langCombo.currentIndex = idx
         onlineBox.checked = AppSettings.onlineEnabled
         themeCombo.currentIndex = AppSettings.theme === "light" ? 1 : 0
         updatesBox.checked = AppSettings.checkUpdatesOnStartup

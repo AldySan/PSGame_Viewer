@@ -1,2219 +1,726 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
 <TS version="2.1" language="zh_CN">
-  
-
-  <context>
-    
-    
+<context>
     <name>AboutDialog</name>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/AboutDialog.qml" line="46"/>
-      
-        
-      <source>PSGame-Viewer</source>
-      
-        
-      <translation>PSGame-Viewer</translation>
-      
-    
+        <location filename="../src/qml/AboutDialog.qml" line="47"/>
+        <source>PSGame-Viewer</source>
+        <translation>PSGame-Viewer</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/AboutDialog.qml" line="52"/>
-      
-        
-      <source>Version %1</source>
-      
-        
-      <translation>版本 %1</translation>
-      
-    
+        <location filename="../src/qml/AboutDialog.qml" line="53"/>
+        <source>Version %1</source>
+        <translation>版本 %1</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/AboutDialog.qml" line="64"/>
-      
-        
-      <source>See what is inside PlayStation game files without extracting them: PS2 and PS3 disc images, PS3 packages and folders, PS4 and PS5 packages (including split parts), PS5 exFAT images and app folders. Cover art, spec cards, file listings, trophies, extraction and uniform renaming.</source>
-      
-        
-      <translation>无需解压即可查看 PlayStation 游戏文件的内容：PS2 与 PS3 光盘镜像、PS3 安装包和文件夹、PS4 与 PS5 安装包（含分卷）、PS5 exFAT 镜像和应用文件夹。支持封面、规格信息、文件列表、奖杯、解压和统一重命名。</translation>
-      
-    
+        <location filename="../src/qml/AboutDialog.qml" line="65"/>
+        <source>See what is inside PlayStation game files without extracting them: PS2 and PS3 disc images, PS3 packages and folders, PS4 and PS5 packages (including split parts), PS5 exFAT images and app folders. Cover art, spec cards, file listings, trophies, extraction and uniform renaming.</source>
+        <translation>无需解压即可查看 PlayStation 游戏文件的内容：PS2 与 PS3 光盘镜像、PS3 安装包和文件夹、PS4 与 PS5 安装包（含分卷）、PS5 exFAT 镜像和应用文件夹。支持封面、规格信息、文件列表、奖杯、解压和统一重命名。</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/AboutDialog.qml" line="72"/>
-      
-        
-      <source>Built with Qt 6, QML and SQLite. Licensed under the GNU General Public License v3.</source>
-      
-        
-      <translation>基于 Qt 6、QML 和 SQLite 构建，采用 GNU 通用公共许可证 v3 授权。</translation>
-      
-    
+        <location filename="../src/qml/AboutDialog.qml" line="73"/>
+        <source>Built with Qt 6, QML and SQLite. Licensed under the GNU General Public License v3.</source>
+        <translation>基于 Qt 6、QML 和 SQLite 构建，采用 GNU 通用公共许可证 v3 授权。</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/AboutDialog.qml" line="79"/>
-      
-        
-      <source>Check for updates</source>
-      
-        
-      <translation>检查更新</translation>
-      
-    
+        <location filename="../src/qml/AboutDialog.qml" line="80"/>
+        <source>Check for updates</source>
+        <translation>检查更新</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/AboutDialog.qml" line="85"/>
-      
-        
-      <source>Close</source>
-      
-        
-      <translation>关闭</translation>
-      
-    
+        <location filename="../src/qml/AboutDialog.qml" line="87"/>
+        <source>Close</source>
+        <translation>关闭</translation>
     </message>
-    
-
-  </context>
-  
-
-  <context>
-    
-    
+</context>
+<context>
     <name>BatchDialog</name>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/BatchDialog.qml" line="49"/>
-      
-        
-      <source>Batch rename</source>
-      
-        
-      <translation>批量重命名</translation>
-      
-    
+        <location filename="../src/qml/BatchDialog.qml" line="50"/>
+        <source>Batch rename</source>
+        <translation>批量重命名</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/BatchDialog.qml" line="66"/>
-      
-        
-      <source>Add folder…</source>
-      
-        
-      <translation>添加文件夹…</translation>
-      
-    
+        <location filename="../src/qml/BatchDialog.qml" line="67"/>
+        <source>Add folder…</source>
+        <translation>添加文件夹…</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/BatchDialog.qml" line="70"/>
-      
-        
-      <source>Add files…</source>
-      
-        
-      <translation>添加文件…</translation>
-      
-    
+        <location filename="../src/qml/BatchDialog.qml" line="71"/>
+        <source>Add files…</source>
+        <translation>添加文件…</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/BatchDialog.qml" line="75"/>
-      
-        
-      <source>Recursive</source>
-      
-        
-      <translation>递归扫描</translation>
-      
-    
+        <location filename="../src/qml/BatchDialog.qml" line="76"/>
+        <source>Recursive</source>
+        <translation>递归扫描</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/BatchDialog.qml" line="110"/>
-      
-        
-      <source>Add folders or files to see the preview</source>
-      
-        
-      <translation>添加文件夹或文件以查看预览</translation>
-      
-    
+        <location filename="../src/qml/BatchDialog.qml" line="111"/>
+        <source>Add folders or files to see the preview</source>
+        <translation>添加文件夹或文件以查看预览</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/BatchDialog.qml" line="159"/>
-      
-        
-      <source>%1 of %2 ready</source>
-      
-        
-      <translation>%2 个中的 %1 个已就绪</translation>
-      
-    
+        <location filename="../src/qml/BatchDialog.qml" line="160"/>
+        <source>%1 of %2 ready</source>
+        <translation>%2 个中的 %1 个已就绪</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/BatchDialog.qml" line="167"/>
-      
-        
-      <source>Revert from log…</source>
-      
-        
-      <translation>从日志还原…</translation>
-      
-    
+        <location filename="../src/qml/BatchDialog.qml" line="168"/>
+        <source>Revert from log…</source>
+        <translation>从日志还原…</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/BatchDialog.qml" line="172"/>
-      
-        
-      <source>Close</source>
-      
-        
-      <translation>关闭</translation>
-      
-    
+        <location filename="../src/qml/BatchDialog.qml" line="173"/>
+        <source>Close</source>
+        <translation>关闭</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/BatchDialog.qml" line="177"/>
-      
-        
-      <source>Apply</source>
-      
-        
-      <translation>应用</translation>
-      
-    
+        <location filename="../src/qml/BatchDialog.qml" line="178"/>
+        <source>Apply</source>
+        <translation>应用</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/BatchDialog.qml" line="184"/>
-      
-        
-      <source>Renamed %1, skipped %2. WARNING: the revert log could not be written (%3) — these renames cannot be reverted from a log.</source>
-      
-        
-      <translation>已重命名 %1 个，跳过 %2 个。警告：无法写入回滚日志（%3）——这些重命名无法通过日志撤销。</translation>
-      
-    
+        <location filename="../src/qml/BatchDialog.qml" line="185"/>
+        <source>Renamed %1, skipped %2. WARNING: the revert log could not be written (%3) — these renames cannot be reverted from a log.</source>
+        <translation>已重命名 %1 个，跳过 %2 个。警告：无法写入回滚日志（%3）——这些重命名无法通过日志撤销。</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/BatchDialog.qml" line="192"/>
-      
-        
-      <source>Renamed %1, skipped %2</source>
-      
-        
-      <translation>已重命名 %1 个，跳过 %2 个</translation>
-      
-    
+        <location filename="../src/qml/BatchDialog.qml" line="193"/>
+        <source>Renamed %1, skipped %2</source>
+        <translation>已重命名 %1 个，跳过 %2 个</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/BatchDialog.qml" line="188"/>
-      
-        
-      <source>Renamed %1, skipped %2. Log: %3</source>
-      
-        
-      <translation>已重命名 %1 个，跳过 %2 个。日志：%3</translation>
-      
-    
+        <location filename="../src/qml/BatchDialog.qml" line="189"/>
+        <source>Renamed %1, skipped %2. Log: %3</source>
+        <translation>已重命名 %1 个，跳过 %2 个。日志：%3</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/BatchDialog.qml" line="209"/>
-      
-        
-      <source>%1 file(s) scanned</source>
-      
-        
-      <translation>已扫描 %1 个文件</translation>
-      
-    
+        <location filename="../src/qml/BatchDialog.qml" line="210"/>
+        <source>%1 file(s) scanned</source>
+        <translation>已扫描 %1 个文件</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/BatchDialog.qml" line="224"/>
-      
-        
-      <source>Folder to scan</source>
-      
-        
-      <translation>要扫描的文件夹</translation>
-      
-    
+        <location filename="../src/qml/BatchDialog.qml" line="225"/>
+        <source>Folder to scan</source>
+        <translation>要扫描的文件夹</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/BatchDialog.qml" line="236"/>
-      
-        
-      <source>Add game files</source>
-      
-        
-      <translation>添加游戏文件</translation>
-      
-    
+        <location filename="../src/qml/BatchDialog.qml" line="237"/>
+        <source>Add game files</source>
+        <translation>添加游戏文件</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/BatchDialog.qml" line="238"/>
-      
-        
-      <source>Game files (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</source>
-      
-        
-      <translation>游戏文件 (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</translation>
-      
-    
+        <location filename="../src/qml/BatchDialog.qml" line="239"/>
+        <source>Game files (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</source>
+        <translation>游戏文件 (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/BatchDialog.qml" line="251"/>
-      
-        
-      <source>Revert log file</source>
-      
-        
-      <translation>还原日志文件</translation>
-      
-    
+        <location filename="../src/qml/BatchDialog.qml" line="252"/>
+        <source>Revert log file</source>
+        <translation>还原日志文件</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/BatchDialog.qml" line="252"/>
-      
-        
-      <source>Revert logs (batch_rename_*.log)</source>
-      
-        
-      <translation>还原日志 (batch_rename_*.log)</translation>
-      
-    
+        <location filename="../src/qml/BatchDialog.qml" line="253"/>
+        <source>Revert logs (batch_rename_*.log)</source>
+        <translation>还原日志 (batch_rename_*.log)</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/BatchDialog.qml" line="252"/>
-      
-        
-      <source>All files (*)</source>
-      
-        
-      <translation>所有文件 (*)</translation>
-      
-    
+        <location filename="../src/qml/BatchDialog.qml" line="253"/>
+        <source>All files (*)</source>
+        <translation>所有文件 (*)</translation>
     </message>
-    
-
-  </context>
-  
-
-  <context>
-    
-    
+</context>
+<context>
     <name>CoverPanel</name>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/CoverPanel.qml" line="73"/>
-      
-        
-      <source>Save</source>
-      
-        
-      <translation>保存</translation>
-      
-    
+        <location filename="../src/qml/CoverPanel.qml" line="77"/>
+        <source>Save</source>
+        <translation>保存</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/CoverPanel.qml" line="79"/>
-      
-        
-      <source>Copy</source>
-      
-        
-      <translation>复制</translation>
-      
-    
+        <location filename="../src/qml/CoverPanel.qml" line="83"/>
+        <source>Copy</source>
+        <translation>复制</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/CoverPanel.qml" line="89"/>
-      
-        
-      <source>Save cover image</source>
-      
-        
-      <translation>保存封面图片</translation>
-      
-    
+        <location filename="../src/qml/CoverPanel.qml" line="93"/>
+        <source>Save cover image</source>
+        <translation>保存封面图片</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/CoverPanel.qml" line="91"/>
-      
-        
-      <source>PNG image (*.png)</source>
-      
-        
-      <translation>PNG 图片 (*.png)</translation>
-      
-    
+        <location filename="../src/qml/CoverPanel.qml" line="95"/>
+        <source>PNG image (*.png)</source>
+        <translation>PNG 图片 (*.png)</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/CoverPanel.qml" line="95"/>
-      
-        
-      <source>Cover saved</source>
-      
-        
-      <translation>封面已保存</translation>
-      
-    
+        <location filename="../src/qml/CoverPanel.qml" line="99"/>
+        <source>Cover saved</source>
+        <translation>封面已保存</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/CoverPanel.qml" line="97"/>
-      
-        
-      <source>Could not save the cover</source>
-      
-        
-      <translation>无法保存封面</translation>
-      
-    
+        <location filename="../src/qml/CoverPanel.qml" line="101"/>
+        <source>Could not save the cover</source>
+        <translation>无法保存封面</translation>
     </message>
-    
-
-  </context>
-  
-
-  <context>
-    
-    
+</context>
+<context>
     <name>DetailsTab</name>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/DetailsTab.qml" line="26"/>
-      
-        
-      <source>Metadata</source>
-      
-        
-      <translation>元数据</translation>
-      
-    
+        <location filename="../src/qml/DetailsTab.qml" line="26"/>
+        <source>Metadata</source>
+        <translation>元数据</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/DetailsTab.qml" line="33"/>
-      
-        
-      <source>Show all</source>
-      
-        
-      <translation>显示全部</translation>
-      
-    
+        <location filename="../src/qml/DetailsTab.qml" line="33"/>
+        <source>Show all</source>
+        <translation>显示全部</translation>
     </message>
-    
-
-  </context>
-  
-
-  <context>
-    
-    
+</context>
+<context>
     <name>EmptyState</name>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/EmptyState.qml" line="25"/>
-      
-        
-      <source>Drop a game file here</source>
-      
-        
-      <translation>将游戏文件拖到这里</translation>
-      
-    
+        <location filename="../src/qml/EmptyState.qml" line="25"/>
+        <source>Drop a game file here</source>
+        <translation>将游戏文件拖到这里</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/EmptyState.qml" line="32"/>
-      
-        
-      <source>PKG · ISO · exFAT images · game folders</source>
-      
-        
-      <translation>PKG · ISO · exFAT 镜像 · 游戏文件夹</translation>
-      
-    
+        <location filename="../src/qml/EmptyState.qml" line="32"/>
+        <source>PKG · ISO · exFAT images · game folders</source>
+        <translation>PKG · ISO · exFAT 镜像 · 游戏文件夹</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/EmptyState.qml" line="38"/>
-      
-        
-      <source>or use Open in the header</source>
-      
-        
-      <translation>或使用顶栏的“打开”按钮</translation>
-      
-    
+        <location filename="../src/qml/EmptyState.qml" line="38"/>
+        <source>or use Open in the header</source>
+        <translation>或使用顶栏的“打开”按钮</translation>
     </message>
-    
-
-  </context>
-  
-
-  <context>
-    
-    
+</context>
+<context>
     <name>FilesTab</name>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/FilesTab.qml" line="18"/>
-      
-        
-      <source>%1 entries</source>
-      
-        
-      <translation>%1 个条目</translation>
-      
-    
+        <location filename="../src/qml/FilesTab.qml" line="21"/>
+        <source>1 entry</source>
+        <translation>1 个条目</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/FilesTab.qml" line="24"/>
-      
-        
-      <source>Expand</source>
-      
-        
-      <translation>全部展开</translation>
-      
-    
+        <location filename="../src/qml/FilesTab.qml" line="22"/>
+        <source>%1 entries</source>
+        <translation>%1 个条目</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/FilesTab.qml" line="29"/>
-      
-        
-      <source>Collapse</source>
-      
-        
-      <translation>全部折叠</translation>
-      
-    
+        <location filename="../src/qml/FilesTab.qml" line="29"/>
+        <source>Expand</source>
+        <translation>全部展开</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/FilesTab.qml" line="34"/>
-      
-        
-      <source>Extract all…</source>
-      
-        
-      <translation>全部解压…</translation>
-      
-    
+        <location filename="../src/qml/FilesTab.qml" line="34"/>
+        <source>Collapse</source>
+        <translation>全部折叠</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/FilesTab.qml" line="64"/>
-      
-        
-      <source>Name</source>
-      
-        
-      <translation>名称</translation>
-      
-    
+        <location filename="../src/qml/FilesTab.qml" line="39"/>
+        <source>Extract all…</source>
+        <translation>全部解压…</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/FilesTab.qml" line="73"/>
-      
-        
-      <source>Size</source>
-      
-        
-      <translation>大小</translation>
-      
-    
+        <location filename="../src/qml/FilesTab.qml" line="69"/>
+        <source>Name</source>
+        <translation>名称</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/FilesTab.qml" line="82"/>
-      
-        
-      <source>Info</source>
-      
-        
-      <translation>信息</translation>
-      
-    
+        <location filename="../src/qml/FilesTab.qml" line="78"/>
+        <source>Size</source>
+        <translation>大小</translation>
     </message>
-    
-
-  </context>
-  
-
-  <context>
-    
-    
+    <message>
+        <location filename="../src/qml/FilesTab.qml" line="87"/>
+        <source>Info</source>
+        <translation>信息</translation>
+    </message>
+</context>
+<context>
     <name>LibraryPage</name>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/LibraryPage.qml" line="21"/>
-      
-        
-      <source>Search title, Title ID or Content ID…</source>
-      
-        
-      <translation>搜索标题、标题 ID 或内容 ID…</translation>
-      
-    
+        <location filename="../src/qml/LibraryPage.qml" line="21"/>
+        <source>Search title, Title ID or Content ID…</source>
+        <translation>搜索标题、标题 ID 或内容 ID…</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/LibraryPage.qml" line="32"/>
-      
-        
-      <source>Scan folder…</source>
-      
-        
-      <translation>扫描文件夹…</translation>
-      
-    
+        <location filename="../src/qml/LibraryPage.qml" line="26"/>
+        <source>Scan folder…</source>
+        <translation>扫描文件夹…</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/LibraryPage.qml" line="36"/>
-      
-        
-      <source>Clean missing</source>
-      
-        
-      <translation>清理失效项</translation>
-      
-    
+        <location filename="../src/qml/LibraryPage.qml" line="30"/>
+        <source>Clean missing</source>
+        <translation>清理失效项</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/LibraryPage.qml" line="68"/>
-      
-        
-      <source>The library database could not be opened:&lt;br&gt;%1&lt;br&gt;Check that the folder with the executable is writable.</source>
-      
-        
-      <translation>无法打开游戏库数据库：&lt;br&gt;%1&lt;br&gt;请确认可执行文件所在文件夹可写。</translation>
-      
-    
+        <location filename="../src/qml/LibraryPage.qml" line="62"/>
+        <source>The library database could not be opened:&lt;br&gt;%1&lt;br&gt;Check that the folder with the executable is writable.</source>
+        <translation>无法打开游戏库数据库：&lt;br&gt;%1&lt;br&gt;请确认可执行文件所在文件夹可写。</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/LibraryPage.qml" line="70"/>
-      
-        
-      <source>Library is empty — open files or scan a folder</source>
-      
-        
-      <translation>游戏库为空——请打开文件或扫描文件夹</translation>
-      
-    
+        <location filename="../src/qml/LibraryPage.qml" line="64"/>
+        <source>Library is empty — open files or scan a folder</source>
+        <translation>游戏库为空——请打开文件或扫描文件夹</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/LibraryPage.qml" line="147"/>
-      
-        
-      <source>Open</source>
-      
-        
-      <translation>打开</translation>
-      
-    
+        <location filename="../src/qml/LibraryPage.qml" line="142"/>
+        <source>Open</source>
+        <translation>打开</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/LibraryPage.qml" line="152"/>
-      
-        
-      <source>Remove</source>
-      
-        
-      <translation>移除</translation>
-      
-    
+        <location filename="../src/qml/LibraryPage.qml" line="149"/>
+        <source>Remove</source>
+        <translation>移除</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/LibraryPage.qml" line="170"/>
-      
-        
-      <source>Folder to scan</source>
-      
-        
-      <translation>要扫描的文件夹</translation>
-      
-    
+        <location filename="../src/qml/LibraryPage.qml" line="167"/>
+        <source>Folder to scan</source>
+        <translation>要扫描的文件夹</translation>
     </message>
-    
-
-  </context>
-  
-
-  <context>
-    
-    
+</context>
+<context>
     <name>Main</name>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/Main.qml" line="14"/>
-      
-        
-      <location filename="../src/qml/Main.qml" line="68"/>
-      
-        
-      <source>PSGame-Viewer</source>
-      
-        
-      <translation>PSGame-Viewer</translation>
-      
-    
+        <location filename="../src/qml/Main.qml" line="14"/>
+        <location filename="../src/qml/Main.qml" line="78"/>
+        <source>PSGame-Viewer</source>
+        <translation>PSGame-Viewer</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/Main.qml" line="76"/>
-      
-        
-      <source>Open</source>
-      
-        
-      <translation>打开</translation>
-      
-    
+        <location filename="../src/qml/Main.qml" line="86"/>
+        <source>Open</source>
+        <translation>打开</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/Main.qml" line="81"/>
-      
-        
-      <source>Library</source>
-      
-        
-      <translation>游戏库</translation>
-      
-    
+        <location filename="../src/qml/Main.qml" line="91"/>
+        <source>Library</source>
+        <translation>游戏库</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/Main.qml" line="81"/>
-      
-        
-      <source>Viewer</source>
-      
-        
-      <translation>查看器</translation>
-      
-    
+        <location filename="../src/qml/Main.qml" line="91"/>
+        <source>Viewer</source>
+        <translation>查看器</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/Main.qml" line="92"/>
-      
-        
-      <source>Rename</source>
-      
-        
-      <translation>重命名</translation>
-      
-    
+        <location filename="../src/qml/Main.qml" line="102"/>
+        <source>Rename</source>
+        <translation>重命名</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/Main.qml" line="97"/>
-      
-        
-      <source>Batch</source>
-      
-        
-      <translation>批量</translation>
-      
-    
+        <location filename="../src/qml/Main.qml" line="107"/>
+        <source>Batch</source>
+        <translation>批量</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/Main.qml" line="101"/>
-      
-        
-      <source>Settings</source>
-      
-        
-      <translation>设置</translation>
-      
-    
+        <location filename="../src/qml/Main.qml" line="111"/>
+        <source>Settings</source>
+        <translation>设置</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/Main.qml" line="106"/>
-      
-        
-      <source>About</source>
-      
-        
-      <translation>关于</translation>
-      
-    
+        <location filename="../src/qml/Main.qml" line="116"/>
+        <source>About</source>
+        <translation>关于</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/Main.qml" line="157"/>
-      
-        
-      <source>Open a game file</source>
-      
-        
-      <translation>打开游戏文件</translation>
-      
-    
+        <location filename="../src/qml/Main.qml" line="177"/>
+        <source>Open a game file</source>
+        <translation>打开游戏文件</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/Main.qml" line="159"/>
-      
-        
-      <source>Game files (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</source>
-      
-        
-      <translation>游戏文件 (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</translation>
-      
-    
+        <location filename="../src/qml/Main.qml" line="179"/>
+        <source>Game files (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</source>
+        <translation>游戏文件 (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/Main.qml" line="160"/>
-      
-        
-      <source>All files (*)</source>
-      
-        
-      <translation>所有文件 (*)</translation>
-      
-    
+        <location filename="../src/qml/Main.qml" line="180"/>
+        <source>All files (*)</source>
+        <translation>所有文件 (*)</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/Main.qml" line="167"/>
-      
-        
-      <source>Extract to folder</source>
-      
-        
-      <translation>解压到文件夹</translation>
-      
-    
+        <location filename="../src/qml/Main.qml" line="187"/>
+        <source>Extract to folder</source>
+        <translation>解压到文件夹</translation>
     </message>
-    
-
-  </context>
-  
-
-  <context>
-    
-    
+</context>
+<context>
     <name>NamePatternBar</name>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/NamePatternBar.qml" line="63"/>
-      
-        
-      <source>Name:</source>
-      
-        
-      <translation>名称：</translation>
-      
-    
+        <location filename="../src/qml/NamePatternBar.qml" line="63"/>
+        <source>Name:</source>
+        <translation>名称：</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/NamePatternBar.qml" line="75"/>
-      
-        
-      <source>Custom pattern</source>
-      
-        
-      <translation>自定义模板</translation>
-      
-    
+        <location filename="../src/qml/NamePatternBar.qml" line="75"/>
+        <source>Custom pattern</source>
+        <translation>自定义模板</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/NamePatternBar.qml" line="84"/>
-      
-        
-      <source>custom pattern</source>
-      
-        
-      <translation>自定义模板</translation>
-      
-    
+        <location filename="../src/qml/NamePatternBar.qml" line="84"/>
+        <source>custom pattern</source>
+        <translation>自定义模板</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/NamePatternBar.qml" line="126"/>
-      
-        
-      <source>Include:</source>
-      
-        
-      <translation>包含：</translation>
-      
-    
+        <location filename="../src/qml/NamePatternBar.qml" line="128"/>
+        <source>Include:</source>
+        <translation>包含：</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/NamePatternBar.qml" line="132"/>
-      
-        
-      <source>Title</source>
-      
-        
-      <translation>标题</translation>
-      
-    
+        <location filename="../src/qml/NamePatternBar.qml" line="134"/>
+        <source>Title</source>
+        <translation>标题</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/NamePatternBar.qml" line="138"/>
-      
-        
-      <source>Title ID</source>
-      
-        
-      <translation>标题 ID</translation>
-      
-    
+        <location filename="../src/qml/NamePatternBar.qml" line="140"/>
+        <source>Title ID</source>
+        <translation>标题 ID</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/NamePatternBar.qml" line="144"/>
-      
-        
-      <source>Version</source>
-      
-        
-      <translation>版本</translation>
-      
-    
+        <location filename="../src/qml/NamePatternBar.qml" line="146"/>
+        <source>Version</source>
+        <translation>版本</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/NamePatternBar.qml" line="150"/>
-      
-        
-      <source>Region</source>
-      
-        
-      <translation>区域</translation>
-      
-    
+        <location filename="../src/qml/NamePatternBar.qml" line="152"/>
+        <source>Region</source>
+        <translation>区域</translation>
     </message>
-    
-
-  </context>
-  
-
-  <context>
-    
-    
+</context>
+<context>
     <name>QObject</name>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/entrytreemodel.cpp" line="153"/>
-      
-        
-      <source>1 file</source>
-      
-        
-      <translation>1 个文件</translation>
-      
-    
+        <source>1 file</source>
+        <translation type="vanished">1 个文件</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/entrytreemodel.cpp" line="154"/>
-      
-        
-      <source>%1 files</source>
-      
-        
-      <translation>%1 个文件</translation>
-      
-    
+        <source>%1 files</source>
+        <translation type="vanished">%1 个文件</translation>
     </message>
-    
-
-  </context>
-  
-
-  <context>
-    
-    
+</context>
+<context>
     <name>RenameDialog</name>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/RenameDialog.qml" line="35"/>
-      
-        
-      <location filename="../src/qml/RenameDialog.qml" line="94"/>
-      
-        
-      <source>Rename</source>
-      
-        
-      <translation>重命名</translation>
-      
-    
+        <location filename="../src/qml/RenameDialog.qml" line="36"/>
+        <location filename="../src/qml/RenameDialog.qml" line="103"/>
+        <source>Rename</source>
+        <translation>重命名</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/RenameDialog.qml" line="80"/>
-      
-        
-      <source>Undo</source>
-      
-        
-      <translation>撤销</translation>
-      
-    
+        <location filename="../src/qml/RenameDialog.qml" line="89"/>
+        <source>Undo</source>
+        <translation>撤销</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/RenameDialog.qml" line="84"/>
-      
-        
-      <source>Rename undone</source>
-      
-        
-      <translation>已撤销重命名</translation>
-      
-    
+        <location filename="../src/qml/RenameDialog.qml" line="93"/>
+        <source>Rename undone</source>
+        <translation>已撤销重命名</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/RenameDialog.qml" line="89"/>
-      
-        
-      <source>Cancel</source>
-      
-        
-      <translation>取消</translation>
-      
-    
+        <location filename="../src/qml/RenameDialog.qml" line="98"/>
+        <source>Cancel</source>
+        <translation>取消</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/RenameDialog.qml" line="104"/>
-      
-        
-      <source>Rename failed (target exists or not writable)</source>
-      
-        
-      <translation>重命名失败（目标已存在或不可写）</translation>
-      
-    
+        <location filename="../src/qml/RenameDialog.qml" line="113"/>
+        <source>Rename failed (target exists or not writable)</source>
+        <translation>重命名失败（目标已存在或不可写）</translation>
     </message>
-    
-
-  </context>
-  
-
-  <context>
-    
-    
+</context>
+<context>
     <name>SettingsDialog</name>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/SettingsDialog.qml" line="37"/>
-      
-        
-      <source>Settings</source>
-      
-        
-      <translation>设置</translation>
-      
-    
+        <location filename="../src/qml/SettingsDialog.qml" line="44"/>
+        <source>Settings</source>
+        <translation>设置</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/SettingsDialog.qml" line="44"/>
-      
-        
-      <source>Theme</source>
-      
-        
-      <translation>主题</translation>
-      
-    
+        <location filename="../src/qml/SettingsDialog.qml" line="51"/>
+        <source>Theme</source>
+        <translation>主题</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/SettingsDialog.qml" line="53"/>
-      
-        
-      <source>Dark</source>
-      
-        
-      <translation>深色</translation>
-      
-    
+        <location filename="../src/qml/SettingsDialog.qml" line="60"/>
+        <source>Dark</source>
+        <translation>深色</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/SettingsDialog.qml" line="54"/>
-      
-        
-      <source>Light</source>
-      
-        
-      <translation>浅色</translation>
-      
-    
+        <location filename="../src/qml/SettingsDialog.qml" line="61"/>
+        <source>Light</source>
+        <translation>浅色</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/SettingsDialog.qml" line="61"/>
-      
-        
-      <source>Language</source>
-      
-        
-      <translation>语言</translation>
-      
-    
+        <location filename="../src/qml/SettingsDialog.qml" line="68"/>
+        <source>Language</source>
+        <translation>语言</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/SettingsDialog.qml" line="71"/>
-      
-        
-      <source>System default</source>
-      
-        
-      <translation>跟随系统</translation>
-      
-    
+        <location filename="../src/qml/SettingsDialog.qml" line="78"/>
+        <source>System default</source>
+        <translation>跟随系统</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/SettingsDialog.qml" line="80"/>
-      
-        
-      <source>Restart the app to apply a language change.</source>
-      
-        
-      <translation>重启应用后语言设置生效。</translation>
-      
-    
+        <location filename="../src/qml/SettingsDialog.qml" line="87"/>
+        <source>Restart the app to apply a language change.</source>
+        <translation>重启应用后语言设置生效。</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/SettingsDialog.qml" line="88"/>
-      
-        
-      <source>Online lookups (covers, latest patch)</source>
-      
-        
-      <translation>在线查询（封面、最新补丁）</translation>
-      
-    
+        <location filename="../src/qml/SettingsDialog.qml" line="95"/>
+        <source>Online lookups (covers, latest patch)</source>
+        <translation>在线查询（封面、最新补丁）</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/SettingsDialog.qml" line="94"/>
-      
-        
-      <source>Check for updates on startup</source>
-      
-        
-      <translation>启动时检查更新</translation>
-      
-    
+        <location filename="../src/qml/SettingsDialog.qml" line="101"/>
+        <source>Check for updates on startup</source>
+        <translation>启动时检查更新</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/SettingsDialog.qml" line="104"/>
-      
-        
-      <source>Cancel</source>
-      
-        
-      <translation>取消</translation>
-      
-    
+        <location filename="../src/qml/SettingsDialog.qml" line="111"/>
+        <source>Cancel</source>
+        <translation>取消</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/SettingsDialog.qml" line="109"/>
-      
-        
-      <source>Save</source>
-      
-        
-      <translation>保存</translation>
-      
-    
+        <location filename="../src/qml/SettingsDialog.qml" line="116"/>
+        <source>Save</source>
+        <translation>保存</translation>
     </message>
-    
-
-  </context>
-  
-
-  <context>
-    
-    
+</context>
+<context>
     <name>SpecCard</name>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/SpecCard.qml" line="64"/>
-      
-        
-      <source>Copy</source>
-      
-        
-      <translation>复制</translation>
-      
-    
+        <location filename="../src/qml/SpecCard.qml" line="71"/>
+        <source>Copy</source>
+        <translation>复制</translation>
     </message>
-    
-
-  </context>
-  
-
-  <context>
-    
-    
+</context>
+<context>
     <name>TrophiesTab</name>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/TrophiesTab.qml" line="33"/>
-      
-        
-      <source>%1 trophies</source>
-      
-        
-      <translation>%1 个奖杯</translation>
-      
-    
+        <location filename="../src/qml/TrophiesTab.qml" line="35"/>
+        <source>1 trophy</source>
+        <translation>1 个奖杯</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/TrophiesTab.qml" line="39"/>
-      
-        
-      <source>Export icons…</source>
-      
-        
-      <translation>导出图标…</translation>
-      
-    
+        <location filename="../src/qml/TrophiesTab.qml" line="36"/>
+        <source>%1 trophies</source>
+        <translation>%1 个奖杯</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/TrophiesTab.qml" line="61"/>
-      
-        
-      <source>No trophy pack in this file</source>
-      
-        
-      <translation>此文件中没有奖杯包</translation>
-      
-    
+        <location filename="../src/qml/TrophiesTab.qml" line="43"/>
+        <source>Export icons…</source>
+        <translation>导出图标…</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/TrophiesTab.qml" line="133"/>
-      
-        
-      <source>hidden</source>
-      
-        
-      <translation>隐藏</translation>
-      
-    
+        <location filename="../src/qml/TrophiesTab.qml" line="65"/>
+        <source>No trophy pack in this file</source>
+        <translation>此文件中没有奖杯包</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/TrophiesTab.qml" line="160"/>
-      
-        
-      <source>Save trophy icons to folder</source>
-      
-        
-      <translation>保存奖杯图标到文件夹</translation>
-      
-    
+        <location filename="../src/qml/TrophiesTab.qml" line="140"/>
+        <source>hidden</source>
+        <translation>隐藏</translation>
     </message>
-    
-
-  </context>
-  
-
-  <context>
-    
-    
+    <message>
+        <location filename="../src/qml/TrophiesTab.qml" line="167"/>
+        <source>Save trophy icons to folder</source>
+        <translation>保存奖杯图标到文件夹</translation>
+    </message>
+</context>
+<context>
     <name>UpdateDialog</name>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/UpdateDialog.qml" line="65"/>
-      
-        
-      <source>Checking for updates…</source>
-      
-        
-      <translation>正在检查更新…</translation>
-      
-    
+        <location filename="../src/qml/UpdateDialog.qml" line="66"/>
+        <source>Checking for updates…</source>
+        <translation>正在检查更新…</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/UpdateDialog.qml" line="66"/>
-      
-        
-      <source>Update checker</source>
-      
-        
-      <translation>更新检查器</translation>
-      
-    
+        <location filename="../src/qml/UpdateDialog.qml" line="67"/>
+        <source>Update checker</source>
+        <translation>更新检查器</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/UpdateDialog.qml" line="68"/>
-      
-        
-      <source>Update available</source>
-      
-        
-      <translation>有可用更新</translation>
-      
-    
+        <location filename="../src/qml/UpdateDialog.qml" line="69"/>
+        <source>Update available</source>
+        <translation>有可用更新</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/UpdateDialog.qml" line="70"/>
-      
-        
-      <source>Up to date</source>
-      
-        
-      <translation>已是最新版本</translation>
-      
-    
+        <location filename="../src/qml/UpdateDialog.qml" line="71"/>
+        <source>Up to date</source>
+        <translation>已是最新版本</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/UpdateDialog.qml" line="72"/>
-      
-        
-      <source>No release published yet</source>
-      
-        
-      <translation>尚未发布任何版本</translation>
-      
-    
+        <location filename="../src/qml/UpdateDialog.qml" line="73"/>
+        <source>No release published yet</source>
+        <translation>尚未发布任何版本</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/UpdateDialog.qml" line="73"/>
-      
-        
-      <source>Update check failed</source>
-      
-        
-      <translation>更新检查失败</translation>
-      
-    
+        <location filename="../src/qml/UpdateDialog.qml" line="74"/>
+        <source>Update check failed</source>
+        <translation>更新检查失败</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/UpdateDialog.qml" line="90"/>
-      
-        
-      <source>Contacting the release server…</source>
-      
-        
-      <translation>正在连接发布服务器…</translation>
-      
-    
+        <location filename="../src/qml/UpdateDialog.qml" line="91"/>
+        <source>Contacting the release server…</source>
+        <translation>正在连接发布服务器…</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/UpdateDialog.qml" line="98"/>
-      
-        
-      <source>PSGame-Viewer %1 is available (you are running %2).</source>
-      
-        
-      <translation>PSGame-Viewer %1 已发布（当前版本 %2）。</translation>
-      
-    
+        <location filename="../src/qml/UpdateDialog.qml" line="99"/>
+        <source>PSGame-Viewer %1 is available (you are running %2).</source>
+        <translation>PSGame-Viewer %1 已发布（当前版本 %2）。</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/UpdateDialog.qml" line="110"/>
-      
-        
-      <source>You are running the latest version (%1).</source>
-      
-        
-      <translation>当前已是最新版本（%1）。</translation>
-      
-    
+        <location filename="../src/qml/UpdateDialog.qml" line="111"/>
+        <source>You are running the latest version (%1).</source>
+        <translation>当前已是最新版本（%1）。</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/UpdateDialog.qml" line="121"/>
-      
-        
-      <source>Could not reach the release server: %1</source>
-      
-        
-      <translation>无法连接发布服务器：%1</translation>
-      
-    
+        <location filename="../src/qml/UpdateDialog.qml" line="122"/>
+        <source>Could not reach the release server: %1</source>
+        <translation>无法连接发布服务器：%1</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/UpdateDialog.qml" line="132"/>
-      
-        
-      <source>Nothing to check against yet. Publish a GitHub release to enable update checks.</source>
-      
-        
-      <translation>暂时没有可检查的版本。发布 GitHub Release 后即可启用更新检查。</translation>
-      
-    
+        <location filename="../src/qml/UpdateDialog.qml" line="133"/>
+        <source>Nothing to check against yet. Publish a GitHub release to enable update checks.</source>
+        <translation>暂时没有可检查的版本。发布 GitHub Release 后即可启用更新检查。</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/UpdateDialog.qml" line="171"/>
-      
-        
-      <source>Open release page</source>
-      
-        
-      <translation>打开发布页面</translation>
-      
-    
+        <location filename="../src/qml/UpdateDialog.qml" line="172"/>
+        <source>Open release page</source>
+        <translation>打开发布页面</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/UpdateDialog.qml" line="177"/>
-      
-        
-      <source>Cancel</source>
-      
-        
-      <translation>取消</translation>
-      
-    
+        <location filename="../src/qml/UpdateDialog.qml" line="178"/>
+        <source>Cancel</source>
+        <translation>取消</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/UpdateDialog.qml" line="184"/>
-      
-        
-      <source>Close</source>
-      
-        
-      <translation>关闭</translation>
-      
-    
+        <location filename="../src/qml/UpdateDialog.qml" line="185"/>
+        <source>Close</source>
+        <translation>关闭</translation>
     </message>
-    
-
-  </context>
-  
-
-  <context>
-    
-    
+</context>
+<context>
     <name>ViewerPage</name>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/ViewerPage.qml" line="67"/>
-      
-        
-      <source>Latest patch: %1</source>
-      
-        
-      <translation>最新补丁：%1</translation>
-      
-    
+        <location filename="../src/qml/ViewerPage.qml" line="67"/>
+        <source>Latest patch: %1</source>
+        <translation>最新补丁：%1</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/ViewerPage.qml" line="81"/>
-      
-        
-      <source>Files</source>
-      
-        
-      <translation>文件</translation>
-      
-    
+        <location filename="../src/qml/ViewerPage.qml" line="83"/>
+        <source>Files</source>
+        <translation>文件</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/ViewerPage.qml" line="82"/>
-      
-        
-      <source>Details</source>
-      
-        
-      <translation>详情</translation>
-      
-    
+        <location filename="../src/qml/ViewerPage.qml" line="84"/>
+        <source>Details</source>
+        <translation>详情</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/ViewerPage.qml" line="83"/>
-      
-        
-      <source>Trophies</source>
-      
-        
-      <translation>奖杯</translation>
-      
-    
+        <location filename="../src/qml/ViewerPage.qml" line="85"/>
+        <source>Trophies</source>
+        <translation>奖杯</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/qml/ViewerPage.qml" line="117"/>
-      
-        
-      <source>Extract to folder</source>
-      
-        
-      <translation>解压到文件夹</translation>
-      
-    
+        <location filename="../src/qml/ViewerPage.qml" line="119"/>
+        <source>Extract to folder</source>
+        <translation>解压到文件夹</translation>
     </message>
-    
-
-  </context>
-  
-
-  <context>
-    
-    
+</context>
+<context>
     <name>psg::LibraryController</name>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/librarycontroller.cpp" line="125"/>
-      
-        
-      <source>Scanned %1, added %2</source>
-      
-        
-      <translation>已扫描 %1 个，新增 %2 个</translation>
-      
-    
+        <source>Scanned %1, added %2</source>
+        <translation type="vanished">已扫描 %1 个，新增 %2 个</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/librarycontroller.cpp" line="134"/>
-      
-        
-      <source>Removed %1 missing entries</source>
-      
-        
-      <translation>已移除 %1 个失效条目</translation>
-      
-    
+        <source>Removed %1 missing entries</source>
+        <translation type="vanished">已移除 %1 个失效条目</translation>
     </message>
-    
-
-  </context>
-  
-
-  <context>
-    
-    
+</context>
+<context>
     <name>psg::ViewerController</name>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="94"/>
-      
-        
-      <source>patches</source>
-      
-        
-      <translation>个补丁</translation>
-      
-    
+        <source>patches</source>
+        <translation type="vanished">个补丁</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="131"/>
-      
-        
-      <source>No file opened</source>
-      
-        
-      <translation>未打开文件</translation>
-      
-    
+        <source>No file opened</source>
+        <translation type="vanished">未打开文件</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="239"/>
-      
-        
-      <source>Could not open: %1</source>
-      
-        
-      <translation>无法打开：%1</translation>
-      
-    
+        <source>Could not open: %1</source>
+        <translation type="vanished">无法打开：%1</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="242"/>
-      
-        
-      <source>Opened %1</source>
-      
-        
-      <translation>已打开 %1</translation>
-      
-    
+        <source>Opened %1</source>
+        <translation type="vanished">已打开 %1</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="425"/>
-      
-        
-      <source>Could not extract %1</source>
-      
-        
-      <translation>无法解压 %1</translation>
-      
-    
+        <source>Could not extract %1</source>
+        <translation type="vanished">无法解压 %1</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="429"/>
-      
-        
-      <source>Extracted %1</source>
-      
-        
-      <translation>已解压 %1</translation>
-      
-    
+        <source>Extracted %1</source>
+        <translation type="vanished">已解压 %1</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="438"/>
-      
-        
-      <source>Extracted %1, failed %2</source>
-      
-        
-      <translation>已解压 %1 个，失败 %2 个</translation>
-      
-    
+        <source>Extracted %1, failed %2</source>
+        <translation type="vanished">已解压 %1 个，失败 %2 个</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="460"/>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="464"/>
-      
-        
-      <source>Nothing to copy</source>
-      
-        
-      <translation>没有可复制的内容</translation>
-      
-    
+        <source>Nothing to copy</source>
+        <translation type="vanished">没有可复制的内容</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="466"/>
-      
-        
-      <source>Cover copied to clipboard</source>
-      
-        
-      <translation>封面已复制到剪贴板</translation>
-      
-    
+        <source>Cover copied to clipboard</source>
+        <translation type="vanished">封面已复制到剪贴板</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="474"/>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="478"/>
-      
-        
-      <source>No trophy icons loaded</source>
-      
-        
-      <translation>未加载奖杯图标</translation>
-      
-    
+        <source>No trophy icons loaded</source>
+        <translation type="vanished">未加载奖杯图标</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="491"/>
-      
-        
-      <source>Cannot create folder: %1</source>
-      
-        
-      <translation>无法创建文件夹：%1</translation>
-      
-    
+        <source>Cannot create folder: %1</source>
+        <translation type="vanished">无法创建文件夹：%1</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="514"/>
-      
-        
-      <source>Saved %1 trophy icons to %2</source>
-      
-        
-      <translation>已保存 %1 个奖杯图标到 %2</translation>
-      
-    
+        <source>Saved %1 trophy icons to %2</source>
+        <translation type="vanished">已保存 %1 个奖杯图标到 %2</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="518"/>
-      
-        
-      <source> (%1 skipped)</source>
-      
-        
-      <translation>（跳过 %1 个）</translation>
-      
-    
+        <source> (%1 skipped)</source>
+        <translation type="vanished">（跳过 %1 个）</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="534"/>
-      
-        
-      <source>Copied to clipboard</source>
-      
-        
-      <translation>已复制到剪贴板</translation>
-      
-    
+        <source>Copied to clipboard</source>
+        <translation type="vanished">已复制到剪贴板</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="584"/>
-      
-        
-      <source>Renamed to %1</source>
-      
-        
-      <translation>已重命名为 %1</translation>
-      
-    
+        <source>Renamed to %1</source>
+        <translation type="vanished">已重命名为 %1</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="599"/>
-      
-        
-      <source>Rename undone</source>
-      
-        
-      <translation>已撤销重命名</translation>
-      
-    
+        <source>Rename undone</source>
+        <translation type="vanished">已撤销重命名</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="658"/>
-      
-        
-      <source>Batch: renamed %1, skipped %2</source>
-      
-        
-      <translation>批量处理：已重命名 %1 个，跳过 %2 个</translation>
-      
-    
+        <source>Batch: renamed %1, skipped %2</source>
+        <translation type="vanished">批量处理：已重命名 %1 个，跳过 %2 个</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="670"/>
-      
-        
-      <source>Nothing to revert in %1</source>
-      
-        
-      <translation>%1 中没有可还原的内容</translation>
-      
-    
+        <source>Nothing to revert in %1</source>
+        <translation type="vanished">%1 中没有可还原的内容</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="672"/>
-      
-        
-      <source>Dry run: %1 renames would be reverted. Run with apply.</source>
-      
-        
-      <translation>试运行：将还原 %1 个重命名。请以应用模式运行。</translation>
-      
-    
+        <source>Dry run: %1 renames would be reverted. Run with apply.</source>
+        <translation type="vanished">试运行：将还原 %1 个重命名。请以应用模式运行。</translation>
     </message>
-    
-    
     <message>
-      
-        
-      <location filename="../src/app/viewercontroller.cpp" line="675"/>
-      
-        
-      <source>Reverted %1, skipped %2</source>
-      
-        
-      <translation>已还原 %1 个，跳过 %2 个</translation>
-      
-    
+        <source>Reverted %1, skipped %2</source>
+        <translation type="vanished">已还原 %1 个，跳过 %2 个</translation>
     </message>
-    
-
-  </context>
-  
-
+</context>
 </TS>
