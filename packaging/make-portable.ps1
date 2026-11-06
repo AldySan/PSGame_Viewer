@@ -36,6 +36,20 @@ if (-not (Get-Command windeployqt -ErrorAction SilentlyContinue)) {
     (Join-Path $Stage "psgame-viewer.exe") | Out-Null
 if ($LASTEXITCODE -ne 0) { throw "windeployqt failed" }
 
+# 1b. MSVC builds: copy the VC runtime DLLs so the archive also runs on
+#     machines without the redistributable installed (no-op for MinGW or
+#     when the script runs outside a Visual Studio environment)
+if ($env:VCToolsRedistDir -and (Test-Path $env:VCToolsRedistDir)) {
+    $crt = Get-ChildItem -Path (Join-Path $env:VCToolsRedistDir "x64") `
+        -Recurse -Include "msvcp140.dll", "vcruntime140.dll", `
+                     "vcruntime140_1.dll" -ErrorAction SilentlyContinue
+    if ($crt) {
+        $crt | Copy-Item -Destination $Stage
+        Write-Host "VC runtime DLLs:"
+        $crt | ForEach-Object { Write-Host "  $($_.Name)" }
+    }
+}
+
 # 2. portable hint file for the archive users
 @(
     "PSGame-Viewer (portable)",
