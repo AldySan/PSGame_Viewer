@@ -10,8 +10,8 @@ ColumnLayout {
 
     // list of file paths, newest first (bound to Library.recentFiles)
     property var recents: []
-    // how many chips to show; the full list lives in the Library page
-    readonly property int maxChips: 6
+    // how many chips to show; the recents list itself is capped at 5
+    readonly property int maxChips: 5
 
     signal openRecent(url path)
 
@@ -70,7 +70,7 @@ ColumnLayout {
                 id: chip
                 required property var modelData
                 readonly property string fileName:
-                    String(chip.modelData).split('/').pop()
+                    String(chip.modelData).split(/[\\/]/).pop()
                 width: chipLabel.implicitWidth + 22
                 height: 28
                 radius: Theme.radiusSm + 2

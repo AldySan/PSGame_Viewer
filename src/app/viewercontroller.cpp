@@ -239,8 +239,17 @@ QVariantList ViewerController::rows() const
 
 void ViewerController::openPath(const QUrl &path)
 {
-    const QString local = path.isLocalFile() ? path.toLocalFile()
-                                             : path.toString();
+    QString local;
+    if (path.isLocalFile()) {
+        local = path.toLocalFile();
+    } else {
+        local = path.toString();
+    }
+    // canonical form for the library/recent keys: url-typed QML signals
+    // mangle Windows drive letters ("C:/..." -> scheme "c") and folder
+    // paths may carry ".." or a trailing slash — without this the same
+    // game opens as two different library rows
+    local = normalizeGamePath(local);
     if (local.isEmpty())
         return;
     m_busy = true;
