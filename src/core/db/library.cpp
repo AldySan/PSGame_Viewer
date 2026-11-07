@@ -1,5 +1,7 @@
 #include "library.h"
 
+#include "core/util.h"
+
 #include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
@@ -73,7 +75,9 @@ int GameLibrary::upsertGame(const QString &path, const QString &title,
                             const QString &contentId, const QString &region,
                             const QString &version, quint64 size)
 {
-    if (!m_valid || path.isEmpty())
+    // canonical key: the path column is what dedupes rows
+    const QString p = normalizeGamePath(path);
+    if (!m_valid || p.isEmpty())
         return 0;
     // every column is NOT NULL: a null QString binds as SQL NULL and the
     // whole insert would fail (formats without a Content ID, e.g. PS2
@@ -92,7 +96,7 @@ int GameLibrary::upsertGame(const QString &path, const QString &title,
         " title_id=excluded.title_id, content_id=excluded.content_id,"
         " region=excluded.region, version=excluded.version,"
         " size=excluded.size"));
-    q.bindValue(QStringLiteral(":path"), nz(path));
+    q.bindValue(QStringLiteral(":path"), nz(p));
     q.bindValue(QStringLiteral(":title"), nz(title));
     q.bindValue(QStringLiteral(":platform"), nz(platform));
     q.bindValue(QStringLiteral(":title_id"), nz(titleId));
@@ -108,7 +112,7 @@ int GameLibrary::upsertGame(const QString &path, const QString &title,
     }
     QSqlQuery idq(*m_db);
     idq.prepare(QStringLiteral("SELECT id FROM games WHERE path = :path"));
-    idq.bindValue(QStringLiteral(":path"), path);
+    idq.bindValue(QStringLiteral(":path"), p);
     if (idq.exec() && idq.next())
         return idq.value(0).toInt();
     return 0;
@@ -241,13 +245,14 @@ QStringList GameLibrary::recentFiles(int limit) const
 
 void GameLibrary::addRecent(const QString &path)
 {
-    if (!m_valid || path.isEmpty())
+    const QString p = normalizeGamePath(path);
+    if (!m_valid || p.isEmpty())
         return;
     QSqlQuery q(*m_db);
     q.prepare(QStringLiteral(
         "INSERT INTO recent (path, opened_at) VALUES (:path, :now)"
         " ON CONFLICT(path) DO UPDATE SET opened_at=excluded.opened_at"));
-    q.bindValue(QStringLiteral(":path"), path);
+    q.bindValue(QStringLiteral(":path"), p);
     q.bindValue(QStringLiteral(":now"), QDateTime::currentSecsSinceEpoch());
     q.exec();
 }

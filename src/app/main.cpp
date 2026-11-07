@@ -12,7 +12,6 @@
 #include <QSet>
 #include <QSettings>
 #include <QTimer>
-#include <QTranslator>
 #include <QUrl>
 #include <QImage>
 
@@ -287,23 +286,6 @@ int runGui(int argc, char *argv[])
                          library.refresh();
                      });
 
-    // translators (falls back to the source language when absent)
-    const QString lang = settings.language();
-    const QStringList locales = lang == QLatin1String("system")
-        ? QLocale::system().uiLanguages()
-        : QStringList{lang};
-    QList<QTranslator *> translators;
-    for (const QString &loc : locales) {
-        auto *t = new QTranslator(&app);
-        if (t->load(QStringLiteral("psgameviewer_") + QLocale(loc).name(),
-                    QStringLiteral(":/i18n"))) {
-            app.installTranslator(t);
-            translators.append(t);
-        } else {
-            t->deleteLater();
-        }
-    }
-
     QQmlApplicationEngine engine;
     engine.addImageProvider(QStringLiteral("psg"), provider);
     engine.rootContext()->setContextProperty(QStringLiteral("Viewer"),
@@ -339,6 +321,7 @@ int runGui(int argc, char *argv[])
     const QString openEnv = qEnvironmentVariable("PSGV_OPEN");
     const QString openDialog = qEnvironmentVariable("PSGV_DIALOG");
     const QString openPage = qEnvironmentVariable("PSGV_PAGE");
+    const QString toastMsg = qEnvironmentVariable("PSGV_TOAST");
     const int openTab = qEnvironmentVariable("PSGV_TAB").toInt();
     // PSGV_EXPAND>0 expands every Files folder before the shot
     const bool expandAll =
@@ -359,7 +342,7 @@ int runGui(int argc, char *argv[])
     }
     if (!screenshot.isEmpty()) {
         QTimer::singleShot(shotDelayMs, [&engine, screenshot, openDialog, openTab,
-                                  openPage, expandAll]() {
+                                  openPage, expandAll, toastMsg]() {
             const auto roots = engine.rootObjects();
             for (QObject *root : roots) {
                 if (!openPage.isEmpty()) {
@@ -391,6 +374,16 @@ int runGui(int argc, char *argv[])
                     for (QObject *p : children) {
                         if (p->objectName() == openDialog)
                             QMetaObject::invokeMethod(p, "open");
+                    }
+                }
+                // PSGV_TOAST shows a toast with the given text (the
+                // AppToast in Main.qml carries the "toast" objectName)
+                if (!toastMsg.isEmpty()) {
+                    const auto children = root->findChildren<QObject *>();
+                    for (QObject *p : children) {
+                        if (p->objectName() == QStringLiteral("toast"))
+                            QMetaObject::invokeMethod(
+                                p, "show", Q_ARG(QVariant, toastMsg));
                     }
                 }
             }

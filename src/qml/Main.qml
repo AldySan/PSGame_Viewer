@@ -138,7 +138,10 @@ ApplicationWindow {
                 Viewer.openPath(path)
                 stack.currentIndex = 0
             }
-            onStatusMessage: function(msg) { root.statusText = msg }
+            onStatusMessage: function(msg) {
+                root.statusText = msg
+                toast.show(msg)
+            }
         }
     }
 
@@ -189,7 +192,14 @@ ApplicationWindow {
     // file dialog cannot select them — offer both entry points
     Menu {
         id: openMenu
+        objectName: "openMenu"
         padding: 6
+        // a Menu never derives its width from its items, and the custom
+        // background carries no implicit size of its own — without an
+        // explicit content width the popup collapses to the padding and
+        // shows up as a small empty rectangle
+        contentWidth: Math.max(openFileItem.implicitWidth,
+                               openFolderItem.implicitWidth)
         background: Rectangle {
             radius: Theme.radius
             color: Theme.card
@@ -239,6 +249,13 @@ ApplicationWindow {
         id: folderDialog
         title: qsTr("Open a game folder (PS3 game or PS5 app folder)")
         onAccepted: Viewer.openPath(selectedFolder)
+    }
+
+    // transient feedback pill for library actions (scan/clean results);
+    // the footer stays the home of the longer-lived viewer status
+    AppToast {
+        id: toast
+        objectName: "toast"
     }
 
     RenameDialog {
