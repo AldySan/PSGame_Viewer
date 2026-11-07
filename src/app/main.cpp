@@ -12,7 +12,6 @@
 #include <QSet>
 #include <QSettings>
 #include <QTimer>
-#include <QTranslator>
 #include <QUrl>
 #include <QImage>
 
@@ -286,23 +285,6 @@ int runGui(int argc, char *argv[])
                              gameLibrary.renamePath(olds.at(i), news.at(i));
                          library.refresh();
                      });
-
-    // translators (falls back to the source language when absent)
-    const QString lang = settings.language();
-    const QStringList locales = lang == QLatin1String("system")
-        ? QLocale::system().uiLanguages()
-        : QStringList{lang};
-    QList<QTranslator *> translators;
-    for (const QString &loc : locales) {
-        auto *t = new QTranslator(&app);
-        if (t->load(QStringLiteral("psgameviewer_") + QLocale(loc).name(),
-                    QStringLiteral(":/i18n"))) {
-            app.installTranslator(t);
-            translators.append(t);
-        } else {
-            t->deleteLater();
-        }
-    }
 
     QQmlApplicationEngine engine;
     engine.addImageProvider(QStringLiteral("psg"), provider);
