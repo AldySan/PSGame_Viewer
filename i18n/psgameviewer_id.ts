@@ -272,17 +272,17 @@
         <translation>Pustaka kosong — buka berkas atau pindai folder</translation>
     </message>
     <message>
-        <location filename="../src/qml/LibraryPage.qml" line="142"/>
+        <location filename="../src/qml/LibraryPage.qml" line="152"/>
         <source>Open</source>
         <translation>Buka</translation>
     </message>
     <message>
-        <location filename="../src/qml/LibraryPage.qml" line="149"/>
+        <location filename="../src/qml/LibraryPage.qml" line="159"/>
         <source>Remove</source>
         <translation>Hapus</translation>
     </message>
     <message>
-        <location filename="../src/qml/LibraryPage.qml" line="167"/>
+        <location filename="../src/qml/LibraryPage.qml" line="170"/>
         <source>Folder to scan</source>
         <translation>Folder yang akan dipindai</translation>
     </message>
@@ -311,43 +311,54 @@
         <translation>Penampil</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="102"/>
+        <location filename="../src/qml/Main.qml" line="95"/>
         <source>Rename</source>
         <translation>Ganti nama</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="107"/>
+        <location filename="../src/qml/Main.qml" line="100"/>
         <source>Batch</source>
         <translation>Massal</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="111"/>
+        <location filename="../src/qml/Main.qml" line="104"/>
         <source>Settings</source>
         <translation>Pengaturan</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="116"/>
+        <location filename="../src/qml/Main.qml" line="109"/>
         <source>About</source>
         <translation>Tentang</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="181"/>
+        <location filename="../src/qml/Main.qml" line="183"/>
         <source>Open a game file</source>
         <translation>Buka berkas game</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="183"/>
+        <location filename="../src/qml/Main.qml" line="185"/>
         <source>Game files (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</source>
         <translation>Berkas game (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="184"/>
+        <location filename="../src/qml/Main.qml" line="186"/>
         <source>All files (*)</source>
         <translation>Semua berkas (*)</translation>
     </message>
     <message>
-        <source>Extract to folder</source>
-        <translation type="vanished">Ekstrak ke folder</translation>
+        <location filename="../src/qml/Main.qml" line="210"/>
+        <source>Open file…</source>
+        <translation>Buka berkas…</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/Main.qml" line="229"/>
+        <source>Open game folder…</source>
+        <translation>Buka folder game…</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/Main.qml" line="250"/>
+        <source>Open a game folder (PS3 game or PS5 app folder)</source>
+        <translation>Buka folder game (folder game PS3 atau folder aplikasi PS5)</translation>
     </message>
 </context>
 <context>
@@ -396,12 +407,12 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/app/entrytreemodel.cpp" line="153"/>
+        <location filename="../src/app/entrytreemodel.cpp" line="169"/>
         <source>1 file</source>
         <translation>1 berkas</translation>
     </message>
     <message>
-        <location filename="../src/app/entrytreemodel.cpp" line="154"/>
+        <location filename="../src/app/entrytreemodel.cpp" line="170"/>
         <source>%1 files</source>
         <translation>%1 berkas</translation>
     </message>
@@ -448,47 +459,42 @@
         <translation>Tema</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="60"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="63"/>
         <source>Dark</source>
         <translation>Gelap</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="61"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="64"/>
         <source>Light</source>
         <translation>Terang</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="68"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="71"/>
         <source>Language</source>
         <translation>Bahasa</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="78"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="81"/>
         <source>System default</source>
         <translation>Bawaan sistem</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="87"/>
-        <source>Restart the app to apply a language change.</source>
-        <translation>Mulai ulang aplikasi untuk menerapkan perubahan bahasa.</translation>
-    </message>
-    <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="95"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="91"/>
         <source>Online lookups (covers, latest patch)</source>
         <translation>Pencarian daring (sampul, patch terbaru)</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="101"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="97"/>
         <source>Check for updates on startup</source>
         <translation>Periksa pembaruan saat mulai</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="111"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="107"/>
         <source>Cancel</source>
         <translation>Batal</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="116"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="112"/>
         <source>Save</source>
         <translation>Simpan</translation>
     </message>
@@ -504,32 +510,37 @@
 <context>
     <name>TrophiesTab</name>
     <message>
-        <location filename="../src/qml/TrophiesTab.qml" line="35"/>
+        <location filename="../src/qml/TrophiesTab.qml" line="34"/>
         <source>1 trophy</source>
         <translation>1 trofi</translation>
     </message>
     <message>
-        <location filename="../src/qml/TrophiesTab.qml" line="36"/>
+        <location filename="../src/qml/TrophiesTab.qml" line="35"/>
         <source>%1 trophies</source>
         <translation>%1 trofi</translation>
     </message>
     <message>
-        <location filename="../src/qml/TrophiesTab.qml" line="43"/>
+        <location filename="../src/qml/TrophiesTab.qml" line="42"/>
         <source>Export icons…</source>
         <translation>Ekspor ikon…</translation>
     </message>
     <message>
         <location filename="../src/qml/TrophiesTab.qml" line="65"/>
+        <source>Loading trophies…</source>
+        <translation>Memuat trofi…</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/TrophiesTab.qml" line="72"/>
         <source>No trophy pack in this file</source>
         <translation>Tidak ada paket trofi dalam berkas ini</translation>
     </message>
     <message>
-        <location filename="../src/qml/TrophiesTab.qml" line="140"/>
+        <location filename="../src/qml/TrophiesTab.qml" line="147"/>
         <source>hidden</source>
         <translation>tersembunyi</translation>
     </message>
     <message>
-        <location filename="../src/qml/TrophiesTab.qml" line="167"/>
+        <location filename="../src/qml/TrophiesTab.qml" line="174"/>
         <source>Save trophy icons to folder</source>
         <translation>Simpan ikon trofi ke folder</translation>
     </message>
@@ -638,119 +649,19 @@
 <context>
     <name>psg::LibraryController</name>
     <message>
-        <location filename="../src/app/librarycontroller.cpp" line="112"/>
+        <location filename="../src/app/librarycontroller.cpp" line="156"/>
         <source>Scanned %1, added %2</source>
         <translation>%1 dipindai, %2 ditambahkan</translation>
     </message>
     <message>
-        <location filename="../src/app/librarycontroller.cpp" line="121"/>
+        <location filename="../src/app/librarycontroller.cpp" line="168"/>
         <source>Removed %1 missing entries</source>
         <translation>%1 entri hilang dihapus</translation>
     </message>
-</context>
-<context>
-    <name>psg::ViewerController</name>
     <message>
-        <location filename="../src/app/viewercontroller.cpp" line="94"/>
-        <source>patches</source>
-        <translation>patch</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="137"/>
-        <source>No file opened</source>
-        <translation>Belum ada berkas dibuka</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="245"/>
-        <source>Could not open: %1</source>
-        <translation>Tidak dapat membuka: %1</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="248"/>
-        <source>Opened %1</source>
-        <translation>Membuka %1</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="431"/>
-        <source>Could not extract %1</source>
-        <translation>Tidak dapat mengekstrak %1</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="435"/>
-        <source>Extracted %1</source>
-        <translation>Mengekstrak %1</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="444"/>
-        <source>Extracted %1, failed %2</source>
-        <translation>%1 diekstrak, %2 gagal</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="466"/>
-        <location filename="../src/app/viewercontroller.cpp" line="470"/>
-        <source>Nothing to copy</source>
-        <translation>Tidak ada yang bisa disalin</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="472"/>
-        <source>Cover copied to clipboard</source>
-        <translation>Sampul disalin ke papan klip</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="480"/>
-        <location filename="../src/app/viewercontroller.cpp" line="484"/>
-        <source>No trophy icons loaded</source>
-        <translation>Belum ada ikon trofi</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="497"/>
-        <source>Cannot create folder: %1</source>
-        <translation>Tidak bisa membuat folder: %1</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="520"/>
-        <source>Saved %1 trophy icons to %2</source>
-        <translation>Menyimpan %1 ikon trofi ke %2</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="524"/>
-        <source> (%1 skipped)</source>
-        <translation> (melewati %1)</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="540"/>
-        <source>Copied to clipboard</source>
-        <translation>Disalin ke papan klip</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="591"/>
-        <source>Renamed to %1</source>
-        <translation>Diganti nama menjadi %1</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="609"/>
-        <source>Rename undone</source>
-        <translation>Ganti nama diurungkan</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="680"/>
-        <source>Batch: renamed %1, skipped %2</source>
-        <translation>Massal: %1 diganti nama, %2 dilewati</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="692"/>
-        <source>Nothing to revert in %1</source>
-        <translation>Tidak ada yang bisa dipulihkan di %1</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="694"/>
-        <source>Dry run: %1 renames would be reverted. Run with apply.</source>
-        <translation>Uji coba: %1 ganti nama akan dipulihkan. Jalankan dengan terapkan.</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="697"/>
-        <source>Reverted %1, skipped %2</source>
-        <translation>%1 dipulihkan, %2 dilewati</translation>
+        <location filename="../src/app/librarycontroller.cpp" line="169"/>
+        <source>All games present — nothing to clean</source>
+        <translation>Semua game ada — tidak ada yang perlu dibersihkan</translation>
     </message>
 </context>
 </TS>

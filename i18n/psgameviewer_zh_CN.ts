@@ -272,17 +272,17 @@
         <translation>游戏库为空——请打开文件或扫描文件夹</translation>
     </message>
     <message>
-        <location filename="../src/qml/LibraryPage.qml" line="142"/>
+        <location filename="../src/qml/LibraryPage.qml" line="152"/>
         <source>Open</source>
         <translation>打开</translation>
     </message>
     <message>
-        <location filename="../src/qml/LibraryPage.qml" line="149"/>
+        <location filename="../src/qml/LibraryPage.qml" line="159"/>
         <source>Remove</source>
         <translation>移除</translation>
     </message>
     <message>
-        <location filename="../src/qml/LibraryPage.qml" line="167"/>
+        <location filename="../src/qml/LibraryPage.qml" line="170"/>
         <source>Folder to scan</source>
         <translation>要扫描的文件夹</translation>
     </message>
@@ -311,43 +311,54 @@
         <translation>查看器</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="102"/>
+        <location filename="../src/qml/Main.qml" line="95"/>
         <source>Rename</source>
         <translation>重命名</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="107"/>
+        <location filename="../src/qml/Main.qml" line="100"/>
         <source>Batch</source>
         <translation>批量</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="111"/>
+        <location filename="../src/qml/Main.qml" line="104"/>
         <source>Settings</source>
         <translation>设置</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="116"/>
+        <location filename="../src/qml/Main.qml" line="109"/>
         <source>About</source>
         <translation>关于</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="181"/>
+        <location filename="../src/qml/Main.qml" line="183"/>
         <source>Open a game file</source>
         <translation>打开游戏文件</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="183"/>
+        <location filename="../src/qml/Main.qml" line="185"/>
         <source>Game files (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</source>
         <translation>游戏文件 (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="184"/>
+        <location filename="../src/qml/Main.qml" line="186"/>
         <source>All files (*)</source>
         <translation>所有文件 (*)</translation>
     </message>
     <message>
-        <source>Extract to folder</source>
-        <translation type="vanished">解压到文件夹</translation>
+        <location filename="../src/qml/Main.qml" line="210"/>
+        <source>Open file…</source>
+        <translation>打开文件…</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/Main.qml" line="229"/>
+        <source>Open game folder…</source>
+        <translation>打开游戏文件夹…</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/Main.qml" line="250"/>
+        <source>Open a game folder (PS3 game or PS5 app folder)</source>
+        <translation>打开游戏文件夹（PS3 游戏或 PS5 应用文件夹）</translation>
     </message>
 </context>
 <context>
@@ -396,12 +407,12 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/app/entrytreemodel.cpp" line="153"/>
+        <location filename="../src/app/entrytreemodel.cpp" line="169"/>
         <source>1 file</source>
         <translation>1 个文件</translation>
     </message>
     <message>
-        <location filename="../src/app/entrytreemodel.cpp" line="154"/>
+        <location filename="../src/app/entrytreemodel.cpp" line="170"/>
         <source>%1 files</source>
         <translation>%1 个文件</translation>
     </message>
@@ -448,47 +459,42 @@
         <translation>主题</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="60"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="63"/>
         <source>Dark</source>
         <translation>深色</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="61"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="64"/>
         <source>Light</source>
         <translation>浅色</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="68"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="71"/>
         <source>Language</source>
         <translation>语言</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="78"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="81"/>
         <source>System default</source>
         <translation>跟随系统</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="87"/>
-        <source>Restart the app to apply a language change.</source>
-        <translation>重启应用后语言设置生效。</translation>
-    </message>
-    <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="95"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="91"/>
         <source>Online lookups (covers, latest patch)</source>
         <translation>在线查询（封面、最新补丁）</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="101"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="97"/>
         <source>Check for updates on startup</source>
         <translation>启动时检查更新</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="111"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="107"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="116"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="112"/>
         <source>Save</source>
         <translation>保存</translation>
     </message>
@@ -504,32 +510,37 @@
 <context>
     <name>TrophiesTab</name>
     <message>
-        <location filename="../src/qml/TrophiesTab.qml" line="35"/>
+        <location filename="../src/qml/TrophiesTab.qml" line="34"/>
         <source>1 trophy</source>
         <translation>1 个奖杯</translation>
     </message>
     <message>
-        <location filename="../src/qml/TrophiesTab.qml" line="36"/>
+        <location filename="../src/qml/TrophiesTab.qml" line="35"/>
         <source>%1 trophies</source>
         <translation>%1 个奖杯</translation>
     </message>
     <message>
-        <location filename="../src/qml/TrophiesTab.qml" line="43"/>
+        <location filename="../src/qml/TrophiesTab.qml" line="42"/>
         <source>Export icons…</source>
         <translation>导出图标…</translation>
     </message>
     <message>
         <location filename="../src/qml/TrophiesTab.qml" line="65"/>
+        <source>Loading trophies…</source>
+        <translation>正在加载奖杯…</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/TrophiesTab.qml" line="72"/>
         <source>No trophy pack in this file</source>
         <translation>此文件中没有奖杯包</translation>
     </message>
     <message>
-        <location filename="../src/qml/TrophiesTab.qml" line="140"/>
+        <location filename="../src/qml/TrophiesTab.qml" line="147"/>
         <source>hidden</source>
         <translation>隐藏</translation>
     </message>
     <message>
-        <location filename="../src/qml/TrophiesTab.qml" line="167"/>
+        <location filename="../src/qml/TrophiesTab.qml" line="174"/>
         <source>Save trophy icons to folder</source>
         <translation>保存奖杯图标到文件夹</translation>
     </message>
@@ -638,119 +649,19 @@
 <context>
     <name>psg::LibraryController</name>
     <message>
-        <location filename="../src/app/librarycontroller.cpp" line="112"/>
+        <location filename="../src/app/librarycontroller.cpp" line="156"/>
         <source>Scanned %1, added %2</source>
         <translation>已扫描 %1 个，新增 %2 个</translation>
     </message>
     <message>
-        <location filename="../src/app/librarycontroller.cpp" line="121"/>
+        <location filename="../src/app/librarycontroller.cpp" line="168"/>
         <source>Removed %1 missing entries</source>
         <translation>已移除 %1 个失效条目</translation>
     </message>
-</context>
-<context>
-    <name>psg::ViewerController</name>
     <message>
-        <location filename="../src/app/viewercontroller.cpp" line="94"/>
-        <source>patches</source>
-        <translation>个补丁</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="137"/>
-        <source>No file opened</source>
-        <translation>未打开文件</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="245"/>
-        <source>Could not open: %1</source>
-        <translation>无法打开：%1</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="248"/>
-        <source>Opened %1</source>
-        <translation>已打开 %1</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="431"/>
-        <source>Could not extract %1</source>
-        <translation>无法解压 %1</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="435"/>
-        <source>Extracted %1</source>
-        <translation>已解压 %1</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="444"/>
-        <source>Extracted %1, failed %2</source>
-        <translation>已解压 %1 个，失败 %2 个</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="466"/>
-        <location filename="../src/app/viewercontroller.cpp" line="470"/>
-        <source>Nothing to copy</source>
-        <translation>没有可复制的内容</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="472"/>
-        <source>Cover copied to clipboard</source>
-        <translation>封面已复制到剪贴板</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="480"/>
-        <location filename="../src/app/viewercontroller.cpp" line="484"/>
-        <source>No trophy icons loaded</source>
-        <translation>未加载奖杯图标</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="497"/>
-        <source>Cannot create folder: %1</source>
-        <translation>无法创建文件夹：%1</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="520"/>
-        <source>Saved %1 trophy icons to %2</source>
-        <translation>已保存 %1 个奖杯图标到 %2</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="524"/>
-        <source> (%1 skipped)</source>
-        <translation>（跳过 %1 个）</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="540"/>
-        <source>Copied to clipboard</source>
-        <translation>已复制到剪贴板</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="591"/>
-        <source>Renamed to %1</source>
-        <translation>已重命名为 %1</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="609"/>
-        <source>Rename undone</source>
-        <translation>已撤销重命名</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="680"/>
-        <source>Batch: renamed %1, skipped %2</source>
-        <translation>批量处理：已重命名 %1 个，跳过 %2 个</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="692"/>
-        <source>Nothing to revert in %1</source>
-        <translation>%1 中没有可还原的内容</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="694"/>
-        <source>Dry run: %1 renames would be reverted. Run with apply.</source>
-        <translation>试运行：将还原 %1 个重命名。请以应用模式运行。</translation>
-    </message>
-    <message>
-        <location filename="../src/app/viewercontroller.cpp" line="697"/>
-        <source>Reverted %1, skipped %2</source>
-        <translation>已还原 %1 个，跳过 %2 个</translation>
+        <location filename="../src/app/librarycontroller.cpp" line="169"/>
+        <source>All games present — nothing to clean</source>
+        <translation>所有游戏均存在——无需清理</translation>
     </message>
 </context>
 </TS>
