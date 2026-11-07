@@ -82,7 +82,13 @@ GameInfo exfatResult(const ExfatImage &fs, const QString &path,
         return true;
     };
 
-    // icon0.png first, then every other PNG in sce_sys for the gallery
+    // icon0.png first, then every other PNG in sce_sys for the gallery.
+    // A crafted image may list thousands of PNG entries; stop caching
+    // past 64 images / 256 MB so parsing cannot exhaust memory.
+    constexpr int kMaxCachedImages = 64;
+    constexpr quint64 kMaxCachedBytes = 256ull << 20;
+    int cachedImages = 0;
+    quint64 cachedBytes = 0;
     quint32 eid = 0;
     ExfatImage::Found icon;
     if (fs.find({QStringLiteral("sce_sys"), QStringLiteral("icon0.png")},
@@ -92,8 +98,13 @@ GameInfo exfatResult(const ExfatImage &fs, const QString &path,
         e.id = eid++;
         e.name = QStringLiteral("icon0.png");
         e.size = icon.size;
-        if (fillImageEntry(e, icon.firstCluster, icon.noFat))
+        if (fillImageEntry(e, icon.firstCluster, icon.noFat)) {
             out.entries.append(e);
+            if (e.source == Entry::Source::Cached) {
+                ++cachedImages;
+                cachedBytes += quint64(e.cached.size());
+            }
+        }
     }
     QSet<QString> seen{{QStringLiteral("icon0.png")}};
     const QList<ExfatImage::DirItem> sceSys =
@@ -103,13 +114,21 @@ GameInfo exfatResult(const ExfatImage &fs, const QString &path,
             || !it.name.endsWith(QLatin1String(".png"), Qt::CaseInsensitive)
             || it.size == 0 || it.size > 32000000)
             continue;
+        if (cachedImages >= kMaxCachedImages
+            || cachedBytes >= kMaxCachedBytes)
+            break;
         seen.insert(it.name.toLower());
         Entry e;
         e.id = eid++;
         e.name = it.name;
         e.size = it.size;
-        if (fillImageEntry(e, it.firstCluster, it.noFat))
+        if (fillImageEntry(e, it.firstCluster, it.noFat)) {
             out.entries.append(e);
+            if (e.source == Entry::Source::Cached) {
+                ++cachedImages;
+                cachedBytes += quint64(e.cached.size());
+            }
+        }
     }
 
     // trophy packs for the Trophies tab, read on demand
@@ -301,7 +320,12 @@ GameInfo ufs2Result(const Ufs2File &fs, const QString &path, quint64 size,
         out.addRow(QStringLiteral("Inner file"), innerName);
     out.rows += extra;
 
-    // icon0.png first, then the other sce_sys PNGs in name order
+    // icon0.png first, then the other sce_sys PNGs in name order (with
+    // the same crafted-file budget as the exFAT path)
+    constexpr int kMaxCachedImages = 64;
+    constexpr quint64 kMaxCachedBytes = 256ull << 20;
+    int cachedImages = 0;
+    quint64 cachedBytes = 0;
     quint32 eid = 0;
     Ufs2File::Found icon;
     if (fs.find({QStringLiteral("sce_sys"), QStringLiteral("icon0.png")},
@@ -317,6 +341,8 @@ GameInfo ufs2Result(const Ufs2File &fs, const QString &path, quint64 size,
             e.source = Entry::Source::Cached;
             e.cached = data;
             out.entries.append(e);
+            ++cachedImages;
+            cachedBytes += quint64(data.size());
         }
     }
     Ufs2File::Found sceSysDir;
@@ -336,6 +362,9 @@ GameInfo ufs2Result(const Ufs2File &fs, const QString &path, quint64 size,
                 || !it.name.endsWith(QLatin1String(".png"), Qt::CaseInsensitive)
                 || it.size == 0 || it.size > 32000000)
                 continue;
+            if (cachedImages >= kMaxCachedImages
+                || cachedBytes >= kMaxCachedBytes)
+                break;
             const QByteArray data = fs.readFile({it.ino, it.size, false},
                                                 32000000);
             if (data.isEmpty()
@@ -348,6 +377,8 @@ GameInfo ufs2Result(const Ufs2File &fs, const QString &path, quint64 size,
             e.source = Entry::Source::Cached;
             e.cached = data;
             out.entries.append(e);
+            ++cachedImages;
+            cachedBytes += quint64(data.size());
         }
     }
     return out;

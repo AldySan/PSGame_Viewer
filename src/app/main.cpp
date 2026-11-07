@@ -198,6 +198,7 @@ int runGui(int argc, char *argv[])
     app.setApplicationName(QStringLiteral("PSGame-Viewer"));
     app.setApplicationVersion(QStringLiteral(PSGV_VERSION));
 
+
     AppSettings settings;
     ImageStore images;
     auto *provider = new PsgImageProvider(&images);
@@ -337,15 +338,38 @@ int runGui(int argc, char *argv[])
                     }
                 }
             }
-            // give the view (and its contents) a frame to lay out
-            QTimer::singleShot(400, [&engine, screenshot]() {
-                const auto roots = engine.rootObjects();
-                if (!roots.isEmpty()) {
-                    if (auto *w = qobject_cast<QQuickWindow *>(roots.first()))
-                        w->grabWindow().save(screenshot);
-                }
-                QCoreApplication::exit(0);
-            });
+            // give the view (and its contents) a frame to lay out, and
+            // wait out the async trophy load: a pack whose NP id needs
+            // brute-forcing takes seconds and the shot must show the
+            // settled list, not the loading hint (bounded at 25 s)
+            auto *pollTrophies = new QTimer(&engine);
+            auto *attempts = new int(0);
+            QObject::connect(
+                pollTrophies, &QTimer::timeout, [&engine, screenshot,
+                                                pollTrophies, attempts]() {
+                    const QVariant v = engine.rootContext()->contextProperty(
+                        QStringLiteral("Viewer"));
+                    const bool loading =
+                        v.value<QObject *>()
+                            ? v.value<QObject *>()->property(
+                                  "trophiesLoading").toBool()
+                            : false;
+                    if (!loading || ++(*attempts) > 250) {
+                        pollTrophies->stop();
+                        pollTrophies->deleteLater();
+                        delete attempts;
+                        QTimer::singleShot(400, [&engine, screenshot]() {
+                            const auto roots = engine.rootObjects();
+                            if (!roots.isEmpty()) {
+                                if (auto *w = qobject_cast<QQuickWindow *>(
+                                        roots.first()))
+                                    w->grabWindow().save(screenshot);
+                            }
+                            QCoreApplication::exit(0);
+                        });
+                    }
+                });
+            pollTrophies->start(100);
         });
     }
 
@@ -355,6 +379,7 @@ int runGui(int argc, char *argv[])
 }
 
 } // namespace
+
 
 int main(int argc, char *argv[])
 {

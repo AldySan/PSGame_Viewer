@@ -156,14 +156,17 @@ QByteArray decryptEsfm(const QByteArray &blob, const QString &npCommId)
     return body;
 }
 
-QPair<QString, QByteArray> bruteforceNpid(const QByteArray &blob,
-                                          int start, int end)
+QPair<QString, QByteArray> bruteforceNpid(
+    const QByteArray &blob, int start, int end,
+    const std::function<bool()> &shouldAbort)
 {
     if (blob.size() < 32)
         return {};
     const QByteArray ct = blob.mid(16, 16);
     const QByteArray iv = blob.left(16);
     for (int i = start; i < end; ++i) {
+        if (shouldAbort && shouldAbort())
+            return {};
         QByteArray npid = QStringLiteral("NPWR%1_00").arg(i, 5, 10, QChar(u'0'))
                                .toUtf8();
         npid.resize(16, '\x00');

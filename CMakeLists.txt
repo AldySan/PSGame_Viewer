@@ -67,6 +67,7 @@ qt_add_executable(psgame-viewer
   src/app/entrytreemodel.cpp
   src/app/trophylistmodel.cpp
   src/app/online.cpp
+  src/app/trophyloader.cpp
   src/app/updatechecker.cpp
   src/app/viewercontroller.cpp
 )
