@@ -85,6 +85,16 @@ ColumnLayout {
                     color: mouse.containsMouse ? Theme.card2 : "transparent"
                 }
 
+                // declared BEFORE the row: as a later sibling it would sit
+                // on top of the row and swallow every click on the Open
+                // and Remove buttons (only the double-click worked)
+                MouseArea {
+                    id: mouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onDoubleClicked: root.openRequested(path)
+                }
+
                 RowLayout {
                     anchors.fill: parent
                     anchors.leftMargin: 8
@@ -150,13 +160,6 @@ ColumnLayout {
                         flat: true
                         onClicked: Library.removeAt(index)
                     }
-                }
-
-                MouseArea {
-                    id: mouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    onDoubleClicked: root.openRequested(path)
                 }
             }
         }
