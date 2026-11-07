@@ -46,6 +46,7 @@ private slots:
     void versionCompare();
     void ps4CntPkg();
     void ps5FihPkg();
+    void ps5LihPkg();
     void ps3DebugPkg();
     void ps3RetailPkg();
     void ps2Iso();
@@ -439,6 +440,31 @@ void TestPsgCore::ps3Folder()
     for (const Entry &e : info.entries)
         hasTrophy = hasTrophy || e.name.endsWith(QLatin1String("TROPHY.TRP"));
     QVERIFY(hasTrophy);
+}
+
+// ---------------------------------------------------------------- PS5 LIH
+
+void TestPsgCore::ps5LihPkg()
+{
+    // LIH (scene backport wrapper): same CNT payload, container offset
+    // from header field 0x30 instead of 0x58
+    const GameInfo info = detect::openAny(fixture(QStringLiteral("ps5_lih.pkg")));
+    QVERIFY(info.ok);
+    QCOMPARE(info.platform, Platform::PS5);
+    QCOMPARE(info.title, QStringLiteral("PSGame-Viewer PS5 Sample"));
+    QCOMPARE(rowOf(info, "Platform"), QStringLiteral("PS5 (LIH backport)"));
+    QCOMPARE(rowOf(info, "Package"), QStringLiteral("Backport (LIH)"));
+    QCOMPARE(rowOf(info, "Signature"), QStringLiteral("debug / fake"));
+    QCOMPARE(rowOf(info, "Entries"), QStringLiteral("3"));
+    QCOMPARE(rowOf(info, "Content ID"),
+             QStringLiteral("HP9000-PPSA90001_00-PSGAMEVIEWER01"));
+    QCOMPARE(info.entries.size(), 3);
+    QCOMPARE(info.entries.at(0).name, QStringLiteral("param.json"));
+
+    // the entries read through the LIH container like any CNT payload
+    const QByteArray pj = readEntryBytes(info.entries.at(0), info.path);
+    QVERIFY(pj.size() > 2);
+    QVERIFY(pj.startsWith('{'));
 }
 
 // ---------------------------------------------------------------- PS2

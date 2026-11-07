@@ -20,7 +20,7 @@ namespace {
 
 QString entryName(const QString &namesBlob, quint32 off)
 {
-    const int end = namesBlob.indexOf(u'\x00', int(off));
+    const int end = namesBlob.indexOf(QChar(u'\x00'), int(off));
     if (end < 0)
         return QString();
     return namesBlob.mid(int(off), end - int(off));

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(PSGameViewer VERSION 0.0.1 LANGUAGES CXX)
+project(PSGameViewer VERSION 0.0.2 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -59,16 +59,30 @@ target_link_libraries(psgcore
     ZLIB::ZLIB
 )
 
-qt_add_executable(psgame-viewer
-  src/app/main.cpp
+# every app-layer piece except main.cpp lives in an object library so
+# the controller stack can be linked into the unit tests as well
+add_library(psgvapp OBJECT
   src/app/librarycontroller.cpp
   src/app/appsettings.cpp
   src/app/imagestore.cpp
   src/app/entrytreemodel.cpp
   src/app/trophylistmodel.cpp
   src/app/online.cpp
+  src/app/trophyloader.cpp
   src/app/updatechecker.cpp
   src/app/viewercontroller.cpp
+)
+target_include_directories(psgvapp PUBLIC src)
+target_link_libraries(psgvapp
+  PUBLIC
+    psgcore
+    Qt6::Quick
+    Qt6::Network
+    Qt6::Sql)
+
+qt_add_executable(psgame-viewer
+  src/app/main.cpp
+  $<TARGET_OBJECTS:psgvapp>
 )
 
 # the displayed/about version comes from the project version
@@ -76,7 +90,17 @@ target_compile_definitions(psgame-viewer
   PRIVATE PSGV_VERSION="${PROJECT_VERSION}")
 
 if(WIN32)
-  target_sources(psgame-viewer PRIVATE src/app/psgame-viewer.rc)
+  # the resource file is generated from a template: the icon path is
+  # absolute and the version fields come from the project version, so the
+  # resource compiles the same way whatever working directory rc.exe runs
+  # in (Ninja and the Visual Studio generators differ there). Keep the
+  # forward-slash form of the path — rc.exe eats single backslashes as
+  # C-style escapes (\a in "D:\a\..." would swallow the drive directory)
+  set(PSGV_ICON_PATH
+    "${CMAKE_CURRENT_SOURCE_DIR}/assets/icons/psgame-viewer.ico")
+  configure_file(src/app/psgame-viewer.rc.in src/app/psgame-viewer.rc @ONLY)
+  target_sources(psgame-viewer PRIVATE
+    "${CMAKE_CURRENT_BINARY_DIR}/src/app/psgame-viewer.rc")
 endif()
 
 set_source_files_properties(src/qml/Theme.qml PROPERTIES
@@ -126,6 +150,7 @@ set_target_properties(psgame-viewer PROPERTIES
 
 target_link_libraries(psgame-viewer
   PRIVATE
+    psgvapp
     psgcore
     Qt6::Quick
     Qt6::QuickControls2
@@ -139,6 +164,10 @@ target_link_libraries(psgame-viewer
 
 if(BUILD_TESTING AND TARGET Qt6::Test)
   enable_testing()
+  # the offscreen UI matrix mode is compiled into the GUI binary for the
+  # uitest; release builds without BUILD_TESTING never see --ui-test
+  target_compile_definitions(psgame-viewer PRIVATE
+    PSGV_UI_TEST=1 FIXTURES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures")
   add_subdirectory(tests)
 endif()
 

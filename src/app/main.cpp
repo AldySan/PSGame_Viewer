@@ -2,17 +2,24 @@
 #include <QCoreApplication>
 #include <QDateTime>
 #include <QDir>
+#include <QElapsedTimer>
 #include <QGuiApplication>
 #include <QFileInfo>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickWindow>
+#include <QSet>
+#include <QSettings>
 #include <QTimer>
 #include <QTranslator>
 #include <QUrl>
+#include <QImage>
+
+#include <cstdio>
 
 #include "app/appsettings.h"
+#include "app/entrytreemodel.h"
 #include "app/imagestore.h"
 #include "app/librarycontroller.h"
 #include "app/portable.h"
@@ -27,10 +34,18 @@
 #include <iostream>
 
 #ifndef PSGV_VERSION
-#define PSGV_VERSION "0.0.1"
+#define PSGV_VERSION "0.0.2"
 #endif
 
 using namespace psg;
+
+#ifdef PSGV_UI_TEST
+// defined below main()'s helpers: opens every fixture format through
+// the real UI and returns a ctest exit code
+int runUiMatrix(QGuiApplication &app, QQmlApplicationEngine &engine,
+                ViewerController &viewer, const QString &outDir,
+                const int *qmlIssues);
+#endif
 
 namespace {
 
@@ -197,6 +212,44 @@ int runGui(int argc, char *argv[])
     app.setApplicationName(QStringLiteral("PSGame-Viewer"));
     app.setApplicationVersion(QStringLiteral(PSGV_VERSION));
 
+#ifdef PSGV_UI_TEST
+    // --ui-test <dir>: open every fixture format through the real UI,
+    // render each one and fail on QML errors (wired as a ctest so CI
+    // covers the QML layer on every platform). Hermetic: settings and
+    // the library live in PSGV_BASE_DIR (set by the test) and the
+    // network stays off.
+    QString uiTestDir;
+    for (int i = 1; i < argc; ++i) {
+        if (QString::fromUtf8(argv[i]) == QLatin1String("--ui-test")
+            && i + 1 < argc)
+            uiTestDir = QString::fromUtf8(argv[i + 1]);
+    }
+    static int qmlIssues = 0;
+    if (!uiTestDir.isEmpty()) {
+        QDir().mkpath(uiTestDir);
+        // hermetic defaults before AppSettings reads the ini
+        QSettings pre(portable::iniPath(), QSettings::IniFormat);
+        pre.setValue(QStringLiteral("onlineEnabled"), false);
+        pre.setValue(QStringLiteral("checkUpdatesOnStartup"), false);
+        pre.sync();
+        qInstallMessageHandler(
+            [](QtMsgType type, const QMessageLogContext &ctx,
+               const QString &msg) {
+                // only QML-originated problems fail the run: Qt builds
+                // emit platform noise that is not ours to fix
+                const bool fromQml = QByteArray(ctx.file).endsWith(".qml")
+                    || QByteArray(ctx.category).startsWith("qml");
+                if ((type == QtWarningMsg || type == QtCriticalMsg
+                     || type == QtFatalMsg)
+                    && fromQml) {
+                    ++qmlIssues;
+                    fprintf(stderr, "ui-test QML issue: %s\n",
+                            qPrintable(msg));
+                }
+            });
+    }
+#endif
+
     AppSettings settings;
     ImageStore images;
     auto *provider = new PsgImageProvider(&images);
@@ -269,6 +322,11 @@ int runGui(int argc, char *argv[])
     engine.loadFromModule(QStringLiteral("PSGameViewer"),
                           QStringLiteral("Main"));
 
+#ifdef PSGV_UI_TEST
+    if (!uiTestDir.isEmpty())
+        return runUiMatrix(app, engine, viewer, uiTestDir, &qmlIssues);
+#endif
+
     // testing aid: open a file and/or grab the window (headless UI checks);
     // PSGV_DIALOG opens a named dialog and PSGV_TAB selects the viewer tab
     // before the shot (settings, rename, batch, about, update dialogs;
@@ -282,6 +340,9 @@ int runGui(int argc, char *argv[])
     const QString openDialog = qEnvironmentVariable("PSGV_DIALOG");
     const QString openPage = qEnvironmentVariable("PSGV_PAGE");
     const int openTab = qEnvironmentVariable("PSGV_TAB").toInt();
+    // PSGV_EXPAND>0 expands every Files folder before the shot
+    const bool expandAll =
+        qEnvironmentVariable("PSGV_EXPAND").toInt() > 0;
     // with a queue of files the shot must wait for the last open to land
     int shotDelayMs = 1500;
     if (openEnv.contains(u'|')) {
@@ -298,7 +359,7 @@ int runGui(int argc, char *argv[])
     }
     if (!screenshot.isEmpty()) {
         QTimer::singleShot(shotDelayMs, [&engine, screenshot, openDialog, openTab,
-                                  openPage]() {
+                                  openPage, expandAll]() {
             const auto roots = engine.rootObjects();
             for (QObject *root : roots) {
                 if (!openPage.isEmpty()) {
@@ -314,6 +375,15 @@ int runGui(int argc, char *argv[])
                         QMetaObject::invokeMethod(
                             bar, "setCurrentIndex", Q_ARG(int, openTab));
                 }
+                if (expandAll) {
+                    // fully expand the Files tree (folder-view screenshots)
+                    const QVariant v = engine.rootContext()
+                                           ->contextProperty(
+                                               QStringLiteral("Viewer"));
+                    if (auto *ctrl = v.value<QObject *>())
+                        if (auto *m = ctrl->findChild<EntryTreeModel *>())
+                            m->expandAll();
+                }
                 if (!openDialog.isEmpty()) {
                     // dialogs carry unique objectNames; "open" is resolved
                     // by name so no Quick Controls headers are needed here
@@ -324,15 +394,38 @@ int runGui(int argc, char *argv[])
                     }
                 }
             }
-            // give the view (and its contents) a frame to lay out
-            QTimer::singleShot(400, [&engine, screenshot]() {
-                const auto roots = engine.rootObjects();
-                if (!roots.isEmpty()) {
-                    if (auto *w = qobject_cast<QQuickWindow *>(roots.first()))
-                        w->grabWindow().save(screenshot);
-                }
-                QCoreApplication::exit(0);
-            });
+            // give the view (and its contents) a frame to lay out, and
+            // wait out the async trophy load: a pack whose NP id needs
+            // brute-forcing takes seconds and the shot must show the
+            // settled list, not the loading hint (bounded at 25 s)
+            auto *pollTrophies = new QTimer(&engine);
+            auto *attempts = new int(0);
+            QObject::connect(
+                pollTrophies, &QTimer::timeout, [&engine, screenshot,
+                                                pollTrophies, attempts]() {
+                    const QVariant v = engine.rootContext()->contextProperty(
+                        QStringLiteral("Viewer"));
+                    const bool loading =
+                        v.value<QObject *>()
+                            ? v.value<QObject *>()->property(
+                                  "trophiesLoading").toBool()
+                            : false;
+                    if (!loading || ++(*attempts) > 250) {
+                        pollTrophies->stop();
+                        pollTrophies->deleteLater();
+                        delete attempts;
+                        QTimer::singleShot(400, [&engine, screenshot]() {
+                            const auto roots = engine.rootObjects();
+                            if (!roots.isEmpty()) {
+                                if (auto *w = qobject_cast<QQuickWindow *>(
+                                        roots.first()))
+                                    w->grabWindow().save(screenshot);
+                            }
+                            QCoreApplication::exit(0);
+                        });
+                    }
+                });
+            pollTrophies->start(100);
         });
     }
 
@@ -342,6 +435,125 @@ int runGui(int argc, char *argv[])
 }
 
 } // namespace
+
+#ifdef PSGV_UI_TEST
+
+namespace {
+
+struct UiExpect {
+    const char *file;
+    bool trophies; // a trophy pack must load (may take seconds: the
+                   // NP-id brute force runs on the worker thread)
+};
+
+bool settleAndGrab(QQmlApplicationEngine &engine, ViewerController &viewer,
+                   const QString &outPng, bool wantTrophies, QString *why)
+{
+    auto ready = [&viewer, wantTrophies]() {
+        return !viewer.busy()
+            && (!wantTrophies || !viewer.trophiesLoading());
+    };
+    QElapsedTimer t;
+    t.start();
+    while (!ready() && t.elapsed() < 60000)
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 50);
+    if (!ready()) {
+        *why = QStringLiteral("window did not settle in 60 s");
+        return false;
+    }
+    // a frame for layout and async images
+    QElapsedTimer t2;
+    t2.start();
+    while (t2.elapsed() < 500)
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 50);
+
+    const auto roots = engine.rootObjects();
+    if (roots.isEmpty()) {
+        *why = QStringLiteral("no root object");
+        return false;
+    }
+    auto *window = qobject_cast<QQuickWindow *>(roots.first());
+    if (!window) {
+        *why = QStringLiteral("root is not a window");
+        return false;
+    }
+    const QImage shot = window->grabWindow();
+    if (shot.isNull() || shot.width() < 100) {
+        *why = QStringLiteral("empty grab");
+        return false;
+    }
+    // a flat render means the scene did not really draw
+    QSet<QRgb> colors;
+    for (int y = 0; y < shot.height() && colors.size() <= 24; y += 16)
+        for (int x = 0; x < shot.width() && colors.size() <= 24; x += 16)
+            colors.insert(shot.pixel(x, y));
+    if (colors.size() < 4) {
+        *why = QStringLiteral("render is blank (%1 colors)")
+                   .arg(colors.size());
+        return false;
+    }
+    if (!shot.save(outPng)) {
+        *why = QStringLiteral("could not save %1").arg(outPng);
+        return false;
+    }
+    if (wantTrophies && viewer.trophyModel()->count() == 0) {
+        *why = QStringLiteral("trophy pack did not load");
+        return false;
+    }
+    return true;
+}
+
+} // namespace
+
+// Opens every supported fixture format through the assembled UI stack,
+// renders a screenshot per format and returns a ctest exit code.
+int runUiMatrix(QGuiApplication &app, QQmlApplicationEngine &engine,
+                ViewerController &viewer, const QString &outDir,
+                const int *qmlIssues)
+{
+    Q_UNUSED(app);
+    const UiExpect matrix[] = {
+        {"ps2.iso", false},
+        {"ps3.iso", false},
+        {"ps3_debug.pkg", false},
+        {"ps3_retail.pkg", false},
+        {"ps4_cnt.pkg", false},
+        {"ps5_fih.pkg", false},
+        {"ps5_lih.pkg", false},
+        {"ps5.exfat", false},
+        {"ps5_bigpack.exfat", false}, // padded pack -> no trophies
+        {"ffpfsc_exfat.ffpfsc", true},
+        {"ffpfsc_ffpkg.ffpfsc", false},
+        {"ffpfsc_raw.ffpfsc", true},
+        {"ffpkg.ffpkg", false},
+    };
+    int failures = 0;
+    for (const UiExpect &e : matrix) {
+        const QString path = QDir(QStringLiteral(FIXTURES_DIR))
+                                 .filePath(QLatin1String(e.file));
+        viewer.openPath(QUrl::fromLocalFile(path));
+        QString why;
+        const QString png = QDir(outDir).filePath(
+            QStringLiteral("%1.png").arg(QFileInfo(path).completeBaseName()));
+        const bool ok = viewer.hasFile()
+            && viewer.entryModel()->rowCount() > 0
+            && settleAndGrab(engine, viewer, png, e.trophies, &why);
+        printf("ui-test: %-24s %s%s\n", e.file, ok ? "PASS" : "FAIL",
+               ok ? "" : qPrintable(QStringLiteral(" - ") + why));
+        fflush(stdout);
+        if (!ok)
+            ++failures;
+    }
+    if (*qmlIssues > 0) {
+        printf("ui-test: %d QML issue(s) logged above\n", *qmlIssues);
+        ++failures;
+    }
+    printf("ui-test: %d failure(s)\n", failures);
+    fflush(stdout);
+    return failures == 0 ? 0 : 1;
+}
+
+#endif // PSGV_UI_TEST
 
 int main(int argc, char *argv[])
 {

@@ -1,0 +1,92 @@
+name: Windows build
+
+# Builds the Windows portable archive and attaches it to a release.
+#
+# - push of a v* tag: builds exactly the pushed tag and attaches the
+#   archive to that tag's release
+# - manual run (workflow_dispatch): builds the branch it was dispatched
+#   on; the "release_tag" input says which release the archive goes to.
+#   The upload step only runs on the dev branch, so trial runs from
+#   feature branches leave the release untouched (the artifact is still
+#   kept on the run page for inspection).
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag to attach the archive to'
+        required: true
+        default: 'v0.0.1'
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.*'
+          arch: 'win64_msvc2022_64'
+          cache: true
+
+      - name: Set up the MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Build zlib (static, from source)
+        run: |
+          git clone --depth 1 --branch v1.3.1 https://github.com/madler/zlib.git "$env:RUNNER_TEMP/zlib-src"
+          cmake -S "$env:RUNNER_TEMP/zlib-src" -B "$env:RUNNER_TEMP/zlib-build" -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF "-DCMAKE_INSTALL_PREFIX=$env:RUNNER_TEMP/zlib-install"
+          cmake --build "$env:RUNNER_TEMP/zlib-build"
+          cmake --install "$env:RUNNER_TEMP/zlib-build"
+
+      - name: Configure
+        # zlib's CMake builds BOTH the shared and the static library even
+        # with BUILD_SHARED_LIBS=OFF, and FindZLIB prefers the shared
+        # import library (zlib.lib -> zlib.dll) — which then is not on the
+        # runtime PATH and the executables die with STATUS_DLL_NOT_FOUND.
+        # Point FindZLIB at the static library explicitly.
+        run: >-
+          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+          -DBUILD_TESTING=ON
+          "-DCMAKE_PREFIX_PATH=$env:RUNNER_TEMP/zlib-install"
+          "-DZLIB_LIBRARY=$env:RUNNER_TEMP/zlib-install/lib/zlibstatic.lib"
+          "-DZLIB_INCLUDE_DIR=$env:RUNNER_TEMP/zlib-install/include"
+
+      - name: Build
+        # -k 100 keeps going past compile errors, so one run surfaces
+        # every platform-specific problem instead of only the first
+        run: cmake --build build -- -k 100
+
+      - name: Test
+        run: |
+          # a crashing process must terminate the step instead of waiting
+          # forever on the Windows Error Reporting dialog
+          reg add "HKLM\Software\Microsoft\Windows\Windows Error Reporting" /v DontShowUI /t REG_DWORD /d 1 /f | Out-Null
+          ctest --test-dir build --output-on-failure --verbose --timeout 120
+
+      - name: Package the portable archive
+        run: pwsh packaging/make-portable.ps1 -BuildDir build
+
+      - name: Keep the archive as a run artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-portable
+          path: PSGame-Viewer-*-win64-portable.zip
+
+      - name: Attach the archive to the release
+        if: github.ref == 'refs/heads/dev' || startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.release_tag || github.ref_name }}
+        run: gh release upload "$env:TAG" PSGame-Viewer-*-win64-portable.zip --clobber

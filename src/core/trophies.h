@@ -6,6 +6,8 @@
 #include <QString>
 #include <QStringList>
 
+#include <functional>
+
 namespace psg::trophies {
 
 struct TrpInner {
@@ -44,9 +46,12 @@ QList<TrpInner> parseUcp(const QByteArray &data);
 QByteArray decryptEsfm(const QByteArray &blob, const QString &npCommId);
 
 // Brute-force "NPWRxxxxx_00" for an ESFM blob when the ID is unknown.
-// Returns the ID and the decrypted XML, or an empty pair.
-QPair<QString, QByteArray> bruteforceNpid(const QByteArray &blob,
-                                          int start = 0, int end = 100000);
+// Returns the ID and the decrypted XML, or an empty pair. `shouldAbort`
+// is polled between candidates so a long scan can be cancelled (the
+// seconds-long scan must not block a GUI thread shutdown).
+QPair<QString, QByteArray> bruteforceNpid(
+    const QByteArray &blob, int start = 0, int end = 100000,
+    const std::function<bool()> &shouldAbort = {});
 
 // trophy conf XML (TROPCONF / decrypted SFM) -> trophy list.
 QList<Trophy> parseTrophyXml(const QByteArray &xml);

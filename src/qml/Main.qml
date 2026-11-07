@@ -85,7 +85,7 @@ ApplicationWindow {
             AppButton {
                 text: qsTr("Open")
                 highlighted: true
-                onClicked: fileDialog.open()
+                onClicked: openMenu.popup()
             }
             AppButton {
                 text: stack.currentIndex === 0 ? qsTr("Library") : qsTr("Viewer")
@@ -183,6 +183,62 @@ ApplicationWindow {
             qsTr("All files (*)")
         ]
         onAccepted: Viewer.openPath(selectedFile)
+    }
+
+    // PS3 game folders and PS5 app folders are supported formats but a
+    // file dialog cannot select them — offer both entry points
+    Menu {
+        id: openMenu
+        padding: 6
+        background: Rectangle {
+            radius: Theme.radius
+            color: Theme.card
+            border.color: Theme.border
+        }
+        MenuItem {
+            id: openFileItem
+            text: qsTr("Open file…")
+            padding: 6
+            leftPadding: 10
+            rightPadding: 10
+            contentItem: Text {
+                text: openFileItem.text
+                color: Theme.text
+                font.pixelSize: 12
+                verticalAlignment: Text.AlignVCenter
+            }
+            background: Rectangle {
+                radius: Theme.radiusSm
+                color: openFileItem.hovered || openFileItem.highlighted
+                       ? Theme.accentSoft : "transparent"
+            }
+            onTriggered: fileDialog.open()
+        }
+        MenuItem {
+            id: openFolderItem
+            text: qsTr("Open game folder…")
+            padding: 6
+            leftPadding: 10
+            rightPadding: 10
+            contentItem: Text {
+                text: openFolderItem.text
+                color: Theme.text
+                font.pixelSize: 12
+                verticalAlignment: Text.AlignVCenter
+            }
+            background: Rectangle {
+                radius: Theme.radiusSm
+                color: openFolderItem.hovered || openFolderItem.highlighted
+                       ? Theme.accentSoft : "transparent"
+            }
+            onTriggered: folderDialog.open()
+        }
+    }
+
+    FolderDialog {
+        id: folderDialog
+        title: qsTr("Open a game folder (PS3 game or PS5 app folder)")
+        onAccepted: Viewer.openPath(selectedFolder)
     }
 
     RenameDialog {
