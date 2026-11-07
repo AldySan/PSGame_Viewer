@@ -219,6 +219,16 @@ def make_ps4_cnt():
 # ---------------------------------------------------------------- PS5 FIH
 
 def make_ps5_fih():
+    return _make_ps5_fih_like(b"\x7fFIH", 0x58)
+
+
+def make_ps5_lih():
+    """LIH (scene backport) wrapper: same CNT container, but the header
+    stores the container offset at 0x30 instead of 0x58."""
+    return _make_ps5_fih_like(b"\x7fLIH", 0x30)
+
+
+def _make_ps5_fih_like(magic, cnt_offset_field):
     param = {
         "contentId": "HP9000-PPSA90001_00-PSGAMEVIEWER01",
         "titleId": "PPSA90001",
@@ -261,11 +271,11 @@ def make_ps5_fih():
     chdr[0x40:0x40 + len(cid)] = cid
 
     fih = bytearray(emb)
-    fih[0:4] = b"\x7fFIH"
+    fih[0:4] = magic
     fih[5] = 0x80  # official
     struct.pack_into("<Q", fih, 0x10, emb + data_base)  # pfs offset (abs)
     struct.pack_into("<Q", fih, 0x18, len(body))         # pfs size
-    struct.pack_into("<Q", fih, 0x58, emb)               # CNT offset
+    struct.pack_into("<Q", fih, cnt_offset_field, emb)   # CNT offset
 
     out = fih
     out += chdr
@@ -996,6 +1006,7 @@ def main():
     fixtures = {
         "ps4_cnt.pkg": make_ps4_cnt(),
         "ps5_fih.pkg": make_ps5_fih(),
+        "ps5_lih.pkg": make_ps5_lih(),
         "ps3_debug.pkg": make_ps3_pkg(retail=False),
         "ps3_retail.pkg": make_ps3_pkg(retail=True),
         "ps2.iso": make_ps2_iso(),
