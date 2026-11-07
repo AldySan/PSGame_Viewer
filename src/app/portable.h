@@ -16,7 +16,10 @@ namespace portable {
 
 inline QString baseDir()
 {
-    return QCoreApplication::applicationDirPath();
+    // override for tests (and portable setups that move the data): keep
+    // everything under one writable folder without touching the binary
+    const QString env = qEnvironmentVariable("PSGV_BASE_DIR");
+    return env.isEmpty() ? QCoreApplication::applicationDirPath() : env;
 }
 
 inline QString iniPath()

@@ -59,16 +59,30 @@ target_link_libraries(psgcore
     ZLIB::ZLIB
 )
 
-qt_add_executable(psgame-viewer
-  src/app/main.cpp
+# every app-layer piece except main.cpp lives in an object library so
+# the controller stack can be linked into the unit tests as well
+add_library(psgvapp OBJECT
   src/app/librarycontroller.cpp
   src/app/appsettings.cpp
   src/app/imagestore.cpp
   src/app/entrytreemodel.cpp
   src/app/trophylistmodel.cpp
   src/app/online.cpp
+  src/app/trophyloader.cpp
   src/app/updatechecker.cpp
   src/app/viewercontroller.cpp
+)
+target_include_directories(psgvapp PUBLIC src)
+target_link_libraries(psgvapp
+  PUBLIC
+    psgcore
+    Qt6::Quick
+    Qt6::Network
+    Qt6::Sql)
+
+qt_add_executable(psgame-viewer
+  src/app/main.cpp
+  $<TARGET_OBJECTS:psgvapp>
 )
 
 # the displayed/about version comes from the project version
@@ -136,6 +150,7 @@ set_target_properties(psgame-viewer PROPERTIES
 
 target_link_libraries(psgame-viewer
   PRIVATE
+    psgvapp
     psgcore
     Qt6::Quick
     Qt6::QuickControls2
@@ -149,6 +164,10 @@ target_link_libraries(psgame-viewer
 
 if(BUILD_TESTING AND TARGET Qt6::Test)
   enable_testing()
+  # the offscreen UI matrix mode is compiled into the GUI binary for the
+  # uitest; release builds without BUILD_TESTING never see --ui-test
+  target_compile_definitions(psgame-viewer PRIVATE
+    PSGV_UI_TEST=1 FIXTURES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures")
   add_subdirectory(tests)
 endif()
 

@@ -12,7 +12,6 @@ Frame {
     property var controller: null
 
     signal statusMessage(string msg)
-
     background: Rectangle {
         color: Theme.card
         radius: Theme.radius
@@ -45,6 +44,7 @@ Frame {
                 font.pixelSize: 12
                 enabled: !!root.model && root.model.count > 0
                           && root.controller !== null
+                          && !root.controller.trophiesLoading
                 onClicked: exportDialog.open()
             }
         }
@@ -61,7 +61,14 @@ Frame {
 
             Label {
                 anchors.centerIn: parent
-                visible: !root.model || root.model.count === 0
+                visible: root.controller && root.controller.trophiesLoading
+                text: qsTr("Loading trophies…")
+                color: Theme.muted
+            }
+            Label {
+                anchors.centerIn: parent
+                visible: !root.model || (root.model.count === 0
+                            && !(root.controller && root.controller.trophiesLoading))
                 text: qsTr("No trophy pack in this file")
                 color: Theme.muted
             }

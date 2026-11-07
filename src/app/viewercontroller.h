@@ -16,6 +16,7 @@ namespace psg {
 class AppSettings;
 class ImageStore;
 class OnlineService;
+class TrophyLoader;
 
 // Central controller between QML and the parsing core. Owns the current
 // GameInfo, the derived models, the in-memory image store and the online
@@ -39,6 +40,10 @@ class ViewerController : public QObject
     Q_PROPERTY(QString patchInfo READ patchInfo NOTIFY patchInfoChanged)
     Q_PROPERTY(bool busy READ busy NOTIFY infoChanged)
     Q_PROPERTY(bool undoAvailable READ undoAvailable NOTIFY infoChanged)
+    // a trophy pack is being loaded off the GUI thread (ESFM fallback
+    // scans can take seconds); the Trophies tab shows a loading hint
+    Q_PROPERTY(bool trophiesLoading READ trophiesLoading
+                   NOTIFY infoChanged)
     // the models behind the Files and Trophies tabs; CONSTANT because the
     // model objects live as long as the controller
     Q_PROPERTY(EntryTreeModel *entryModel READ entryModel CONSTANT)
@@ -69,6 +74,7 @@ public:
     QStringList detailsAll() const { return m_detailsAll; }
     QString patchInfo() const { return m_patchInfo; }
     bool busy() const { return m_busy; }
+    bool trophiesLoading() const { return m_trophiesLoading; }
     bool undoAvailable() const { return !m_undoNew.isEmpty(); }
 
     Q_INVOKABLE void openPath(const QUrl &path);
@@ -109,8 +115,8 @@ signals:
                       const QStringList &newPaths);
 
 private:
-    void loadTrophies();
     void loadGallery();
+    void startTrophyLoad();
     void startOnlineLookups();
     QString galleryEntryName(int i) const;
 
@@ -120,6 +126,13 @@ private:
     // never freezes the GUI; results arrive via queued signals
     OnlineService *m_online = nullptr;
     QThread *m_onlineThread = nullptr;
+    // trophy packs load on their own worker: the NP-id brute-force
+    // fallback is seconds of pure AES work and must never freeze the
+    // window. Results carry the token of the open that started them.
+    TrophyLoader *m_trophyLoader = nullptr;
+    QThread *m_trophyThread = nullptr;
+    quint64 m_trophyToken = 0;
+    bool m_trophiesLoading = false;
     // cover lookup key of the file that started the in-flight request;
     // late replies for a previously opened file are dropped
     QString m_onlineCoverKey;

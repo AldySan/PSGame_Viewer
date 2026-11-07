@@ -10,6 +10,7 @@
 #include "imagestore.h"
 #include "online.h"
 #include "portable.h"
+#include "trophyloader.h"
 
 #include <QBuffer>
 #include <QClipboard>
@@ -17,6 +18,7 @@
 #include <QDir>
 #include <QGuiApplication>
 #include <QImage>
+#include <QMetaType>
 #include <QRegularExpression>
 #include <QThread>
 
@@ -68,9 +70,13 @@ ViewerController::ViewerController(AppSettings *settings, ImageStore *images,
     , m_images(images)
     , m_online(new OnlineService())
     , m_onlineThread(new QThread(this))
+    , m_trophyLoader(new TrophyLoader())
+    , m_trophyThread(new QThread(this))
     , m_entryModel(new EntryTreeModel(this))
     , m_trophyModel(new TrophyListModel(this))
 {
+    qRegisterMetaType<TrophyPack>("psg::TrophyPack");
+
     // the lookups do blocking HTTP with a 15 s transfer timeout; keep them
     // off the GUI thread so a slow or unreachable network cannot freeze
     // the window while covers and patch info load
@@ -78,6 +84,22 @@ ViewerController::ViewerController(AppSettings *settings, ImageStore *images,
     connect(m_onlineThread, &QThread::finished,
             m_online, &QObject::deleteLater);
     m_onlineThread->start();
+
+    // trophy packs (up to 300 MB reads, plus the seconds-long NP-id
+    // brute-force fallback) load on their own worker as well
+    m_trophyLoader->moveToThread(m_trophyThread);
+    connect(m_trophyThread, &QThread::finished,
+            m_trophyLoader, &QObject::deleteLater);
+    connect(m_trophyLoader, &TrophyLoader::loaded, this,
+            [this](quint64 token, const TrophyPack &pack) {
+                if (token != m_trophyToken || !m_info.ok)
+                    return; // late result for a previously opened file
+                m_trophiesLoading = false;
+                m_images->setImages(QStringLiteral("trophy"), pack.icons);
+                m_trophyModel->setTrophies(pack.items);
+                emit infoChanged();
+            });
+    m_trophyThread->start();
 
     connect(m_online, &OnlineService::patchReady, this,
             [this](const QString &tid, const QString &latest, int count,
@@ -129,6 +151,14 @@ ViewerController::~ViewerController()
             m_online->requestAbort();
         m_onlineThread->quit();
         m_onlineThread->wait();
+    }
+    if (m_trophyThread) {
+        // same for the trophy scan: the brute-force loop polls the flag
+        // and returns early instead of blocking the destructor for seconds
+        if (m_trophyLoader)
+            m_trophyLoader->requestAbort();
+        m_trophyThread->quit();
+        m_trophyThread->wait();
     }
 }
 
@@ -234,10 +264,11 @@ void ViewerController::openPath(const QUrl &path)
         m_detailsCurated = curatedMetaLines(m_info.platform, m_info.meta);
         m_detailsAll = fullMetaLines(m_info.meta);
         loadGallery();
-        loadTrophies();
+        startTrophyLoad();
     } else {
         m_entryModel->setEntries({});
         m_trophyModel->setTrophies({});
+        m_trophiesLoading = false;
     }
     m_busy = false;
     emit infoChanged();
@@ -262,22 +293,33 @@ void ViewerController::clear()
     m_patchInfo.clear();
     m_entryModel->setEntries({});
     m_trophyModel->setTrophies({});
+    m_trophiesLoading = false;
+    ++m_trophyToken; // invalidate any in-flight trophy load
     emit infoChanged();
 }
 
 void ViewerController::loadGallery()
 {
+    // Memory guard for hostile containers: real packages carry a couple
+    // of dozen sce_sys PNGs; a crafted one may list thousands. Stop
+    // caching past 64 images or 256 MB, whichever comes first.
+    constexpr int kMaxImages = 64;
+    constexpr quint64 kMaxTotalBytes = 256ull << 20;
     QList<QByteArray> gallery;
+    quint64 total = 0;
     for (const Entry &e : m_info.entries) {
         if (!e.name.endsWith(QLatin1String(".png"), Qt::CaseInsensitive))
             continue;
         if (e.size == 0 || e.size > 32000000)
             continue;
+        if (gallery.size() >= kMaxImages || total >= kMaxTotalBytes)
+            break;
         const QByteArray bytes = readEntryBytes(e, m_info.path);
         if (bytes.isEmpty()
             || bytes.left(8) != QByteArrayLiteral("\x89PNG\r\n\x1a\n"))
             continue;
         gallery.append(bytes);
+        total += quint64(bytes.size());
     }
     if (gallery.isEmpty())
         return;
@@ -287,100 +329,31 @@ void ViewerController::loadGallery()
     m_coverKey = m_galleryKeys.value(0);
 }
 
-void ViewerController::loadTrophies()
+void ViewerController::startTrophyLoad()
 {
-    using trophies::bruteforceNpid;
-    using trophies::carveTrpIcons;
-    using trophies::decryptEsfm;
-    using trophies::parseTrp;
-    using trophies::parseTrophyXml;
-    using trophies::ucpTrophies;
-
+    // anything with a .trp/.ucp entry? (cheap scan over the entry list)
+    bool hasPack = false;
     for (const Entry &e : m_info.entries) {
         const QString lower = e.name.toLower();
-        if (!lower.endsWith(QLatin1String(".trp"))
-            && !lower.endsWith(QLatin1String(".ucp")))
-            continue;
-        if (e.size == 0 || e.size >= 300000000)
-            continue;
-        const QByteArray data = readEntryBytes(e, m_info.path,
-                                               300000000);
-        if (data.isEmpty())
-            continue;
-
-        if (lower.endsWith(QLatin1String(".ucp"))) {
-            const trophies::UcpResult res = ucpTrophies(data);
-            // carved PNGs in display order: the i-th trophy gets the i-th
-            // icon (same convention as the TRP branch)
-            const QList<QByteArray> iconBytes =
-                trophies::ucpIconsSorted(res);
-            if (!iconBytes.isEmpty())
-                m_images->setImages(QStringLiteral("trophy"), iconBytes);
-            QList<TrophyListModel::Item> items;
-            for (int i = 0; i < res.trophies.size(); ++i) {
-                const trophies::Trophy &t = res.trophies.at(i);
-                TrophyListModel::Item it;
-                it.id = t.id;
-                it.name = t.name;
-                it.detail = t.detail;
-                it.grade = t.grade;
-                it.hidden = t.hidden;
-                it.iconIndex = i < iconBytes.size() ? i : -1;
-                items.append(it);
-            }
-            m_trophyModel->setTrophies(items);
-            return;
+        if ((lower.endsWith(QLatin1String(".trp"))
+             || lower.endsWith(QLatin1String(".ucp")))
+            && e.size > 0 && e.size < 300000000) {
+            hasPack = true;
+            break;
         }
-
-        const auto inner = parseTrp(data);
-        QByteArray esfm;
-        for (const auto &f : inner) {
-            if (f.name.compare(QLatin1String("TROPCONF.SFM"),
-                               Qt::CaseInsensitive) == 0) {
-                esfm = data.mid(int(f.offset), int(f.size));
-                break;
-            }
-        }
-        if (esfm.isEmpty())
-            continue;
-        QString npid = m_info.meta.value(
-            QStringLiteral("NP_COMMUNICATION_ID")).toString();
-        QByteArray xml = npid.isEmpty() ? QByteArray()
-                                        : decryptEsfm(esfm, npid);
-        if (xml.isEmpty()) {
-            const auto hit = bruteforceNpid(esfm, 0, 100000);
-            if (!hit.first.isEmpty())
-                xml = hit.second;
-        }
-        if (xml.isEmpty())
-            continue;
-
-        // carved icons: 240x240 trophy icons in trophy-id order
-        QList<QByteArray> iconBytes;
-        for (const auto &c : carveTrpIcons(data)) {
-            if (c.width == 240 && c.height == 240)
-                iconBytes.append(data.mid(int(c.offset), int(c.size)));
-        }
-        if (!iconBytes.isEmpty())
-            m_images->setImages(QStringLiteral("trophy"), iconBytes);
-
-        QList<TrophyListModel::Item> items;
-        for (const trophies::Trophy &t : parseTrophyXml(xml)) {
-            TrophyListModel::Item it;
-            it.id = t.id;
-            it.name = t.name;
-            it.detail = t.detail;
-            it.grade = t.grade;
-            it.hidden = t.hidden;
-            bool okId = false;
-            const int idNum = t.id.toInt(&okId);
-            it.iconIndex = (okId && idNum < iconBytes.size()) ? idNum : -1;
-            items.append(it);
-        }
-        m_trophyModel->setTrophies(items);
-        return;
     }
     m_trophyModel->setTrophies({});
+    if (!hasPack) {
+        m_trophiesLoading = false;
+        return;
+    }
+    m_trophiesLoading = true;
+    emit infoChanged();
+    const quint64 token = ++m_trophyToken;
+    QMetaObject::invokeMethod(
+        m_trophyLoader, "load", Qt::QueuedConnection, Q_ARG(quint64, token),
+        Q_ARG(QString, m_info.path), Q_ARG(QList<Entry>, m_info.entries),
+        Q_ARG(QVariantMap, m_info.meta));
 }
 
 void ViewerController::startOnlineLookups()

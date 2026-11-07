@@ -194,10 +194,15 @@ QList<LibraryEntry> GameLibrary::games(const QString &search) const
             " OR path LIKE :s");
     }
     sql += QStringLiteral(" ORDER BY added_at DESC, title COLLATE NOCASE");
-    if (!search.trimmed().isEmpty())
-        q.bindValue(QStringLiteral(":s"), QStringLiteral("%") + search.trimmed()
-                                             + QStringLiteral("%"));
     q.prepare(sql);
+    if (!search.trimmed().isEmpty()) {
+        // bind AFTER prepare: QSqlQuery::prepare() resets the bound
+        // values, so binding first left :s unset, exec() failed, and
+        // the search returned an empty list every time
+        q.bindValue(QStringLiteral(":s"),
+                    QStringLiteral("%") + search.trimmed()
+                        + QStringLiteral("%"));
+    }
     if (!q.exec()) {
         return out;
     }
