@@ -78,6 +78,28 @@ jobs:
       - name: Package the portable archive
         run: pwsh packaging/make-portable.ps1 -BuildDir build
 
+      - name: Smoke-test the packaged archive
+        # boot the TRIMMED payload, not the build tree: a wrongly cut
+        # plugin or QML module would only surface here. The runners
+        # have an interactive desktop, so the windows platform plugin
+        # can create its window; the screenshot hook renders a frame
+        # and exits 0.
+        run: |
+          $dest = "$env:RUNNER_TEMP\smoke"
+          New-Item -ItemType Directory -Force -Path $dest | Out-Null
+          Expand-Archive "PSGame-Viewer-*-win64-portable.zip" -DestinationPath $dest
+          $exe = Get-ChildItem $dest -Recurse -Filter psgame-viewer.exe | Select-Object -First 1
+          $env:QT_QUICK_BACKEND = "software"
+          $env:PSGV_BASE_DIR = "$env:RUNNER_TEMP\smoke-data"
+          $env:PSGV_SCREENSHOT = "$dest\shot.png"
+          $proc = Start-Process -FilePath $exe.FullName -PassThru -Wait
+          if ($proc.ExitCode -ne 0 -or -not (Test-Path $env:PSGV_SCREENSHOT)) {
+            throw "packaged app failed (exit $($proc.ExitCode))"
+          }
+          $frame = (Get-Item $env:PSGV_SCREENSHOT).Length
+          if ($frame -lt 10240) { throw "packaged app rendered a blank frame ($frame bytes)" }
+          Write-Host "packaged app rendered $frame bytes of frame"
+
       - name: Keep the archive as a run artifact
         uses: actions/upload-artifact@v4
         with:

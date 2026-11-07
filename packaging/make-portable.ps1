@@ -32,9 +32,44 @@ $deploy = "windeployqt.exe"
 if (-not (Get-Command windeployqt -ErrorAction SilentlyContinue)) {
     throw "windeployqt not found in PATH (run from a Qt environment)"
 }
-& $deploy --release --no-compiler-runtime --qmldir (Join-Path $Root "src/qml") `
+& $deploy --release --no-compiler-runtime --no-opengl-sw --no-translations `
+    --qmldir (Join-Path $Root "src/qml") `
     (Join-Path $Stage "psgame-viewer.exe") | Out-Null
 if ($LASTEXITCODE -ne 0) { throw "windeployqt failed" }
+
+# 1a. trim what the app never loads. Every QML file pins
+#     QtQuick.Controls.Basic, so the other styles and their root DLLs
+#     are dead weight; qmltooling is the QML debugger; only SQLite is
+#     used; opengl32sw/dxcompiler/dxil serve fallback rendering paths
+#     the app does not take (D3D11 is the default RHI backend on
+#     Windows 10+) — the same cuts the Linux archive makes.
+$unusedStyles = @("FluentWinUI3", "Fusion", "Imagine", "Material",
+                   "Universal", "Windows", "macOS", "iOS")
+foreach ($s in $unusedStyles) {
+    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue `
+        (Join-Path $Stage "qml/QtQuick/Controls/$s")
+}
+Remove-Item -Recurse -Force -ErrorAction SilentlyContinue `
+    (Join-Path $Stage "qml/QtQuick/NativeStyle")
+Get-ChildItem (Join-Path $Stage "qml/QtQuick/Controls") -Directory `
+    -Filter designer -ErrorAction SilentlyContinue |
+    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+# root style DLLs: keep Controls2, Basic, BasicStyleImpl and Impl
+$keep = @("Qt6QuickControls2.dll", "Qt6QuickControls2Basic.dll",
+          "Qt6QuickControls2BasicStyleImpl.dll", "Qt6QuickControls2Impl.dll")
+Get-ChildItem $Stage -Filter "Qt6QuickControls2*.dll" | Where-Object {
+    $keep -notcontains $_.Name } | Remove-Item -Force
+# the D3D12 shader compiler pair is loaded dynamically by Qt6Gui and
+# only used by the D3D12 RHI backend, which is never selected by default
+Remove-Item -Force -ErrorAction SilentlyContinue `
+    (Join-Path $Stage "dxcompiler.dll"), (Join-Path $Stage "dxil.dll")
+# QML debugger plugins never ship
+Remove-Item -Recurse -Force -ErrorAction SilentlyContinue `
+    (Join-Path $Stage "qmltooling")
+# only the SQLite driver is used (library.db)
+Get-ChildItem (Join-Path $Stage "sqldrivers") -Filter *.dll `
+    -ErrorAction SilentlyContinue | Where-Object { $_.Name -ne "qsqlite.dll" } |
+    Remove-Item -Force -ErrorAction SilentlyContinue
 
 # 1b. MSVC builds: copy the VC runtime DLLs so the archive also runs on
 #     machines without the redistributable installed (no-op for MinGW or
