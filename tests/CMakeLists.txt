@@ -14,6 +14,15 @@ target_link_libraries(tst_app PRIVATE Qt6::Test psgvapp)
 target_compile_definitions(tst_app PRIVATE
   FIXTURES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/fixtures")
 
+# the language-switch test loads the compiled .qm catalogs, which live
+# in the executable's resources — give the test binary the same bundle
+qt_add_resources(tst_app "i18n"
+  PREFIX "/i18n"
+  BASE "${CMAKE_CURRENT_SOURCE_DIR}/../i18n"
+  FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/../i18n/psgameviewer_zh_CN.qm"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../i18n/psgameviewer_id.qm")
+
 add_test(NAME app COMMAND tst_app)
 set_tests_properties(app PROPERTIES
   ENVIRONMENT "QT_QPA_PLATFORM=offscreen")

@@ -1,5 +1,6 @@
 #include "util.h"
 
+#include <QDir>
 #include <QFileInfo>
 #include <QHash>
 #include <QRegularExpression>
@@ -85,6 +86,22 @@ QString fmtSize(quint64 n)
     if (d >= 1e3)
         return QString::number(d / 1e3, 'f', 1) + QStringLiteral(" KB");
     return QString::number(n) + QStringLiteral(" B");
+}
+
+QString normalizeGamePath(const QString &path)
+{
+    QString p = QDir::cleanPath(path);
+#ifdef Q_OS_WIN
+    // drive letters are case-insensitive on Windows and the native file
+    // dialogs hand back upper-case ones ("C:/..."); url-typed QML
+    // signals lower-case the drive ("c:/..."), which made the same
+    // game appear twice in the library
+    if (p.size() >= 3 && p.at(0).isLetter() && p.at(1) == u':'
+        && p.at(2) == u'/') {
+        p[0] = p.at(0).toUpper();
+    }
+#endif
+    return p;
 }
 
 QString contentRegion(const QString &cid)

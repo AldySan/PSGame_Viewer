@@ -1,15 +1,22 @@
 #pragma once
 
+#include <QList>
 #include <QObject>
 #include <QVariantMap>
 
 class QSettings;
+class QTranslator;
 
 namespace psg {
 
 // QSettings wrapper for the small app-level preferences (language,
 // online lookups, rename dialog choices). The library database lives
 // in its own SQLite store.
+//
+// The settings object also owns the interface translators: saving a
+// new language swaps them right away, so the change is live without a
+// restart (Qt sends LanguageChange and the QML engine re-evaluates
+// every qsTr() binding).
 class AppSettings : public QObject
 {
     Q_OBJECT
@@ -32,9 +39,14 @@ class AppSettings : public QObject
 
 public:
     explicit AppSettings(QObject *parent = nullptr);
+    ~AppSettings() override;
 
     QString language() const;
     void setLanguage(const QString &lang);
+
+    // true while a translation file is installed (used by the tests to
+    // confirm a language switch actually loaded a translator)
+    bool translationActive() const { return !m_translators.isEmpty(); }
 
     // "dark" (default) or "light"
     QString theme() const;
@@ -66,7 +78,13 @@ signals:
     void renamePrefsChanged();
 
 private:
+    // (re)install the translators matching the saved language
+    void applyLanguage();
+    // uninstall this instance's translators
+    void removeTranslators();
+
     QSettings *m_s;
+    QList<QTranslator *> m_translators;
 };
 
 } // namespace psg

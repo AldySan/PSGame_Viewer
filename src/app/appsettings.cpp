@@ -2,7 +2,10 @@
 
 #include "portable.h"
 
+#include <QCoreApplication>
+#include <QLocale>
 #include <QSettings>
+#include <QTranslator>
 
 namespace psg {
 
@@ -10,6 +13,50 @@ AppSettings::AppSettings(QObject *parent)
     : QObject(parent)
     , m_s(new QSettings(portable::iniPath(), QSettings::IniFormat, this))
 {
+    applyLanguage();
+}
+
+AppSettings::~AppSettings()
+{
+    // uninstall what this instance installed: two settings objects can
+    // be alive at once (tests), and a stale catalog would keep
+    // translating after its owner is gone
+    removeTranslators();
+}
+
+void AppSettings::removeTranslators()
+{
+    QCoreApplication *app = QCoreApplication::instance();
+    if (!app)
+        return;
+    for (QTranslator *t : std::as_const(m_translators)) {
+        app->removeTranslator(t);
+        delete t;
+    }
+    m_translators.clear();
+}
+
+void AppSettings::applyLanguage()
+{
+    QCoreApplication *app = QCoreApplication::instance();
+    if (!app)
+        return;
+    removeTranslators();
+
+    const QString lang = language();
+    const QStringList locales = lang == QLatin1String("system")
+        ? QLocale::system().uiLanguages()
+        : QStringList{lang};
+    for (const QString &loc : locales) {
+        auto *t = new QTranslator(app);
+        if (t->load(QStringLiteral("psgameviewer_") + QLocale(loc).name(),
+                    QStringLiteral(":/i18n"))) {
+            app->installTranslator(t);
+            m_translators.append(t);
+        } else {
+            t->deleteLater();
+        }
+    }
 }
 
 QString AppSettings::language() const
@@ -23,6 +70,9 @@ void AppSettings::setLanguage(const QString &lang)
     if (lang == language())
         return;
     m_s->setValue(QStringLiteral("language"), lang);
+    // swap the translators before the notify: the QML bindings that
+    // react to languageChanged re-evaluate against the NEW catalog
+    applyLanguage();
     emit languageChanged();
 }
 

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(PSGameViewer VERSION 0.0.2 LANGUAGES CXX)
+project(PSGameViewer VERSION 0.0.3 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -117,6 +117,7 @@ qt_add_qml_module(psgame-viewer
     src/qml/controls/AppScrollBar.qml
     src/qml/controls/AppTabButton.qml
     src/qml/controls/AppTextField.qml
+    src/qml/controls/AppToast.qml
     src/qml/Main.qml
     src/qml/ViewerPage.qml
     src/qml/CoverPanel.qml

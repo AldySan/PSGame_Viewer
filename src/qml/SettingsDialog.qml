@@ -56,10 +56,13 @@ Popup {
             id: themeCombo
             Layout.fillWidth: true
             font.pixelSize: 13
-            model: ListModel {
-                ListElement { text: qsTr("Dark"); value: "dark" }
-                ListElement { text: qsTr("Light"); value: "light" }
-            }
+            // a JS array (not ListModel): qsTr() in a plain binding
+            // re-evaluates when the language changes, ListElement
+            // values are captured once and would stay untranslated
+            model: [
+                { text: qsTr("Dark"), value: "dark" },
+                { text: qsTr("Light"), value: "light" }
+            ]
             textRole: "text"
             valueRole: "value"
         }
@@ -74,22 +77,15 @@ Popup {
             Layout.fillWidth: true
             font.pixelSize: 13
             // value codes match the translator file names
-            model: ListModel {
-                ListElement { text: qsTr("System default"); value: "system" }
-                ListElement { text: "English"; value: "en" }
-                ListElement { text: "中文 (简体)"; value: "zh_CN" }
-                ListElement { text: "Bahasa Indonesia"; value: "id" }
-            }
+            model: [
+                { text: qsTr("System default"), value: "system" },
+                { text: "English", value: "en" },
+                { text: "中文 (简体)", value: "zh_CN" },
+                { text: "Bahasa Indonesia", value: "id" }
+            ]
             textRole: "text"
             valueRole: "value"
         }
-        Label {
-            text: qsTr("Restart the app to apply a language change.")
-            color: Theme.muted
-            font.pixelSize: 11
-            visible: langCombo.currentValue !== AppSettings.language
-        }
-
         AppCheckBox {
             id: onlineBox
             text: qsTr("Online lookups (covers, latest patch)")

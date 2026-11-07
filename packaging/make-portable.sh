@@ -30,16 +30,49 @@ mkdir -p "$STAGE/bin" "$STAGE/lib/qt6/plugins" "$STAGE/lib/qt6/qml" \
          "$STAGE/share/applications" \
          "$STAGE/share/icons/hicolor"
 
-# 1. the executable
+# 1. the executable (stripped: the payload does not ship debug symbols)
 cp "$BUILD_DIR/psgame-viewer" "$STAGE/bin/"
+strip --strip-unneeded "$STAGE/bin/psgame-viewer" 2>/dev/null || true
 
 # 2. Qt plugins and QML imports (the app's own module is compiled in).
-#    sqldrivers: the portable library.db; tls: HTTPS for the update checks
-#    and online cover lookups.
-for p in platforms imageformats iconengines networkinformation sqldrivers tls; do
+#    sqldrivers: only qsqlite — the portable library.db store; tls: HTTPS
+#    for the update checks and online cover lookups.
+for p in platforms iconengines networkinformation tls; do
     if [ -d "$QT_DIR/plugins/$p" ]; then cp -a "$QT_DIR/plugins/$p" "$STAGE/lib/qt6/plugins/"; fi
 done
+if [ -d "$QT_DIR/plugins/sqldrivers" ]; then
+    mkdir -p "$STAGE/lib/qt6/plugins/sqldrivers"
+    cp -a "$QT_DIR/plugins/sqldrivers/libqsqlite.so" "$STAGE/lib/qt6/plugins/sqldrivers/" 2>/dev/null || true
+fi
+# image handlers the app actually reads: PNG/JPEG covers, GIF/ICO/SVG
+if [ -d "$QT_DIR/plugins/imageformats" ]; then
+    mkdir -p "$STAGE/lib/qt6/plugins/imageformats"
+    for f in libqjpeg.so libqgif.so libqico.so libqsvg.so; do
+        cp -a "$QT_DIR/plugins/imageformats/$f" "$STAGE/lib/qt6/plugins/imageformats/" 2>/dev/null || true
+    done
+fi
 cp -a "$QT_DIR/qml/." "$STAGE/lib/qt6/qml/"
+
+# 2b. trim what the app never imports. Every QML file pins
+#     QtQuick.Controls.Basic, so the other styles (and their root
+#     libraries, once the style plugins are gone before the dependency
+#     closure runs) are dead weight; same for the designer-only
+#     folders, the asset downloader and the test/wayland QML modules.
+rm -rf "$STAGE/lib/qt6/qml/QtQuick/Controls/FluentWinUI3" \
+       "$STAGE/lib/qt6/qml/QtQuick/Controls/Fusion" \
+       "$STAGE/lib/qt6/qml/QtQuick/Controls/Imagine" \
+       "$STAGE/lib/qt6/qml/QtQuick/Controls/Material" \
+       "$STAGE/lib/qt6/qml/QtQuick/Controls/Universal" \
+       "$STAGE/lib/qt6/qml/QtQuick/Controls/Windows" \
+       "$STAGE/lib/qt6/qml/QtQuick/Controls/macOS" \
+       "$STAGE/lib/qt6/qml/QtQuick/Controls/iOS" \
+       "$STAGE/lib/qt6/qml/QtQuick/Controls/designer" \
+       "$STAGE/lib/qt6/qml/QtQuick/NativeStyle" \
+       "$STAGE/lib/qt6/qml/QtQuick/Controls/Basic/designer" \
+       "$STAGE/lib/qt6/qml/Assets" \
+       "$STAGE/lib/qt6/qml/QtTest" \
+       "$STAGE/lib/qt6/qml/QtWayland" \
+       "$STAGE/lib/qt6/qml/QtNetwork"
 
 # 3. every non-system shared library the payload needs. The QML style
 #    plugins and the platform plugins load their own Qt libraries at

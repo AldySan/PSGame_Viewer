@@ -9,6 +9,14 @@ namespace psg {
 // Human-readable sizes: "1.50 GB", "12.3 MB", "456 B".
 QString fmtSize(quint64 n);
 
+// Canonical key for library/recents rows: QDir::cleanPath plus (on
+// Windows) an upper-case drive letter. The same file can otherwise be
+// stored twice — passing a "C:/..." path through a url-typed QML
+// signal parses the drive letter as a URL scheme and lower-cases it,
+// so the library saw "C:/games/x.pkg" and "c:/games/x.pkg" as two
+// different games.
+QString normalizeGamePath(const QString &path);
+
 // Region from a PS4/PS5 Content-ID prefix ("EP0002-..." -> "Europe").
 QString contentRegion(const QString &cid);
 
