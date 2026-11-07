@@ -117,6 +117,7 @@ qt_add_qml_module(psgame-viewer
     src/qml/controls/AppScrollBar.qml
     src/qml/controls/AppTabButton.qml
     src/qml/controls/AppTextField.qml
+    src/qml/controls/AppToast.qml
     src/qml/Main.qml
     src/qml/ViewerPage.qml
     src/qml/CoverPanel.qml

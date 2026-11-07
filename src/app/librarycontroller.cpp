@@ -117,8 +117,13 @@ int LibraryController::removeMissing()
 {
     const int removed = m_library ? m_library->removeMissing() : 0;
     refresh();
-    if (m_library)
-        emit statusMessage(tr("Removed %1 missing entries").arg(removed));
+    if (m_library) {
+        // never silent: "nothing to clean" is feedback too, and without
+        // it the button looks like a no-op
+        emit statusMessage(removed > 0
+                               ? tr("Removed %1 missing entries").arg(removed)
+                               : tr("All games present — nothing to clean"));
+    }
     return removed;
 }
 

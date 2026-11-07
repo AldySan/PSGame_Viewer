@@ -138,7 +138,10 @@ ApplicationWindow {
                 Viewer.openPath(path)
                 stack.currentIndex = 0
             }
-            onStatusMessage: function(msg) { root.statusText = msg }
+            onStatusMessage: function(msg) {
+                root.statusText = msg
+                toast.show(msg)
+            }
         }
     }
 
