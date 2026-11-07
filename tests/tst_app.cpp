@@ -10,6 +10,7 @@
 #include "core/detect.h"
 #include "core/db/library.h"
 #include "core/types.h"
+#include "core/util.h"
 
 #include <QDir>
 #include <QFile>
@@ -82,6 +83,15 @@ private slots:
 
     // -- settings persistence ---------------------------------------------
     void settingsPersistence();
+
+    // -- a saved language applies without a restart ------------------------
+    void languageSwitchLive();
+
+    // -- library paths dedupe, recents cap at 5 ---------------------------
+    void libraryDedupeAndRecents();
+
+    // -- clean-missing reports "nothing to clean" too ---------------------
+    void removeMissingFeedback();
 
     // -- library controller -----------------------------------------------
     void libraryController();
@@ -396,6 +406,131 @@ void TestApp::libraryController()
     controller.removeMissing();
     QCOMPARE(controller.count(), 0);
     QVERIFY(statusSpy.count() >= 2);
+}
+
+void TestApp::languageSwitchLive()
+{
+    // saving a language must swap the translators immediately: the
+    // catalog is installed and lookups resolve without any restart
+    {
+        AppSettings s;
+        s.setLanguage(QStringLiteral("id"));
+        QVERIFY(s.translationActive());
+        QCOMPARE(QCoreApplication::translate("LibraryPage", "Clean missing"),
+                 QStringLiteral("Bersihkan yang hilang"));
+
+        s.setLanguage(QStringLiteral("zh_CN"));
+        QVERIFY(s.translationActive());
+        QCOMPARE(QCoreApplication::translate("LibraryPage", "Clean missing"),
+                 QStringLiteral("\u6e05\u7406\u5931\u6548\u9879"));
+    }
+
+    // a fresh instance reading the same setting starts translated too
+    // (the first instance must have uninstalled its translators when it
+    // died, or the two catalogs would stack)
+    AppSettings s2;
+    QCOMPARE(QCoreApplication::translate("LibraryPage", "Clean missing"),
+             QStringLiteral("\u6e05\u7406\u5931\u6548\u9879"));
+
+    // back to "system": the C locale of the CI has no catalog, so the
+    // source strings come back (and the next tests run untranslated)
+    s2.setLanguage(QStringLiteral("system"));
+    QCOMPARE(QCoreApplication::translate("LibraryPage", "Clean missing"),
+             QStringLiteral("Clean missing"));
+}
+
+void TestApp::libraryDedupeAndRecents()
+{
+    // the canonical path form: ".." and trailing slashes collapse, so a
+    // mangled reopen cannot create a second library row for one file
+    QCOMPARE(normalizeGamePath(QStringLiteral("/a/b/../c/d.pkg")),
+             QStringLiteral("/a/c/d.pkg"));
+    QCOMPARE(normalizeGamePath(QStringLiteral("/a/b/")),
+             QStringLiteral("/a/b"));
+#ifdef Q_OS_WIN
+    // url-typed QML signals lower-case the drive letter on Windows
+    QCOMPARE(normalizeGamePath(QStringLiteral("c:/games/x.pkg")),
+             QStringLiteral("C:/games/x.pkg"));
+#endif
+
+    QTemporaryDir dir;
+    const QString a = copyFixture(dir, QStringLiteral("ps2.iso"));
+    QVERIFY(!a.isEmpty());
+
+    GameLibrary library(m_base->filePath(QStringLiteral("dedupe.db")));
+    QVERIFY(library.isValid());
+    LibraryController controller(&library);
+
+    // the same file upserted through a mangled spelling stays one row
+    library.upsertGame(a, QStringLiteral("ps2"), QStringLiteral("PS2"),
+                       QString(), QString(), QString(), QString(), 1);
+    const QString mangled = QFileInfo(a).dir().filePath(
+        QStringLiteral("sub/../") + QFileInfo(a).fileName());
+    library.upsertGame(mangled, QStringLiteral("ps2"), QStringLiteral("PS2"),
+                       QString(), QString(), QString(), QString(), 1);
+    QCOMPARE(library.games().size(), 1);
+    controller.refresh();
+    QCOMPARE(controller.count(), 1);
+
+    // recents: same file in two spellings -> one chip; the list caps
+    // at five even when the table holds more
+    library.addRecent(mangled);
+    library.addRecent(a);
+    QCOMPARE(controller.recentFiles(), QStringList{a});
+
+    for (int i = 0; i < 8; ++i) {
+        QFile f(dir.filePath(QStringLiteral("extra%1.pkg").arg(i)));
+        QVERIFY(f.open(QIODevice::WriteOnly));
+        f.write("x");
+        f.close();
+        library.addRecent(f.fileName());
+    }
+    QCOMPARE(controller.recentFiles().size(), 5);
+
+    // two copies of the same file (same name, same size) count once
+    QTemporaryDir dir2;
+    const QString c1 = copyFixture(dir2, QStringLiteral("ps2.iso"));
+    const QString sub = dir2.filePath(QStringLiteral("sub"));
+    QVERIFY(QDir().mkpath(sub));
+    const QString c2 = QDir(sub).filePath(QStringLiteral("ps2.iso"));
+    QVERIFY(QFile::copy(c1, c2));
+    GameLibrary library2(m_base->filePath(QStringLiteral("dedupe2.db")));
+    QVERIFY(library2.isValid());
+    LibraryController controller2(&library2);
+    library2.addRecent(c1);
+    library2.addRecent(c2);
+    QCOMPARE(controller2.recentFiles().size(), 1);
+}
+
+void TestApp::removeMissingFeedback()
+{
+    QTemporaryDir dir;
+    const QString a = copyFixture(dir, QStringLiteral("ps2.iso"));
+    QVERIFY(!a.isEmpty());
+
+    GameLibrary library(m_base->filePath(QStringLiteral("feedback.db")));
+    QVERIFY(library.isValid());
+    LibraryController controller(&library);
+    QSignalSpy statusSpy(&controller, &LibraryController::statusMessage);
+
+    // nothing missing: the action must still say so instead of being
+    // silent
+    library.upsertGame(a, QStringLiteral("ps2"), QStringLiteral("PS2"),
+                       QString(), QString(), QString(), QString(), 1);
+    controller.refresh();
+    QCOMPARE(controller.removeMissing(), 0);
+    QCOMPARE(statusSpy.count(), 1);
+    QCOMPARE(statusSpy.at(0).at(0).toString().contains(
+                 QStringLiteral("All games present")),
+             true);
+
+    // and with a vanished file it reports the removal count
+    QFile::remove(a);
+    QCOMPARE(controller.removeMissing(), 1);
+    QCOMPARE(statusSpy.count(), 2);
+    QCOMPARE(statusSpy.at(1).at(0).toString().contains(
+                 QStringLiteral("Removed 1")),
+             true);
 }
 
 void TestApp::updateChecker()
