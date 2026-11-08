@@ -17,19 +17,26 @@ QList<EntryTreeNode> buildEntryTree(const QList<Entry> &entries)
 {
     QList<EntryTreeNode> pool;
     pool.append(EntryTreeNode()); // root
+    // name -> pool index, parallel to `pool`: the child lookup below is
+    // O(1) instead of a linear scan, which went quadratic on containers
+    // with thousands of sibling folders (50M string compares at 10k dirs)
+    QList<QHash<QString, int>> childLookup;
+    childLookup.append(QHash<QString, int>());
 
     const auto nodeFor = [&](int parent, const QString &part) -> int {
-        EntryTreeNode &p = pool[parent];
-        for (int ci : p.childDirs) {
-            if (pool.at(ci).name == part)
-                return ci;
-        }
+        const auto it = childLookup.at(parent).constFind(part);
+        if (it != childLookup.at(parent).cend())
+            return it.value();
         EntryTreeNode n;
         n.name = part;
-        n.path = p.path.isEmpty() ? part : p.path + u'/' + part;
+        n.path = pool.at(parent).path.isEmpty()
+                     ? part
+                     : pool.at(parent).path + u'/' + part;
         const int idx = pool.size();
         pool.append(n);
+        childLookup.append(QHash<QString, int>());
         pool[parent].childDirs.append(idx);
+        childLookup[parent].insert(part, idx);
         return idx;
     };
 
@@ -59,14 +66,7 @@ QList<EntryTreeNode> buildEntryTree(const QList<Entry> &entries)
         }
         const QString leaf = parts.last();
         if (isDir) {
-            bool exists = false;
-            for (int ci : pool[node].childDirs) {
-                if (pool.at(ci).name == leaf) {
-                    exists = true;
-                    break;
-                }
-            }
-            if (!exists)
+            if (!childLookup.at(node).contains(leaf))
                 nodeFor(node, leaf);
             continue;
         }

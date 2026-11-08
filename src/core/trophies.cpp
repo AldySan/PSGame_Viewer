@@ -6,6 +6,7 @@
 #include <QHash>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QRegularExpression>
 #include <QXmlStreamReader>
 
 #include <algorithm>
@@ -29,26 +30,36 @@ QByteArray keyForNpid(const QByteArray &npid16)
 
 QList<TrpInner> parseTrp(const QByteArray &data)
 {
+    // Real retail TRP container (cross-checked against RPCS3's TRP.h,
+    // psdevwiki and three retail-file extractors): a 0x40-byte header —
+    //   u32 magic @0, u32 version @4, u64 total size @8, u32 entry count
+    //   @0x10, u32 entry size @0x14 (0x40), u32 dev flag @0x18,
+    //   sha1[20] @0x1C, padding[16] @0x30
+    // — followed by `count` entries of 0x40 bytes:
+    //   char name[32] @+0x00 (NUL-terminated), u64 offset @+0x20,
+    //   u64 size @+0x28, u32 unknown @+0x30, padding[12] @+0x34
     QList<TrpInner> out;
-    if (data.size() < 0x38 || data.left(4) != QByteArrayLiteral("\xDC\xA2\x4D\x00"))
+    if (data.size() < 0x80 || data.left(4) != QByteArrayLiteral("\xDC\xA2\x4D\x00"))
         return out;
-    const quint32 count = bytes::rdU32BE(data, 4);
+    const quint32 count = bytes::rdU32BE(data, 0x10);
     const quint64 total = bytes::rdU64BE(data, 8);
     const quint32 esize = bytes::rdU32BE(data, 0x14);
-    if (count < 1 || count > 10000 || total != quint64(data.size()))
+    if (count < 1 || count > 10000 || esize != 0x40)
         return out;
-    if (esize != 0x40)
+    // the header's total must not exceed what we actually hold (equal for
+    // a standalone file; a padded embed is still fine)
+    if (total < 0x80 || total > quint64(data.size()))
         return out;
-    const qsizetype hsize = 0x38; // entries start after the 32-byte digest
+    const qsizetype hsize = 0x40; // entries start after the fixed header
     for (quint32 i = 0; i < count; ++i) {
         const qsizetype eo = hsize + qsizetype(i) * esize;
         if (eo + esize > data.size())
             return {};
         TrpInner t;
-        t.offset = bytes::rdU64BE(data, eo + 8);
-        t.size = bytes::rdU64BE(data, eo + 16);
-        const QByteArray nm = bytes::untilNul(data.mid(eo + 40, 24));
+        const QByteArray nm = bytes::untilNul(data.mid(eo, 32));
         t.name = QString::fromLatin1(nm);
+        t.offset = bytes::rdU64BE(data, eo + 0x20);
+        t.size = bytes::rdU64BE(data, eo + 0x28);
         // offset+size must not just fit — the sum itself must not wrap
         if (t.name.isEmpty() || t.offset > quint64(data.size())
             || t.size > quint64(data.size()) - t.offset)
@@ -56,6 +67,17 @@ QList<TrpInner> parseTrp(const QByteArray &data)
         out.append(t);
     }
     return out;
+}
+
+QString npCommIdFromPath(const QString &path)
+{
+    // PS3 packs live in TROPDIR/<NPWRxxxxx_yy>/TROPHY.TRP and PS3 PKG
+    // entries carry the same path shape — the folder name IS the NP
+    // communication id the ESFM key is derived from.
+    static const QRegularExpression re(
+        QStringLiteral("NP[A-Z]{2}[0-9]{5}_[0-9]{2}"));
+    const QRegularExpressionMatch m = re.match(path);
+    return m.hasMatch() ? m.captured(0) : QString();
 }
 
 QList<CarvedIcon> carveTrpIcons(const QByteArray &data)

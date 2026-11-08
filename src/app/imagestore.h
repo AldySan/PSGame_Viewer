@@ -2,6 +2,8 @@
 
 #include <QQuickImageProvider>
 
+#include <QHash>
+#include <QList>
 #include <QMutex>
 
 namespace psg {
@@ -23,10 +25,14 @@ public:
     void clear();
 
     QByteArray image(const QString &key) const;
+    // bumped on every mutation; the provider keys its decode cache on it
+    // so stale decodes never outlive the bytes they came from
+    quint64 generation() const;
 
 private:
     mutable QMutex m_mutex;
     QHash<QString, QByteArray> m_images;
+    quint64 m_generation = 0;
 };
 
 class PsgImageProvider : public QQuickImageProvider
@@ -38,7 +44,14 @@ public:
                         const QSize &requestedSize) override;
 
 private:
+    // bounded FIFO cache of decoded (already scaled) results
+    static constexpr int kDecodeCacheMax = 128;
+
     ImageStore *m_store;
+    QMutex m_cacheMutex;
+    QHash<QString, QImage> m_cache;
+    QList<QString> m_order;
+    quint64 m_cacheGen = 0;
 };
 
 } // namespace psg

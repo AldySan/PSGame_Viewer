@@ -288,8 +288,10 @@ ApplicationWindow {
         anchors.fill: parent
         onDropped: function(drop) {
             if (drop.urls && drop.urls.length > 0) {
+                // openPath() emits statusMessage synchronously (success or
+                // failure) and the Connections below shows it - do not clear
+                // it afterwards, that would also swallow open errors
                 Viewer.openPath(drop.urls[0])
-                root.statusText = ""
             }
         }
     }

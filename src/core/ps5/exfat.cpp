@@ -5,6 +5,7 @@
 #include <QFileInfo>
 #include <QtEndian>
 
+#include <limits>
 #include <optional>
 
 namespace psg {
@@ -19,6 +20,9 @@ constexpr quint64 kFileReadCap = 320000000;
 // exFAT spec limits: BytesPerSectorShift <= 12, SectorsPerClusterShift <= 25.
 constexpr int kMaxSectorShift = 12;
 constexpr int kMaxClusterShift = 25;
+// exFAT clusters are at most 32 MiB; anything above is a malformed
+// geometry and would turn each chain step into a giant single read
+constexpr quint64 kMaxClusterBytes = 32ull << 20;
 
 } // namespace
 
@@ -72,17 +76,26 @@ void ExfatImage::construct(bool *ok, QString *error)
         if (error) *error = QStringLiteral("bad exFAT boot sector");
         return;
     }
+    // the exFAT spec caps clusters at 32 MiB; a crafted geometry above
+    // that is malformed and used to make readChain()/listDir() issue
+    // multi-hundred-MB single reads (allocation-spike DoS)
+    if (quint64(m_bytesPerSector) * m_sectorsPerCluster > kMaxClusterBytes) {
+        if (error) *error = QStringLiteral("bad exFAT cluster geometry");
+        return;
+    }
     if (ok) *ok = true;
-}
-
-quint32 ExfatImage::clusterSector(quint32 cluster) const
-{
-    return m_dataSector + (cluster - 2) * m_sectorsPerCluster;
 }
 
 quint64 ExfatImage::clusterOffset(quint32 cluster) const
 {
-    return quint64(clusterSector(cluster)) * m_bytesPerSector;
+    // 64-bit math: the old u32 `dataSector + (cluster-2)*spc` wrapped on
+    // high cluster ids and aliased them onto arbitrary in-image offsets,
+    // and underflowed for cluster < 2 (the noFat listDir path never
+    // checked that) - the huge sentinel offset fails the seek/checks below
+    if (cluster < 2)
+        return std::numeric_limits<quint64>::max();
+    return (quint64(m_dataSector) + (quint64(cluster) - 2) * m_sectorsPerCluster)
+           * m_bytesPerSector;
 }
 
 bool ExfatImage::clusterInImage(quint32 cluster) const
@@ -96,7 +109,8 @@ QByteArray ExfatImage::readNoFat(quint32 first, quint64 size) const
         return QByteArray();
     if (!clusterInImage(first))
         return QByteArray();
-    dev()->seek(qint64(clusterOffset(first)));
+    if (!dev()->seek(qint64(clusterOffset(first))))
+        return QByteArray();
     return dev()->read(int(size));
 }
 
@@ -109,7 +123,8 @@ QByteArray ExfatImage::readChain(quint32 first, quint64 size) const
     QByteArray out;
     quint32 clus = first;
     while (clus >= 2 && clusterInImage(clus) && quint64(out.size()) < size) {
-        dev()->seek(qint64(clusterOffset(clus)));
+        if (!dev()->seek(qint64(clusterOffset(clus))))
+            break;
         const quint64 want = qMin(clusterBytes, size - quint64(out.size()));
         out += dev()->read(int(want));
         // FAT entry: >= 0xFFFFFFF8 marks the end of the chain
@@ -124,8 +139,10 @@ QByteArray ExfatImage::readChain(quint32 first, quint64 size) const
         // fall through to the next cluster instead of stopping.
         clus = (next >= 0xFFFFFFF8 || next == 0) ? clus + 1 : next;
     }
+    // reads are bounded by `size` each iteration, so out <= size; keep
+    // the truncate as a cheap invariant guard (never negative now)
     if (quint64(out.size()) > size)
-        out.truncate(int(size));
+        out.truncate(int(qMin<quint64>(size, quint64(INT_MAX))));
     return out;
 }
 
@@ -193,7 +210,10 @@ QList<ExfatImage::DirItem> ExfatImage::listDir(quint32 first, quint64 size,
                                                const QString &want) const
 {
     if (noFat) {
-        dev()->seek(qint64(clusterOffset(first)));
+        // clusterOffset() rejects cluster < 2 with a huge sentinel that
+        // fails this seek, so a bogus first-cluster dirent yields no items
+        if (!dev()->seek(qint64(clusterOffset(first))))
+            return {};
         const QByteArray raw = dev()->read(int(qMin<quint64>(size, kNoFatReadCap)));
         return parseDir(raw, want);
     }
@@ -203,12 +223,12 @@ QList<ExfatImage::DirItem> ExfatImage::listDir(quint32 first, quint64 size,
     QByteArray out;
     quint32 clus = first;
     while (clus >= 2 && clusterInImage(clus) && quint64(out.size()) < cap) {
-        dev()->seek(qint64(clusterOffset(clus)));
-        const quint64 want2 = qMin(clusterBytes, size - quint64(out.size()));
-        // `size` comes from directory entries and clusterBytes from the
-        // boot sector; both are attacker-controlled and can exceed INT_MAX,
-        // so clamp before the int cast (a negative read size is UB-adjacent)
-        out += dev()->read(int(qMin<quint64>(want2, quint64(INT_MAX))));
+        if (!dev()->seek(qint64(clusterOffset(clus))))
+            break;
+        // clamp to the REMAINING cap (not `size`): with a big clusterBytes
+        // the old min() overshot the 16 MB dir cap by whole clusters
+        const quint64 want2 = qMin(clusterBytes, cap - quint64(out.size()));
+        out += dev()->read(int(want2));
         if (!want.isEmpty()) {
             const QList<DirItem> items = parseDir(out, want);
             for (const DirItem &it : items) {
@@ -225,8 +245,10 @@ QList<ExfatImage::DirItem> ExfatImage::listDir(quint32 first, quint64 size,
             next = 0xFFFFFFFF;
         clus = (next >= 0xFFFFFFF8 || next == 0) ? clus + 1 : next;
     }
+    // every read above is bounded by `cap <= size`, so out never exceeds
+    // size; the truncate is kept as a cheap invariant guard
     if (quint64(out.size()) > size)
-        out.truncate(int(size));
+        out.truncate(int(qMin<quint64>(size, quint64(INT_MAX))));
     return parseDir(out, want);
 }
 

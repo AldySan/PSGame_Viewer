@@ -614,6 +614,13 @@ TRP_TROPHY_KEY = bytes([0x21, 0xF4, 0x1A, 0x6B, 0xAD, 0x8A, 0x1D, 0x3E,
 
 
 def make_trp():
+    """TROPHY.TRP in the REAL retail container layout (cross-checked
+    against RPCS3's TRP.h, psdevwiki and three retail-file extractors):
+    0x40-byte header — magic, u32 version, u64 total size, u32 count,
+    u32 entry size (0x40), u32 dev flag, sha1[20], pad[16] — then count
+    entries of 0x40 bytes: name[32], u64 offset @+0x20, u64 size @+0x28.
+    The pack mixes a 240x240 icon (PS4/PS5 style), two 128x128 icons
+    (PS3 style) and a 4x4 one to exercise every carving path."""
     npid16 = b"NPWR99999_00".ljust(16, b"\x00")
     ckey = aes128_cbc_encrypt(TRP_TROPHY_KEY, bytes(16), npid16)
     xml = (b"<?xml version='1.0' encoding='utf-8'?>"
@@ -631,28 +638,31 @@ def make_trp():
 
     files = [
         ("TROPCONF.SFM", esfm),
-        ("ICON0.PNG", BIG_ICON_PNG),
-        ("ICON1.PNG", ICON_PNG),
+        ("ICON0.PNG", BIG_ICON_PNG),                                # 240x240
+        ("ICON1.PNG", ICON_PNG),                                    # 4x4
+        ("TROP001.PNG", png_bytes(128, 128, (0xF7, 0xD7, 0x4A, 0xFF))),
+        ("TROP002.PNG", png_bytes(128, 128, (0xC0, 0xC0, 0xC0, 0xFF))),
     ]
-    header_size = 0x38
+    header_size = 0x40
     entry_size = 0x40
     body = bytearray()
     recs = b""
     for name, payload in files:
         off = header_size + entry_size * len(files) + len(body)
         rec = bytearray(entry_size)
-        struct.pack_into(">Q", rec, 8, off)
-        struct.pack_into(">Q", rec, 16, len(payload))
-        rec[40:40 + len(name)] = name.encode()
+        rec[0:len(name)] = name.encode()
+        struct.pack_into(">Q", rec, 0x20, off)
+        struct.pack_into(">Q", rec, 0x28, len(payload))
         recs += bytes(rec)
         body += payload
     total = header_size + entry_size * len(files) + len(body)
     hdr = bytearray(header_size)
     hdr[0:4] = b"\xDC\xA2\x4D\x00"
-    struct.pack_into(">I", hdr, 4, len(files))
-    struct.pack_into(">Q", hdr, 8, total)
-    struct.pack_into(">I", hdr, 0x10, 0x4D)
-    struct.pack_into(">I", hdr, 0x14, entry_size)
+    struct.pack_into(">I", hdr, 0x04, 1)            # version
+    struct.pack_into(">Q", hdr, 0x08, total)        # total file size
+    struct.pack_into(">I", hdr, 0x10, len(files))   # entry count
+    struct.pack_into(">I", hdr, 0x14, entry_size)   # entry size
+    # dev flag @0x18, sha1[20] @0x1C and pad[16] @0x30 stay zero
     return bytes(hdr + recs + body)
 
 

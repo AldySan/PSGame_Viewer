@@ -111,11 +111,15 @@ public:
         }
         m_dataOffset = dataOff;
         m_logicalSize = dataLen;
-        m_blockCount = quint32(dataLen / kPfscLogicalBlock);
-        if (m_blockCount > (1u << 20)) {
+        // range-check in 64 bits BEFORE the u32 cast: a dataLen whose
+        // block count exceeds 2^32 wraps the cast and used to defeat the
+        // cap, leaving size() huge with a short offset table (OOB at())
+        const quint64 blocks = dataLen / kPfscLogicalBlock;
+        if (blocks > (1u << 20)) {
             if (error) *error = QStringLiteral("PFSC stream too large");
             return false;
         }
+        m_blockCount = quint32(blocks);
 
         const quint64 tableBytes = quint64(m_blockCount + 1) * 8;
         QByteArray table;
@@ -153,6 +157,9 @@ protected:
         qint64 done = 0;
         while (done < maxSize && start + done < qint64(m_logicalSize)) {
             const quint32 block = quint32((start + done) / kPfscLogicalBlock);
+            // keep the at() in blockBytes() in bounds whatever m_logicalSize is
+            if (block >= m_blockCount)
+                break;
             const QByteArray &bytes = blockBytes(block);
             if (bytes.isEmpty())
                 break;
@@ -289,27 +296,30 @@ bool PfsFile::parseHeader()
         return false;
     }
     m_blockSize = bytes::rdU32LE(head, 0x20);
-    const qint64 nblock = qint64(bytes::rdU64LE(head, 0x28));
-    m_inodeCount = int(bytes::rdU64LE(head, 0x30));
-    const int inodeBlocks = int(bytes::rdU64LE(head, 0x40));
+    const quint64 nblockRaw = bytes::rdU64LE(head, 0x28);
+    const quint64 inodeCountRaw = bytes::rdU64LE(head, 0x30);
+    const quint64 inodeBlocksRaw = bytes::rdU64LE(head, 0x40);
     if (m_blockSize < 4096 || m_blockSize > (1u << 20)
         || (m_blockSize & (m_blockSize - 1)) != 0) {
         m_error = QStringLiteral("bad PFS block size");
         return false;
     }
-    if (m_inodeCount <= 0 || m_inodeCount > 4096) {
+    // validate the raw 64-bit fields before narrowing to int (a wrapped
+    // negative int would otherwise pass the "<= 0" rejection below)
+    if (inodeCountRaw == 0 || inodeCountRaw > 4096) {
         m_error = QStringLiteral("bad PFS inode count");
         return false;
     }
-    if (inodeBlocks <= 0 || inodeBlocks > 64) {
+    if (inodeBlocksRaw == 0 || inodeBlocksRaw > 64) {
         m_error = QStringLiteral("bad PFS inode block count");
         return false;
     }
-    if (nblock < 1 || quint64(nblock) * m_blockSize > quint64(m_file.size())) {
+    if (nblockRaw == 0 || nblockRaw > quint64(m_file.size()) / m_blockSize) {
         m_error = QStringLiteral("truncated PFS image");
         return false;
     }
-    m_inodeBlockCount = inodeBlocks;
+    m_inodeCount = int(inodeCountRaw);
+    m_inodeBlockCount = int(inodeBlocksRaw);
     return true;
 }
 

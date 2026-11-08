@@ -90,6 +90,10 @@ GameInfo splitPartStub(const QString &path)
     if (mg != QByteArrayLiteral("\x7f" "FIH"))
         return GameInfo();
     const QByteArray hdr = mg + f0.read(252);
+    // a truncated part-0 used to produce a short "256-byte" header whose
+    // missing bytes were silently read as zeros
+    if (hdr.size() < 256)
+        return GameInfo();
     return ps5::parsePs5RetailStub(path, hdr);
 }
 

@@ -5,6 +5,7 @@
 #include <QVariantMap>
 
 class QNetworkAccessManager;
+class QNetworkReply;
 
 namespace psg {
 
@@ -41,7 +42,8 @@ private:
 
     QString m_currentVersion;
     QNetworkAccessManager *m_nam = nullptr;
-    int m_pending = 0;
+    // in-flight request guard (see checkNow)
+    QNetworkReply *m_reply = nullptr;
 };
 
 } // namespace psg

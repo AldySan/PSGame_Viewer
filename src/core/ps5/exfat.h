@@ -38,7 +38,6 @@ public:
     ExfatImage(QIODevice *device, const QString &label, bool *ok = nullptr,
                QString *error = nullptr);
 
-    quint32 clusterSector(quint32 cluster) const;
     quint64 clusterOffset(quint32 cluster) const;
     bool clusterInImage(quint32 cluster) const;
 
