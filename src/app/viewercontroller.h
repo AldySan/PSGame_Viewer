@@ -26,15 +26,16 @@ class ViewerController : public QObject
     Q_OBJECT
     Q_PROPERTY(QString title READ title NOTIFY infoChanged)
     Q_PROPERTY(QString fileName READ fileName NOTIFY infoChanged)
-    Q_PROPERTY(QString filePath READ filePath NOTIFY infoChanged)
     Q_PROPERTY(bool hasFile READ hasFile NOTIFY infoChanged)
     Q_PROPERTY(QString error READ error NOTIFY infoChanged)
-    Q_PROPERTY(QString platformBadge READ platformBadge NOTIFY infoChanged)
     Q_PROPERTY(QString packageBadge READ packageBadge NOTIFY infoChanged)
     Q_PROPERTY(QString statusSummary READ statusSummary NOTIFY infoChanged)
-    Q_PROPERTY(QString coverKey READ coverKey NOTIFY infoChanged)
+    // cover/gallery keys get their own notify: re-emitting infoChanged
+    // on every trophy pack or online cover used to re-evaluate every
+    // property and rebuild the whole gallery Repeater for nothing
+    Q_PROPERTY(QString coverKey READ coverKey NOTIFY galleryChanged)
     Q_PROPERTY(QVariantList rows READ rows NOTIFY infoChanged)
-    Q_PROPERTY(QStringList galleryKeys READ galleryKeys NOTIFY infoChanged)
+    Q_PROPERTY(QStringList galleryKeys READ galleryKeys NOTIFY galleryChanged)
     Q_PROPERTY(QStringList detailsCurated READ detailsCurated NOTIFY infoChanged)
     Q_PROPERTY(QStringList detailsAll READ detailsAll NOTIFY infoChanged)
     Q_PROPERTY(QString patchInfo READ patchInfo NOTIFY patchInfoChanged)
@@ -61,10 +62,8 @@ public:
 
     QString title() const;
     QString fileName() const;
-    QString filePath() const;
     bool hasFile() const { return m_info.ok; }
     QString error() const { return m_info.error; }
-    QString platformBadge() const;
     QString packageBadge() const;
     QString statusSummary() const;
     QString coverKey() const { return m_coverKey; }
@@ -78,7 +77,6 @@ public:
     bool undoAvailable() const { return !m_undoNew.isEmpty(); }
 
     Q_INVOKABLE void openPath(const QUrl &path);
-    Q_INVOKABLE void clear();
     Q_INVOKABLE QString extractEntry(int entryIndex, const QUrl &destDir,
                                      const QString &newName = QString());
     Q_INVOKABLE QString extractAll(const QUrl &destDir);
@@ -106,6 +104,7 @@ public:
 
 signals:
     void infoChanged();
+    void galleryChanged();
     void patchInfoChanged();
     void statusMessage(const QString &message);
     void fileOpened(const QString &path);
@@ -118,7 +117,6 @@ private:
     void loadGallery();
     void startTrophyLoad();
     void startOnlineLookups();
-    QString galleryEntryName(int i) const;
 
     AppSettings *m_settings = nullptr;
     ImageStore *m_images = nullptr;

@@ -1,5 +1,6 @@
 #include <QCommandLineParser>
 #include <QCoreApplication>
+#include <QAtomicInt>
 #include <QDateTime>
 #include <QDir>
 #include <QElapsedTimer>
@@ -43,7 +44,7 @@ using namespace psg;
 // the real UI and returns a ctest exit code
 int runUiMatrix(QGuiApplication &app, QQmlApplicationEngine &engine,
                 ViewerController &viewer, const QString &outDir,
-                const int *qmlIssues);
+                const QAtomicInt *qmlIssues);
 #endif
 
 namespace {
@@ -223,7 +224,10 @@ int runGui(int argc, char *argv[])
             && i + 1 < argc)
             uiTestDir = QString::fromUtf8(argv[i + 1]);
     }
-    static int qmlIssues = 0;
+    // message handler can be called from worker threads (QML image
+    // provider, online lookups): the counter must be atomic or updates
+    // can be lost
+    static QAtomicInt qmlIssues = 0;
     if (!uiTestDir.isEmpty()) {
         QDir().mkpath(uiTestDir);
         // hermetic defaults before AppSettings reads the ini
@@ -241,7 +245,7 @@ int runGui(int argc, char *argv[])
                 if ((type == QtWarningMsg || type == QtCriticalMsg
                      || type == QtFatalMsg)
                     && fromQml) {
-                    ++qmlIssues;
+                    qmlIssues.fetchAndAddRelaxed(1);
                     fprintf(stderr, "ui-test QML issue: %s\n",
                             qPrintable(msg));
                 }
@@ -502,7 +506,7 @@ bool settleAndGrab(QQmlApplicationEngine &engine, ViewerController &viewer,
 // renders a screenshot per format and returns a ctest exit code.
 int runUiMatrix(QGuiApplication &app, QQmlApplicationEngine &engine,
                 ViewerController &viewer, const QString &outDir,
-                const int *qmlIssues)
+                const QAtomicInt *qmlIssues)
 {
     Q_UNUSED(app);
     const UiExpect matrix[] = {
@@ -537,8 +541,9 @@ int runUiMatrix(QGuiApplication &app, QQmlApplicationEngine &engine,
         if (!ok)
             ++failures;
     }
-    if (*qmlIssues > 0) {
-        printf("ui-test: %d QML issue(s) logged above\n", *qmlIssues);
+    const int issues = qmlIssues ? qmlIssues->loadRelaxed() : 0;
+    if (issues > 0) {
+        printf("ui-test: %d QML issue(s) logged above\n", issues);
         ++failures;
     }
     printf("ui-test: %d failure(s)\n", failures);

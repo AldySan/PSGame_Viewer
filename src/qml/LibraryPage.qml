@@ -20,7 +20,17 @@ ColumnLayout {
             Layout.fillWidth: true
             placeholderText: qsTr("Search title, Title ID or Content ID…")
             font.pixelSize: 13
-            onTextChanged: Library.setSearch(text)
+            // debounce: without the timer every keystroke wrote the
+            // property, which re-queries SQLite and resets the whole
+            // ListView (scroll jump + flicker on large libraries)
+            Timer {
+                id: searchDebounce
+                interval: 200
+                onTriggered: Library.search = searchField.text
+            }
+            // property write (not a method call): setSearch() is the
+            // Q_PROPERTY write accessor and is not callable from QML
+            onTextChanged: searchDebounce.restart()
         }
         AppButton {
             text: qsTr("Scan folder…")

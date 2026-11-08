@@ -22,6 +22,9 @@ const char kBrowserUa[] =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/126.0 Safari/537.36";
 
+// covers/patch pages never come close to this; larger bodies are rejected
+constexpr int kMaxBodyBytes = 5000000;
+
 QNetworkRequest makeRequest(const QString &url)
 {
     QNetworkRequest req(url);
@@ -50,9 +53,9 @@ void OnlineService::requestAbort()
 {
     m_abort.store(true, std::memory_order_relaxed);
     QMutexLocker lock(&m_inFlightMutex);
-    if (m_inFlight && !m_inFlight->isFinished()) {
-        // queued to the worker thread: safe from any thread, and it lands
-        // while getBlocking()'s local event loop is running
+    // queued to the worker thread that owns the reply - no cross-thread
+    // QNetworkReply method call (abort on a finished reply is a no-op)
+    if (m_inFlight) {
         QMetaObject::invokeMethod(m_inFlight, &QNetworkReply::abort,
                                   Qt::QueuedConnection);
     }
@@ -60,8 +63,13 @@ void OnlineService::requestAbort()
 
 QByteArray OnlineService::getBlocking(QNetworkReply *reply, int timeoutMs)
 {
+    QNetworkReply *prevInFlight = nullptr;
     {
         QMutexLocker lock(&m_inFlightMutex);
+        // loop.exec() below can deliver another queued lookup (reentry):
+        // remember the outer reply and restore it on exit instead of
+        // nulling it, so requestAbort() can still abort the outer one
+        prevInFlight = m_inFlight;
         m_inFlight = reply;
     }
     QEventLoop loop;
@@ -74,12 +82,15 @@ QByteArray OnlineService::getBlocking(QNetworkReply *reply, int timeoutMs)
     QByteArray out;
     if (!reply->isFinished()) {
         reply->abort();
-    } else if (reply->error() == QNetworkReply::NoError) {
-        out = reply->read(5000000);
+    } else if (reply->error() == QNetworkReply::NoError
+               // an oversized body would be silently truncated by the
+               // capped read below and fail to decode - reject it instead
+               && reply->size() <= kMaxBodyBytes) {
+        out = reply->read(int(kMaxBodyBytes));
     }
     {
         QMutexLocker lock(&m_inFlightMutex);
-        m_inFlight = nullptr;
+        m_inFlight = prevInFlight;
     }
     return out;
 }
@@ -117,7 +128,7 @@ void OnlineService::fetchCoverBytes(const QString &key, const QString &tid,
         const QString path = dir + u'/' + key + ext;
         QFile f(path);
         if (f.size() > 1024 && f.open(QIODevice::ReadOnly)) {
-            const QByteArray raw = f.read(5000000);
+            const QByteArray raw = f.read(kMaxBodyBytes);
             if (raw.left(2) == QByteArrayLiteral("\xFF\xD8")
                 || raw.left(8) == QByteArrayLiteral("\x89PNG\r\n\x1a\n")) {
                 emit coverBytesReady(key, raw);

@@ -14,8 +14,8 @@ class LibraryController : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
-    Q_PROPERTY(QString search READ search WRITE setSearch NOTIFY countChanged)
-    Q_PROPERTY(QStringList recentFiles READ recentFiles NOTIFY countChanged)
+    Q_PROPERTY(QString search READ search WRITE setSearch NOTIFY searchChanged)
+    Q_PROPERTY(QStringList recentFiles READ recentFiles NOTIFY recentFilesChanged)
     // non-empty when the library database could not be opened (e.g. the
     // portable folder is read-only): the library and recent lists are
     // unavailable until it is fixed
@@ -56,6 +56,8 @@ public:
 
 signals:
     void countChanged();
+    void searchChanged();
+    void recentFilesChanged();
     void statusMessage(const QString &message);
 
 private:

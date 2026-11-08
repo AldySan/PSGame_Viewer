@@ -214,12 +214,14 @@ GameInfo parsePs5Pkg(const QString &path, const QString &containerPath,
     QString title;
     QList<SpecRow> extra;
     const auto entryNameAt = [&](quint32 nameOff) -> QString {
-        if (namesBlob.isEmpty())
+        // qsizetype, not int: crafted u32 offsets >= 2^31 cast negative
+        const qsizetype start = qsizetype(nameOff);
+        if (start >= namesBlob.size())
             return QString();
-        const int end = namesBlob.indexOf(QChar(u'\x00'), int(nameOff));
+        const qsizetype end = namesBlob.indexOf(QChar(u'\x00'), start);
         if (end < 0)
             return QString();
-        return namesBlob.mid(int(nameOff), end - int(nameOff));
+        return namesBlob.mid(start, end - start);
     };
     for (const ps4::CntEntry &e : cntEntries) {
         if ((e.id == 0x2000 || entryNameAt(e.nameOff) == QLatin1String("param.json"))

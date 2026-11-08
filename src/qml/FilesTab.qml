@@ -64,7 +64,10 @@ ColumnLayout {
                 width: list.width
                 height: 26
                 Label {
-                    x: list.depthIndent(0) + 26
+                    // depth-1 rows (the shallowest visible rows, files of
+                    // the root sit at depth 1) put their names at
+                    // depthIndent(1) + 26 - align the header with those
+                    x: list.depthIndent(1) + 26
                     anchors.verticalCenter: parent.verticalCenter
                     text: qsTr("Name")
                     color: Theme.muted
@@ -126,7 +129,7 @@ ColumnLayout {
                     width: parent.width - x - 220
                     anchors.verticalCenter: parent.verticalCenter
                     text: name
-                    color: isFolder ? Theme.text : Theme.text
+                    color: isFolder ? Theme.text : Theme.muted
                     font.pixelSize: 12
                     font.bold: isFolder
                     elide: Text.ElideMiddle

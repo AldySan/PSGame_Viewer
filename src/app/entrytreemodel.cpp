@@ -3,15 +3,6 @@
 #include "core/util.h"
 
 namespace psg {
-namespace {
-
-struct NodeRow {
-    int node;
-    int depth;
-    bool folder;
-};
-
-} // namespace
 
 EntryTreeModel::EntryTreeModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -50,19 +41,19 @@ void EntryTreeModel::rebuild()
 {
     m_visible.clear();
     if (!m_nodes.isEmpty())
-        insertSubtree(0, 0);
+        appendSubtree(0, 0, &m_visible);
 }
 
-void EntryTreeModel::insertSubtree(int node, int depth)
+void EntryTreeModel::appendSubtree(int node, int depth, QList<VisibleRow> *out)
 {
     const EntryTreeNode &n = m_nodes.at(node);
     for (int ci : n.childDirs) {
-        m_visible.append({ci, depth + 1, true});
+        out->append({ci, depth + 1, true});
         if (m_expanded.contains(ci))
-            insertSubtree(ci, depth + 1);
+            appendSubtree(ci, depth + 1, out);
     }
     for (const EntryTreeFile &f : n.files)
-        m_visible.append({-1 - f.entryIndex, depth + 1, false});
+        out->append({-1 - f.entryIndex, depth + 1, false});
 }
 
 void EntryTreeModel::toggle(int row)
@@ -73,13 +64,35 @@ void EntryTreeModel::toggle(int row)
     if (!vr.folder)
         return;
     const int node = vr.node;
-    if (m_expanded.contains(node))
+    if (m_expanded.contains(node)) {
+        // collapse: the folder's rows are the contiguous run of deeper
+        // rows directly below it - remove exactly that span instead of
+        // resetting the model (a reset re-instantiates every delegate
+        // and loses the scroll position on large containers)
+        int end = row + 1;
+        while (end < m_visible.size() && m_visible.at(end).depth > vr.depth)
+            ++end;
+        if (end > row + 1) {
+            beginRemoveRows(QModelIndex(), row + 1, end - 1);
+            m_visible.remove(row + 1, end - (row + 1));
+            endRemoveRows();
+        }
         m_expanded.remove(node);
-    else
+    } else {
         m_expanded.insert(node);
-    beginResetModel();
-    rebuild();
-    endResetModel();
+        // build the subtree rows first so the insert span is known up front
+        QList<VisibleRow> sub;
+        appendSubtree(node, vr.depth, &sub);
+        if (!sub.isEmpty()) {
+            beginInsertRows(QModelIndex(), row + 1, row + int(sub.size()));
+            for (int i = 0; i < sub.size(); ++i)
+                m_visible.insert(row + 1 + i, sub.at(i));
+            endInsertRows();
+        }
+    }
+    // the toggled row itself only changed its ExpandedRole
+    const QModelIndex self = index(row);
+    emit dataChanged(self, self);
     emit countChanged();
 }
 
@@ -102,24 +115,6 @@ void EntryTreeModel::collapseAll()
     emit countChanged();
 }
 
-void EntryTreeModel::expandToDepth(int depth)
-{
-    beginResetModel();
-    m_expanded.clear();
-    for (int i = 0; i < m_nodes.size(); ++i) {
-        if (m_nodes.at(i).path.count(u'/') < depth)
-            m_expanded.insert(i);
-    }
-    if (!m_nodes.isEmpty()) {
-        // keep root children open
-        for (int ci : m_nodes.at(0).childDirs)
-            m_expanded.insert(ci);
-    }
-    rebuild();
-    endResetModel();
-    emit countChanged();
-}
-
 int EntryTreeModel::entryIndexAt(int row) const
 {
     if (row < 0 || row >= m_visible.size())
@@ -129,22 +124,6 @@ int EntryTreeModel::entryIndexAt(int row) const
         return -1;
     const int idx = -1 - vr.node;
     return idx >= 0 && idx < m_map.size() ? m_map.at(idx) : -1;
-}
-
-QString EntryTreeModel::pathAt(int row) const
-{
-    if (row < 0 || row >= m_visible.size())
-        return QString();
-    const VisibleRow vr = m_visible.at(row);
-    if (vr.folder)
-        return vr.node < m_nodes.size() ? m_nodes.at(vr.node).path
-                                        : QString();
-    return m_entries.value(-1 - vr.node).name;
-}
-
-bool EntryTreeModel::isFolderAt(int row) const
-{
-    return row >= 0 && row < m_visible.size() && m_visible.at(row).folder;
 }
 
 int EntryTreeModel::rowCount(const QModelIndex &parent) const

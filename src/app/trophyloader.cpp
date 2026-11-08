@@ -16,7 +16,18 @@ void TrophyLoader::load(quint64 token, const QString &containerPath,
     using trophies::ucpIconsSorted;
     using trophies::ucpTrophies;
 
-    m_abort.store(false, std::memory_order_relaxed);
+    // NOTE: m_abort is deliberately NOT cleared here. requestAbort() is
+    // only called from the controller destructor; if a load() was queued
+    // before shutdown, resetting the flag here would resurrect the job
+    // and block ~ViewerController() on m_trophyThread->wait() for the
+    // full pack read (seconds of apparent hang on close).
+
+    // a newer open already published its token: this queued job is for
+    // a superseded file - drop it before any I/O (a loader driven by
+    // hand-picked tokens, like the unit tests, always passes: nothing
+    // newer was ever published)
+    if (token < m_latestToken.load(std::memory_order_relaxed))
+        return;
 
     for (const Entry &e : entries) {
         if (m_abort.load(std::memory_order_relaxed))

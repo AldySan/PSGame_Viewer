@@ -16,9 +16,12 @@ GameLibrary::GameLibrary(const QString &dbPath, QObject *parent)
     : QObject(parent)
 {
     QDir().mkpath(QFileInfo(dbPath).absolutePath());
+    // unique connection name: a second GameLibrary instance used to
+    // silently knock the first one's connection out of the registry
     m_db = new QSqlDatabase(
         QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"),
-                                  QStringLiteral("psg_library")));
+                                  QStringLiteral("psg_library_%1")
+                                      .arg(quintptr(this))));
     m_db->setDatabaseName(dbPath);
     if (!m_db->open()) {
         m_error = m_db->lastError().text();

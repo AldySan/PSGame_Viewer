@@ -35,7 +35,10 @@ bool Iso9660::open(QFile &f, QString *volumeLabel, quint32 *rootLba,
         if (error) *error = QStringLiteral("too small for ISO");
         return false;
     }
-    f.seek(qint64(16) * kSector);
+    if (!f.seek(qint64(16) * kSector)) {
+        if (error) *error = QStringLiteral("cannot seek to ISO descriptor");
+        return false;
+    }
     const QByteArray pvd = f.read(kSector);
     if (pvd.size() < int(kSector) || uchar(pvd.at(0)) != 0x01
         || pvd.mid(1, 5) != QByteArrayLiteral("CD001")) {
@@ -80,7 +83,8 @@ QList<IsoEntry> Iso9660::walk(QFile &f, quint32 rootLba, quint32 rootSize,
         if (seenDirs.contains(key))
             continue;
         seenDirs.insert(key);
-        f.seek(qint64(fr.ext) * kSector);
+        if (!f.seek(qint64(fr.ext) * kSector))
+            continue; // seek past EOF would silently read a stale position
         const QByteArray data = f.read(fr.size);
         if (data.size() < int(fr.size))
             continue;

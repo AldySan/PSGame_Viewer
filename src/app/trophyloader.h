@@ -34,8 +34,18 @@ class TrophyLoader : public QObject
 public:
     using QObject::QObject;
 
-    // cooperative stop for shutdown: the brute-force loop checks it
+    // cooperative stop for shutdown: the brute-force loop checks it.
+    // Sticky flag — never reset it, requestAbort() is only ever called
+    // from the controller destructor (a reset would race a queued load).
     void requestAbort() { m_abort.store(true, std::memory_order_relaxed); }
+
+    // called by the controller right before queueing a load: lets a
+    // queued-but-not-started job for a superseded file skip all of its
+    // I/O instead of stalling the load the user actually waits for
+    void setLatestToken(quint64 token)
+    {
+        m_latestToken.store(token, std::memory_order_relaxed);
+    }
 
 signals:
     void loaded(quint64 token, const psg::TrophyPack &pack);
@@ -46,6 +56,7 @@ public slots:
 
 private:
     std::atomic_bool m_abort{false};
+    std::atomic<quint64> m_latestToken{0};
 };
 
 } // namespace psg

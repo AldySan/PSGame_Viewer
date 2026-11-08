@@ -91,7 +91,12 @@ QByteArray decryptRange(QFile &f, quint64 dataOff, bool retail,
     const quint64 nb = (pre + size + 15) / 16;
     if (nb > (1ull << 24))
         return QByteArray();
-    f.seek(qint64(dataOff + bs));
+    // dataOff + bs can wrap past 2^64 on a crafted header: that would
+    // silently decrypt from a near-zero offset instead of failing
+    if (dataOff > quint64(INT64_MAX) || bs > quint64(INT64_MAX) - dataOff)
+        return QByteArray();
+    if (!f.seek(qint64(dataOff + bs)))
+        return QByteArray();
     const QByteArray enc = f.read(int(nb * 16));
     if (enc.size() < int(nb * 16))
         return QByteArray();
@@ -171,8 +176,11 @@ GameInfo parsePs3Pkg(const QString &path)
                 r.fileOff = bytes::rdU64BE(tab, o + 8);
                 r.fileSize = bytes::rdU64BE(tab, o + 16);
                 r.flags = bytes::rdU32BE(tab, o + 24);
-                if (r.nameSize > dsz || r.nameOff + r.nameSize > dsz
-                    || r.fileOff + r.fileSize > dsz) {
+                // widen to quint64 before adding: u32+u32 and u64+u64 wrap
+                // mod 2^32/2^64 on crafted records and used to pass this
+                // check with bogus in-range-looking offsets
+                if (r.nameSize > dsz || quint64(r.nameOff) + r.nameSize > dsz
+                    || r.fileOff > dsz || r.fileSize > dsz - r.fileOff) {
                     continue;
                 }
                 recs.append(r);
