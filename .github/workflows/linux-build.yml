@@ -1,0 +1,99 @@
+name: Linux build
+
+# Builds the Linux portable archive and attaches it to a release.
+#
+# - push of a v* tag: builds exactly the pushed tag and attaches the
+#   archive to that tag's release
+# - manual run (workflow_dispatch): builds the branch it was dispatched
+#   on; the "release_tag" input says which release the archive goes to.
+#   The upload step only runs on the dev branch, so trial runs from
+#   feature branches leave the release untouched (the artifact is still
+#   kept on the run page for inspection).
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag to attach the archive to'
+        required: true
+        default: 'v0.0.4'
+
+permissions:
+  contents: write
+
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        # libegl1: the payload ships the glvnd EGL loader next to the
+        # app (Qt6Gui DT_NEEDs libEGL.so.1); the system copy is the
+        # canonical source for it. libgl1-mesa-dev covers the GL
+        # headers the Qt build needs.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libgl1-mesa-dev libegl1 cmake ninja-build
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.*'
+          cache: true
+
+      - name: Configure
+        run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Package the portable archive
+        # the script finds Qt through qmake6 (on PATH after the action)
+        run: packaging/make-portable.sh build
+
+      - name: Smoke-test the packaged archive
+        # boot the TRIMMED payload, not the build tree: a wrongly cut
+        # plugin or QML module would only surface here. The Linux
+        # runners have no display, so the offscreen platform renders
+        # the frame; the screenshot hook writes it and exits 0.
+        # PSGV_BASE_DIR keeps every piece of runtime state (library.db,
+        # settings, cache) out of the archive tree.
+        run: |
+          set -eu
+          dest="$RUNNER_TEMP/smoke"
+          mkdir -p "$dest" "$RUNNER_TEMP/smoke-data"
+          tar -xzf PSGame-Viewer-*-linux-portable.tar.gz -C "$dest"
+          app="$(tar -tzf PSGame-Viewer-*-linux-portable.tar.gz | head -1 | cut -d/ -f1)"
+          export QT_QPA_PLATFORM=offscreen
+          export QT_QUICK_BACKEND=software
+          export PSGV_BASE_DIR="$RUNNER_TEMP/smoke-data"
+          export PSGV_SCREENSHOT="$dest/shot.png"
+          "$dest/$app/psgame-viewer.sh" || { echo "packaged app failed (exit $?)"; exit 1; }
+          bytes=$(stat -c%s "$dest/shot.png")
+          if [ "$bytes" -lt 10240 ]; then
+            echo "packaged app rendered a blank frame ($bytes bytes)"
+            exit 1
+          fi
+          echo "packaged app rendered $bytes bytes of frame"
+
+      - name: Keep the archive as a run artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-portable
+          path: PSGame-Viewer-*-linux-portable.tar.gz
+
+      - name: Attach the archive to the release
+        if: github.ref == 'refs/heads/dev' || startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.release_tag || github.ref_name }}
+        run: gh release upload "$TAG" PSGame-Viewer-*-linux-portable.tar.gz --clobber
