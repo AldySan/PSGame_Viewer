@@ -51,8 +51,8 @@ GameInfo parsePs3Iso(const QString &path)
     QVariantMap sfo;
     for (const IsoEntry &e : ents) {
         if (e.name.compare(QLatin1String("PS3_GAME/PARAM.SFO"), Qt::CaseInsensitive) == 0
-            && e.size > 0 && e.size < 1000000) {
-            f.seek(qint64(e.offset));
+            && e.size > 0 && e.size < 1000000
+            && f.seek(qint64(e.offset))) {
             const QByteArray raw = f.read(int(e.size));
             if (raw.left(4) == QByteArrayLiteral("\x00PSF"))
                 sfo = parseSfo(raw);

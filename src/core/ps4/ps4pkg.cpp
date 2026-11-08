@@ -20,10 +20,15 @@ namespace {
 
 QString entryName(const QString &namesBlob, quint32 off)
 {
-    const int end = namesBlob.indexOf(QChar(u'\x00'), int(off));
+    // qsizetype, not int: a crafted u32 offset >= 2^31 used to go negative
+    // after the cast and resolve names from the wrong position
+    const qsizetype start = qsizetype(off);
+    if (start > namesBlob.size())
+        return QString();
+    const qsizetype end = namesBlob.indexOf(QChar(u'\x00'), start);
     if (end < 0)
         return QString();
-    return namesBlob.mid(int(off), end - int(off));
+    return namesBlob.mid(start, end - start);
 }
 
 } // namespace

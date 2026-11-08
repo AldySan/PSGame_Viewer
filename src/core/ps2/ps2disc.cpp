@@ -63,8 +63,8 @@ GameInfo parsePs2Iso(const QString &path)
     QVariantMap cnf;
     for (const IsoEntry &e : ents) {
         if (e.name.compare(QLatin1String("SYSTEM.CNF"), Qt::CaseInsensitive) == 0
-            && e.size > 0 && e.size < 100000) {
-            f.seek(qint64(e.offset));
+            && e.size > 0 && e.size < 100000
+            && f.seek(qint64(e.offset))) {
             cnf = parseSystemCnf(f.read(int(e.size)));
             break;
         }

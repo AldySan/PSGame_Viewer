@@ -41,15 +41,21 @@ QVariantMap parseSfo(const QByteArray &data)
             continue;
 
         if (fmt == 0x0204) {
-            int ve = data.indexOf('\x00', valOff);
-            if (ve < 0 || ve > valOff + int(dmax))
-                ve = valOff + int(dlen);
+            // qsizetype throughout: int(dlen)/int(dmax) truncated u32s and
+            // could wrap `ve` negative; also clamp dlen to the validated
+            // dmax so a malformed entry cannot eat the rest of the blob
+            const qsizetype dmaxS = qsizetype(dmax);
+            const qsizetype dlenS = qMin(qsizetype(dlen), dmaxS);
+            qsizetype ve = data.indexOf('\x00', valOff);
+            if (ve < 0 || ve > valOff + dmaxS)
+                ve = valOff + dlenS;
             out.insert(key, QString::fromUtf8(data.mid(valOff, ve - valOff)));
         } else if (fmt == 0x0404) {
             out.insert(key, bytes::rdU32LE(data, valOff));
         } else {
             out.insert(key, QString::fromLatin1(
-                       data.mid(valOff, int(dlen)).toHex(' ')));
+                       data.mid(valOff, qMin<qsizetype>(qsizetype(dlen),
+                                                       qsizetype(dmax))).toHex(' ')));
         }
     }
     return out;
