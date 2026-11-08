@@ -5,6 +5,23 @@
 
 namespace psg {
 
+namespace {
+
+// carved trophy icons of the wanted size class: 240x240 on PS4/PS5,
+// 128x128 on PS3 — same carving, different filter
+QList<QByteArray> iconsOfSize(const QList<trophies::CarvedIcon> &carved,
+                              const QByteArray &data, int w, int h)
+{
+    QList<QByteArray> out;
+    for (const auto &c : carved) {
+        if (c.width == w && c.height == h)
+            out.append(data.mid(int(c.offset), int(c.size)));
+    }
+    return out;
+}
+
+} // namespace
+
 void TrophyLoader::load(quint64 token, const QString &containerPath,
                         const QList<Entry> &entries, const QVariantMap &meta)
 {
@@ -67,8 +84,11 @@ void TrophyLoader::load(quint64 token, const QString &containerPath,
         const auto inner = parseTrp(data);
         QByteArray esfm;
         for (const auto &f : inner) {
+            // PS3 packs carry TROPCONF.SFM, PS4 packs TROP.ESFM
             if (f.name.compare(QLatin1String("TROPCONF.SFM"),
-                               Qt::CaseInsensitive) == 0) {
+                               Qt::CaseInsensitive) == 0
+                || f.name.compare(QLatin1String("TROP.ESFM"),
+                                  Qt::CaseInsensitive) == 0) {
                 esfm = data.mid(int(f.offset), int(f.size));
                 break;
             }
@@ -77,11 +97,14 @@ void TrophyLoader::load(quint64 token, const QString &containerPath,
             continue;
         // PS4 packs carry the communication id in PARAM.SFO
         // (NP_COMMUNICATION_ID), PS5 images carry it in param.json
-        // (npCommunicationId) — accept both shapes.
+        // (npCommunicationId), PS3 folders/PKGs spell it out in the
+        // TROPDIR/<NPWRxxxxx_00>/ entry path — accept all shapes.
         QString npid = meta.value(
             QStringLiteral("NP_COMMUNICATION_ID")).toString();
         if (npid.isEmpty())
             npid = meta.value(QStringLiteral("npCommunicationId")).toString();
+        if (npid.isEmpty())
+            npid = trophies::npCommIdFromPath(e.name);
         QByteArray xml = npid.isEmpty() ? QByteArray()
                                         : decryptEsfm(esfm, npid);
         if (xml.isEmpty()) {
@@ -96,12 +119,12 @@ void TrophyLoader::load(quint64 token, const QString &containerPath,
         if (xml.isEmpty())
             continue;
 
-        // carved icons: 240x240 trophy icons in trophy-id order
-        QList<QByteArray> iconBytes;
-        for (const auto &c : carveTrpIcons(data)) {
-            if (c.width == 240 && c.height == 240)
-                iconBytes.append(data.mid(int(c.offset), int(c.size)));
-        }
+        // carved icons: 240x240 trophy icons in trophy-id order on
+        // PS4/PS5; PS3 packs use 128x128 — fall back when no 240s exist
+        const QList<trophies::CarvedIcon> carved = carveTrpIcons(data);
+        QList<QByteArray> iconBytes = iconsOfSize(carved, data, 240, 240);
+        if (iconBytes.isEmpty())
+            iconBytes = iconsOfSize(carved, data, 128, 128);
 
         TrophyPack pack;
         for (const trophies::Trophy &t : parseTrophyXml(xml)) {

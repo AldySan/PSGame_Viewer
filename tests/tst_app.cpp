@@ -171,33 +171,45 @@ void TestApp::asyncTrophies()
     QTRY_VERIFY(!viewer.trophiesLoading());
     QCOMPARE(viewer.trophyModel()->count(), 0);
 
-    // a pack that cannot be parsed (padded TRP) must still settle the
-    // loading state instead of hanging on "Loading..."
+    // a padded TRP (header total < physical size) still parses — the
+    // loading state settles through the normal success path
     viewer.openPath(
         QUrl::fromLocalFile(fixture(QStringLiteral("ps5_bigpack.exfat"))));
-    QTRY_VERIFY_WITH_TIMEOUT(!viewer.trophiesLoading(), 10000);
-    QCOMPARE(viewer.trophyModel()->count(), 0);
+    QTRY_COMPARE_WITH_TIMEOUT(viewer.trophyModel()->count(), 2, 60000);
+    QVERIFY(!viewer.trophiesLoading());
 }
 
 void TestApp::trophyLoaderCommIdShapes()
 {
     // PS4 PARAM.SFO carries NP_COMMUNICATION_ID; PS5 param.json carries
-    // npCommunicationId. Both must decrypt directly — no brute force.
-    for (const char *key : {"NP_COMMUNICATION_ID", "npCommunicationId"}) {
+    // npCommunicationId; PS3 folders/PKGs spell the id out in the
+    // TROPDIR/<NPWRxxxxx_00>/ entry path. All three must decrypt
+    // directly — no brute force.
+    struct Shape {
+        const char *metaKey;      // null: id comes from the entry path
+        QString entryName;
+    };
+    const Shape shapes[] = {
+        {"NP_COMMUNICATION_ID", QStringLiteral("sce_sys/trophy/trophy00.trp")},
+        {"npCommunicationId", QStringLiteral("sce_sys/trophy/trophy00.trp")},
+        {nullptr, QStringLiteral("TROPDIR/NPWR99999_00/TROPHY.TRP")},
+    };
+    for (const Shape &shape : shapes) {
         TrophyLoader loader;
         QSignalSpy spy(&loader, &TrophyLoader::loaded);
 
         QList<Entry> entries;
         Entry e;
-        e.name = QStringLiteral("sce_sys/trophy/trophy00.trp");
+        e.name = shape.entryName;
         e.size = quint64(QFileInfo(fixture(QStringLiteral("trophy.trp"))).size());
         e.source = Entry::Source::LocalFile;
         e.localPath = fixture(QStringLiteral("trophy.trp"));
         entries.append(e);
 
         QVariantMap meta;
-        meta.insert(QString::fromLatin1(key),
-                    QStringLiteral("NPWR99999_00"));
+        if (shape.metaKey)
+            meta.insert(QString::fromLatin1(shape.metaKey),
+                        QStringLiteral("NPWR99999_00"));
         loader.load(1, QString(), entries, meta);
 
         QCOMPARE(spy.count(), 1);
