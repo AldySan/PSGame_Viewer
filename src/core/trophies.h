@@ -32,8 +32,14 @@ struct CarvedIcon {
     int height = 0;
 };
 
-// Inner files of a trophy00.trp (PS4/PS5). Strict validation: empty on doubt.
+// Inner files of a trophy00.trp / TROPHY.TRP (PS3/PS4/PS5) in the real
+// retail container layout. Strict validation: empty on doubt.
 QList<TrpInner> parseTrp(const QByteArray &data);
+
+// Extract an NP communication id (e.g. "NPWR00091_00") from an entry
+// path like "TROPDIR/NPWR00091_00/TROPHY.TRP" — the TROPDIR folder name
+// is the id the ESFM key is derived from. Empty when the path has none.
+QString npCommIdFromPath(const QString &path);
 
 // Raw PNGs hidden in a TRP (trophy icons + title banners), carved by magic.
 QList<CarvedIcon> carveTrpIcons(const QByteArray &data);

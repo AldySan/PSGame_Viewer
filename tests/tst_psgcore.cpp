@@ -644,10 +644,16 @@ void TestPsgCore::trophies()
     const QByteArray data = f.readAll();
 
     const QList<trophies::TrpInner> inner = trophies::parseTrp(data);
-    QCOMPARE(inner.size(), 3);
+    QCOMPARE(inner.size(), 5);
     QCOMPARE(inner.at(0).name, QStringLiteral("TROPCONF.SFM"));
     QCOMPARE(inner.at(1).name, QStringLiteral("ICON0.PNG"));
     QCOMPARE(inner.at(2).name, QStringLiteral("ICON1.PNG"));
+    QCOMPARE(inner.at(3).name, QStringLiteral("TROP001.PNG"));
+    QCOMPARE(inner.at(4).name, QStringLiteral("TROP002.PNG"));
+    // real retail layout: 0x40 header + i * 0x40 entries, first body byte
+    // at 0x40 + 5 * 0x40 = 0x180
+    QCOMPARE(inner.at(0).offset, quint64(0x180));
+    QCOMPARE(inner.at(0).size, quint64(0x120));
 
     const QByteArray esfm = data.mid(int(inner.at(0).offset),
                                      int(inner.at(0).size));
@@ -674,10 +680,28 @@ void TestPsgCore::trophies()
     QVERIFY(hit.second.contains("<trophyconf>"));
 
     const QList<trophies::CarvedIcon> icons = trophies::carveTrpIcons(data);
-    QCOMPARE(icons.size(), 2);
+    QCOMPARE(icons.size(), 4);
     QCOMPARE(icons.at(0).width, 240);
     QCOMPARE(icons.at(0).height, 240);
     QCOMPARE(icons.at(1).width, 4);
+    // PS3-style 128x128 icons (TROP001/TROP002) carve after the banners
+    QCOMPARE(icons.at(2).width, 128);
+    QCOMPARE(icons.at(2).height, 128);
+    QCOMPARE(icons.at(3).width, 128);
+
+    // NP communication id extraction from TROPDIR-style entry paths
+    QCOMPARE(trophies::npCommIdFromPath(
+                 QStringLiteral("TROPDIR/NPWR00091_00/TROPHY.TRP")),
+             QStringLiteral("NPWR00091_00"));
+    QCOMPARE(trophies::npCommIdFromPath(
+                 QStringLiteral("PS3_GAME/TROPDIR/NPOM12345_99/TROPHY.TRP")),
+             QStringLiteral("NPOM12345_99"));
+    QCOMPARE(trophies::npCommIdFromPath(
+                 QStringLiteral("sce_sys/trophy/trophy00.trp")),
+             QString());
+    QCOMPARE(trophies::npCommIdFromPath(
+                 QStringLiteral("TROPDIR/not-an-id/TROPHY.TRP")),
+             QString());
 }
 
 void TestPsgCore::ucpTrophyIcons()
@@ -712,10 +736,10 @@ void TestPsgCore::trpBoundsNoWrap()
     QVERIFY(f.open(QIODevice::ReadOnly));
     QByteArray data = f.readAll();
 
-    // entry 1 starts at 0x38 + 0x40; patch its offset so that
-    // offset + size wraps around 2^64 and would pass an
-    // "offset + size > data.size()" check
-    const int offField = 0x38 + 0x40 + 8;
+    // real layout: entry 1's record starts at 0x40 + 1 * 0x40; patch its
+    // offset field (@+0x20) so that offset + size wraps around 2^64 and
+    // would pass an "offset + size > data.size()" check
+    const int offField = 0x40 + 0x40 + 0x20;
     const quint64 wrap = Q_UINT64_C(0xFFFFFFFFFFFFF000);
     for (int i = 0; i < 8; ++i)
         data[offField + i] = char((wrap >> (56 - 8 * i)) & 0xFF);
@@ -724,7 +748,7 @@ void TestPsgCore::trpBoundsNoWrap()
     // sanity: the untouched fixture still parses
     QFile g(fixture(QStringLiteral("trophy.trp")));
     QVERIFY(g.open(QIODevice::ReadOnly));
-    QCOMPARE(trophies::parseTrp(g.readAll()).size(), 3);
+    QCOMPARE(trophies::parseTrp(g.readAll()).size(), 5);
 }
 
 void TestPsgCore::ufs2TruncatedImage()
