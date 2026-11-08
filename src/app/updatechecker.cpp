@@ -33,6 +33,10 @@ void UpdateChecker::emitResult(const QVariantMap &result)
 
 void UpdateChecker::checkNow()
 {
+    // rapid re-clicks used to stack parallel requests; every completion
+    // re-emits checkFinished and makes the dialog flip between states
+    if (m_reply)
+        return;
     QNetworkRequest req(QUrl(qEnvironmentVariable("PSGV_UPDATE_API")
                                  .isEmpty()
                                  ? QString::fromLatin1(kDefaultApi)
@@ -44,8 +48,11 @@ void UpdateChecker::checkNow()
     req.setTransferTimeout(15000);
 
     QNetworkReply *reply = m_nam->get(req);
+    m_reply = reply;
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         reply->deleteLater();
+        if (reply == m_reply)
+            m_reply = nullptr;
         if (reply->error() != QNetworkReply::NoError) {
             emitResult({
                 {QStringLiteral("state"), QStringLiteral("error")},
