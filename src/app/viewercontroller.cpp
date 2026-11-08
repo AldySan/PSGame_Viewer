@@ -97,6 +97,8 @@ ViewerController::ViewerController(AppSettings *settings, ImageStore *images,
                 m_trophiesLoading = false;
                 m_images->setImages(QStringLiteral("trophy"), pack.icons);
                 m_trophyModel->setTrophies(pack.items);
+                // trophiesLoading only - the gallery strip must not
+                // rebuild (galleryChanged) for a trophy pack
                 emit infoChanged();
             });
     m_trophyThread->start();
@@ -136,7 +138,7 @@ ViewerController::ViewerController(AppSettings *settings, ImageStore *images,
                 m_images->setImage(QStringLiteral("online/%1").arg(key),
                                    buf.buffer());
                 m_coverKey = QStringLiteral("online/%1").arg(key);
-                emit infoChanged();
+                emit galleryChanged();
             });
 }
 
@@ -170,18 +172,6 @@ QString ViewerController::title() const
 QString ViewerController::fileName() const
 {
     return QFileInfo(m_info.path).fileName();
-}
-
-QString ViewerController::filePath() const
-{
-    return m_info.ok ? m_info.path : QString();
-}
-
-QString ViewerController::platformBadge() const
-{
-    if (!m_info.ok)
-        return QString();
-    return m_info.row(QStringLiteral("Platform"));
 }
 
 QString ViewerController::packageBadge() const
@@ -281,6 +271,7 @@ void ViewerController::openPath(const QUrl &path)
     }
     m_busy = false;
     emit infoChanged();
+    emit galleryChanged(); // coverKey/galleryKeys changed with the file
     if (!m_info.ok) {
         emit statusMessage(tr("Could not open: %1").arg(m_info.error));
     } else {
@@ -289,22 +280,6 @@ void ViewerController::openPath(const QUrl &path)
             QFileInfo(m_info.path).fileName()));
         startOnlineLookups();
     }
-}
-
-void ViewerController::clear()
-{
-    m_info = GameInfo();
-    m_images->clear();
-    m_coverKey.clear();
-    m_galleryKeys.clear();
-    m_detailsCurated.clear();
-    m_detailsAll.clear();
-    m_patchInfo.clear();
-    m_entryModel->setEntries({});
-    m_trophyModel->setTrophies({});
-    m_trophiesLoading = false;
-    ++m_trophyToken; // invalidate any in-flight trophy load
-    emit infoChanged();
 }
 
 void ViewerController::loadGallery()
@@ -359,6 +334,9 @@ void ViewerController::startTrophyLoad()
     m_trophiesLoading = true;
     emit infoChanged();
     const quint64 token = ++m_trophyToken;
+    // publish the newest token first so jobs queued behind it for older
+    // files can drop themselves before doing any I/O
+    m_trophyLoader->setLatestToken(token);
     QMetaObject::invokeMethod(
         m_trophyLoader, "load", Qt::QueuedConnection, Q_ARG(quint64, token),
         Q_ARG(QString, m_info.path), Q_ARG(QList<Entry>, m_info.entries),
@@ -513,7 +491,9 @@ void ViewerController::selectCover(const QString &key)
     if (m_images->image(key).isEmpty())
         return;
     m_coverKey = key;
-    emit infoChanged();
+    // only the cover changed: infoChanged would re-read every property
+    // and flicker the details/files tabs for nothing
+    emit galleryChanged();
 }
 
 void ViewerController::copyText(const QString &text)
@@ -532,9 +512,10 @@ QString ViewerController::renamePreview(const QString &pattern,
     parts.tid = include.value(QStringLiteral("tid"), true).toBool();
     parts.ver = include.value(QStringLiteral("ver"), true).toBool();
     parts.region = include.value(QStringLiteral("region"), true).toBool();
+    // compiled once, not on every live-preview keystroke
+    static const QRegularExpression trailingSetNum(QStringLiteral("_\\d+$"));
     const QString origBase =
-        QFileInfo(m_info.path).completeBaseName().remove(
-            QRegularExpression(QStringLiteral("_\\d+$")));
+        QFileInfo(m_info.path).completeBaseName().remove(trailingSetNum);
     const FormatResult fr = pattern.isEmpty()
         ? FormatResult{buildCleanName(m_info, parts), {}}
         : formatName(m_info, pattern, origBase, parts);

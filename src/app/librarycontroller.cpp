@@ -72,6 +72,7 @@ void LibraryController::setSearch(const QString &search)
         return;
     m_search = search;
     refresh();
+    emit searchChanged();
 }
 
 QStringList LibraryController::recentFiles() const
@@ -122,6 +123,7 @@ void LibraryController::refresh()
     }
     endResetModel();
     emit countChanged();
+    emit recentFilesChanged();
 }
 
 void LibraryController::removeAt(int row)
@@ -129,7 +131,13 @@ void LibraryController::removeAt(int row)
     if (row < 0 || row >= m_entries.size())
         return;
     m_library->removePath(m_entries.at(row).path);
-    refresh();
+    // remove exactly this row: a full refresh would rebuild the list and
+    // lose the scroll position on every deletion
+    beginRemoveRows(QModelIndex(), row, row);
+    m_entries.removeAt(row);
+    endRemoveRows();
+    emit countChanged();
+    emit recentFilesChanged();
 }
 
 int LibraryController::scanFolder(const QUrl &folder, bool recursive)
