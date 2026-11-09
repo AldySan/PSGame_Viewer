@@ -4,32 +4,32 @@
 <context>
     <name>AboutDialog</name>
     <message>
-        <location filename="../src/qml/AboutDialog.qml" line="49"/>
+        <location filename="../src/qml/AboutDialog.qml" line="52"/>
         <source>PSGame-Viewer</source>
         <translation>PSGame-Viewer</translation>
     </message>
     <message>
-        <location filename="../src/qml/AboutDialog.qml" line="55"/>
+        <location filename="../src/qml/AboutDialog.qml" line="58"/>
         <source>Version %1</source>
         <translation>Versi %1</translation>
     </message>
     <message>
-        <location filename="../src/qml/AboutDialog.qml" line="67"/>
+        <location filename="../src/qml/AboutDialog.qml" line="70"/>
         <source>See what is inside PlayStation game files without extracting them: PS2 and PS3 disc images, PS3 packages and folders, PS4 and PS5 packages (including split parts), PS5 exFAT images and app folders. Cover art, spec cards, file listings, trophies, extraction and uniform renaming.</source>
         <translation>Lihat isi berkas game PlayStation tanpa mengekstraknya: citra disc PS2 dan PS3, paket serta folder PS3, paket PS4 dan PS5 (termasuk bagian terpisah), citra exFAT PS5, dan folder aplikasi. Sampul, kartu spesifikasi, daftar berkas, trofi, ekstraksi, dan penamaan ulang seragam.</translation>
     </message>
     <message>
-        <location filename="../src/qml/AboutDialog.qml" line="75"/>
+        <location filename="../src/qml/AboutDialog.qml" line="78"/>
         <source>Built with Qt 6, QML and SQLite. Licensed under the GNU General Public License v3.</source>
         <translation>Dibangun dengan Qt 6, QML, dan SQLite. Dilisensikan di bawah GNU General Public License v3.</translation>
     </message>
     <message>
-        <location filename="../src/qml/AboutDialog.qml" line="82"/>
+        <location filename="../src/qml/AboutDialog.qml" line="83"/>
         <source>Check for updates</source>
         <translation>Periksa pembaruan</translation>
     </message>
     <message>
-        <location filename="../src/qml/AboutDialog.qml" line="89"/>
+        <location filename="../src/qml/AboutDialog.qml" line="90"/>
         <source>Close</source>
         <translation>Tutup</translation>
     </message>
@@ -37,97 +37,97 @@
 <context>
     <name>BatchDialog</name>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="50"/>
+        <location filename="../src/qml/BatchDialog.qml" line="54"/>
         <source>Batch rename</source>
         <translation>Ganti nama massal</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="67"/>
+        <location filename="../src/qml/BatchDialog.qml" line="71"/>
         <source>Add folder…</source>
         <translation>Tambah folder…</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="71"/>
+        <location filename="../src/qml/BatchDialog.qml" line="75"/>
         <source>Add files…</source>
         <translation>Tambah berkas…</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="76"/>
+        <location filename="../src/qml/BatchDialog.qml" line="80"/>
         <source>Recursive</source>
         <translation>Rekursif</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="111"/>
+        <location filename="../src/qml/BatchDialog.qml" line="116"/>
         <source>Add folders or files to see the preview</source>
         <translation>Tambahkan folder atau berkas untuk melihat pratinjau</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="167"/>
+        <location filename="../src/qml/BatchDialog.qml" line="172"/>
         <source>%1 of %2 ready</source>
         <translation>%1 dari %2 siap</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="175"/>
+        <location filename="../src/qml/BatchDialog.qml" line="180"/>
         <source>Revert from log…</source>
         <translation>Pulihkan dari log…</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="180"/>
+        <location filename="../src/qml/BatchDialog.qml" line="185"/>
         <source>Close</source>
         <translation>Tutup</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="185"/>
+        <location filename="../src/qml/BatchDialog.qml" line="190"/>
         <source>Apply</source>
         <translation>Terapkan</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="200"/>
+        <location filename="../src/qml/BatchDialog.qml" line="205"/>
         <source>Renamed %1, skipped %2</source>
         <translation>%1 diganti nama, %2 dilewati</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="196"/>
+        <location filename="../src/qml/BatchDialog.qml" line="201"/>
         <source>Renamed %1, skipped %2. Log: %3</source>
         <translation>%1 diganti nama, %2 dilewati. Log: %3</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="192"/>
+        <location filename="../src/qml/BatchDialog.qml" line="197"/>
         <source>Renamed %1, skipped %2. The revert log could not be written (%3), so these renames cannot be reverted from a log.</source>
         <translation>%1 diganti nama, %2 dilewati. Log pembatalan tidak dapat ditulis (%3), sehingga penggantian nama ini tidak bisa dibatalkan dari log.</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="217"/>
+        <location filename="../src/qml/BatchDialog.qml" line="222"/>
         <source>%1 file(s) scanned</source>
         <translation>%1 berkas dipindai</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="232"/>
+        <location filename="../src/qml/BatchDialog.qml" line="237"/>
         <source>Folder to scan</source>
         <translation>Folder yang akan dipindai</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="244"/>
+        <location filename="../src/qml/BatchDialog.qml" line="249"/>
         <source>Add game files</source>
         <translation>Tambah berkas game</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="246"/>
+        <location filename="../src/qml/BatchDialog.qml" line="251"/>
         <source>Game files (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</source>
         <translation>Berkas game (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="259"/>
+        <location filename="../src/qml/BatchDialog.qml" line="264"/>
         <source>Revert log file</source>
         <translation>Berkas log pemulihan</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="260"/>
+        <location filename="../src/qml/BatchDialog.qml" line="265"/>
         <source>Revert logs (batch_rename_*.log)</source>
         <translation>Log pemulihan (batch_rename_*.log)</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="260"/>
+        <location filename="../src/qml/BatchDialog.qml" line="265"/>
         <source>All files (*)</source>
         <translation>Semua berkas (*)</translation>
     </message>
@@ -335,13 +335,34 @@
     </message>
     <message>
         <location filename="../src/qml/LibraryPage.qml" line="197"/>
+        <location filename="../src/qml/LibraryPage.qml" line="278"/>
         <source>Remove</source>
         <translation>Hapus</translation>
     </message>
     <message>
-        <location filename="../src/qml/LibraryPage.qml" line="208"/>
+        <location filename="../src/qml/LibraryPage.qml" line="209"/>
         <source>Folder to scan</source>
         <translation>Folder yang akan dipindai</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/LibraryPage.qml" line="249"/>
+        <source>Remove from library</source>
+        <translation>Hapus dari pustaka</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/LibraryPage.qml" line="257"/>
+        <source>Remove %1 from the library?</source>
+        <translation>Hapus %1 dari pustaka?</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/LibraryPage.qml" line="264"/>
+        <source>The file itself stays on disk. A folder scan adds the entry back.</source>
+        <translation>Berkasnya tetap ada di disk. Pemindaian folder akan menambahkan entri ini kembali.</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/LibraryPage.qml" line="273"/>
+        <source>Cancel</source>
+        <translation type="unfinished">Batal</translation>
     </message>
 </context>
 <context>
@@ -482,28 +503,28 @@
 <context>
     <name>RenameDialog</name>
     <message>
-        <location filename="../src/qml/RenameDialog.qml" line="36"/>
-        <location filename="../src/qml/RenameDialog.qml" line="105"/>
+        <location filename="../src/qml/RenameDialog.qml" line="39"/>
+        <location filename="../src/qml/RenameDialog.qml" line="106"/>
         <source>Rename</source>
         <translation>Ganti nama</translation>
     </message>
     <message>
-        <location filename="../src/qml/RenameDialog.qml" line="91"/>
+        <location filename="../src/qml/RenameDialog.qml" line="92"/>
         <source>Undo</source>
         <translation>Urungkan</translation>
     </message>
     <message>
-        <location filename="../src/qml/RenameDialog.qml" line="95"/>
+        <location filename="../src/qml/RenameDialog.qml" line="96"/>
         <source>Rename undone</source>
         <translation>Ganti nama diurungkan</translation>
     </message>
     <message>
-        <location filename="../src/qml/RenameDialog.qml" line="100"/>
+        <location filename="../src/qml/RenameDialog.qml" line="101"/>
         <source>Cancel</source>
         <translation>Batal</translation>
     </message>
     <message>
-        <location filename="../src/qml/RenameDialog.qml" line="115"/>
+        <location filename="../src/qml/RenameDialog.qml" line="116"/>
         <source>Rename failed (target exists or not writable)</source>
         <translation>Ganti nama gagal (target sudah ada atau tidak dapat ditulis)</translation>
     </message>
@@ -511,52 +532,52 @@
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="44"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="48"/>
         <source>Settings</source>
         <translation>Pengaturan</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="51"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="55"/>
         <source>Theme</source>
         <translation>Tema</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="63"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="67"/>
         <source>Dark</source>
         <translation>Gelap</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="64"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="68"/>
         <source>Light</source>
         <translation>Terang</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="71"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="75"/>
         <source>Language</source>
         <translation>Bahasa</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="81"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="85"/>
         <source>System default</source>
         <translation>Bawaan sistem</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="91"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="95"/>
         <source>Online lookups (covers, latest patch)</source>
         <translation>Pencarian daring (sampul, patch terbaru)</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="97"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="101"/>
         <source>Check for updates on startup</source>
         <translation>Periksa pembaruan saat mulai</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="107"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="109"/>
         <source>Cancel</source>
         <translation>Batal</translation>
     </message>
     <message>
-        <location filename="../src/qml/SettingsDialog.qml" line="112"/>
+        <location filename="../src/qml/SettingsDialog.qml" line="114"/>
         <source>Save</source>
         <translation>Simpan</translation>
     </message>
@@ -610,72 +631,72 @@
 <context>
     <name>UpdateDialog</name>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="93"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="98"/>
         <source>Checking for updates…</source>
         <translation>Memeriksa pembaruan…</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="94"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="99"/>
         <source>Update checker</source>
         <translation>Pemeriksa pembaruan</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="96"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="101"/>
         <source>Update available</source>
         <translation>Ada pembaruan</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="98"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="103"/>
         <source>Up to date</source>
         <translation>Sudah versi terbaru</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="100"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="105"/>
         <source>No release published yet</source>
         <translation>Belum ada rilis</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="101"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="106"/>
         <source>Update check failed</source>
         <translation>Pemeriksaan pembaruan gagal</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="118"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="123"/>
         <source>Contacting the release server…</source>
         <translation>Menghubungi server rilis…</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="126"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="131"/>
         <source>PSGame-Viewer %1 is available (you are running %2).</source>
         <translation>PSGame-Viewer %1 tersedia (Anda menjalankan %2).</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="138"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="143"/>
         <source>You are running the latest version (%1).</source>
         <translation>Anda sudah memakai versi terbaru (%1).</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="149"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="154"/>
         <source>Could not reach the release server: %1</source>
         <translation>Tidak bisa menghubungi server rilis: %1</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="160"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="165"/>
         <source>Nothing to check against yet. Publish a GitHub release to enable update checks.</source>
         <translation>Belum ada yang bisa diperiksa. Publikasikan GitHub Release untuk mengaktifkan pemeriksaan pembaruan.</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="199"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="204"/>
         <source>Open release page</source>
         <translation>Buka halaman rilis</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="205"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="210"/>
         <source>Cancel</source>
         <translation>Batal</translation>
     </message>
     <message>
-        <location filename="../src/qml/UpdateDialog.qml" line="212"/>
+        <location filename="../src/qml/UpdateDialog.qml" line="217"/>
         <source>Close</source>
         <translation>Tutup</translation>
     </message>

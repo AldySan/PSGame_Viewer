@@ -196,7 +196,8 @@ ColumnLayout {
                     AppButton {
                         text: qsTr("Remove")
                         flat: true
-                        onClicked: Library.removeAt(index)
+                        // destructive: ask first, remove only on confirm
+                        onClicked: removeConfirm.ask(title, index)
                     }
                 }
             }
@@ -207,6 +208,85 @@ ColumnLayout {
         id: scanDialog
         title: qsTr("Folder to scan")
         onAccepted: Library.scanFolder(selectedFolder, true)
+    }
+
+    // light confirmation before a library row is dropped: the action
+    // is destructive from the user's point of view (visible data
+    // disappears) even though a scan can re-add the entry
+    Popup {
+        id: removeConfirm
+        objectName: "removeConfirm"
+        anchors.centerIn: parent
+        width: 360
+        height: Math.max(150, Math.min(confirmColumn.implicitHeight + topPadding + bottomPadding,
+                                       parent.height - 48))
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        padding: 18
+
+        property string gameTitle: ""
+        property int rowIndex: -1
+
+        function ask(title, index) {
+            gameTitle = title
+            rowIndex = index
+            open()
+        }
+
+        background: Rectangle {
+            color: Theme.card
+            radius: Theme.radiusLg
+            border.color: Theme.border
+        }
+
+        ColumnLayout {
+            id: confirmColumn
+            anchors.fill: parent
+            spacing: 10
+
+            Label {
+                text: qsTr("Remove from library")
+                color: Theme.text
+                font.pixelSize: 16
+                font.bold: true
+            }
+            Label {
+                Layout.fillWidth: true
+                wrapMode: Text.WordWrap
+                text: qsTr("Remove %1 from the library?").arg(removeConfirm.gameTitle)
+                color: Theme.text
+                font.pixelSize: 12
+            }
+            Label {
+                Layout.fillWidth: true
+                wrapMode: Text.WordWrap
+                text: qsTr("The file itself stays on disk. A folder scan adds the entry back.")
+                color: Theme.muted
+                font.pixelSize: 12
+            }
+
+            RowLayout {
+                spacing: 8
+                Item { Layout.fillWidth: true }
+                AppButton {
+                    text: qsTr("Cancel")
+                    flat: true
+                    onClicked: removeConfirm.close()
+                }
+                AppButton {
+                    text: qsTr("Remove")
+                    destructive: true
+                    // without a valid row there is nothing to remove (the
+                    // dialog is also openable by the test harness)
+                    enabled: removeConfirm.rowIndex >= 0
+                    onClicked: {
+                        Library.removeAt(removeConfirm.rowIndex)
+                        removeConfirm.close()
+                    }
+                }
+            }
+        }
     }
 
     Connections {
