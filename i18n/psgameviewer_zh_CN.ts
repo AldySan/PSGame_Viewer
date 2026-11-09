@@ -316,7 +316,7 @@
     <message>
         <location filename="../src/qml/LibraryPage.qml" line="73"/>
         <source>Library</source>
-        <translation type="unfinished">游戏库</translation>
+        <translation>游戏库</translation>
     </message>
     <message>
         <location filename="../src/qml/LibraryPage.qml" line="98"/>
@@ -362,7 +362,7 @@
     <message>
         <location filename="../src/qml/LibraryPage.qml" line="273"/>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
 </context>
 <context>
@@ -752,104 +752,104 @@
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="118"/>
         <source>patches</source>
-        <translation type="unfinished"></translation>
+        <translation>个补丁</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="169"/>
         <source>No file opened</source>
-        <translation type="unfinished"></translation>
+        <translation>未打开文件</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="276"/>
         <source>Could not open: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>无法打开：%1</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="279"/>
         <source>Opened %1</source>
-        <translation type="unfinished"></translation>
+        <translation>已打开 %1</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="412"/>
         <source>Could not extract %1</source>
-        <translation type="unfinished"></translation>
+        <translation>无法提取 %1</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="416"/>
         <source>Extracted %1</source>
-        <translation type="unfinished"></translation>
+        <translation>已提取 %1</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="425"/>
         <source>Extracted %1, failed %2</source>
-        <translation type="unfinished"></translation>
+        <translation>已提取 %1 个，失败 %2 个</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="447"/>
         <location filename="../src/app/viewercontroller.cpp" line="451"/>
         <source>Nothing to copy</source>
-        <translation type="unfinished"></translation>
+        <translation>没有可复制的内容</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="453"/>
         <source>Cover copied to clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>封面已复制到剪贴板</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="461"/>
         <location filename="../src/app/viewercontroller.cpp" line="465"/>
         <source>No trophy icons loaded</source>
-        <translation type="unfinished"></translation>
+        <translation>未加载奖杯图标</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="478"/>
         <source>Cannot create folder: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>无法创建文件夹：%1</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="501"/>
         <source>Saved %1 trophy icons to %2</source>
-        <translation type="unfinished"></translation>
+        <translation>已将 %1 个奖杯图标保存到 %2</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="505"/>
         <source> (%1 skipped)</source>
-        <translation type="unfinished"></translation>
+        <translation> （跳过 %1 个）</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="523"/>
         <source>Copied to clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>已复制到剪贴板</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="575"/>
         <source>Renamed to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>已重命名为 %1</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="593"/>
         <source>Rename undone</source>
-        <translation type="unfinished">已撤销重命名</translation>
+        <translation>已撤销重命名</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="664"/>
         <source>Batch: renamed %1, skipped %2</source>
-        <translation type="unfinished"></translation>
+        <translation>批量：已重命名 %1 个，跳过 %2 个</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="676"/>
         <source>Nothing to revert in %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 中没有可撤销的重命名</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="678"/>
         <source>Dry run: %1 renames would be reverted. Run with apply.</source>
-        <translation type="unfinished"></translation>
+        <translation>试运行：将撤销 %1 个重命名。请以 apply 方式重新运行。</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="681"/>
         <source>Reverted %1, skipped %2</source>
-        <translation type="unfinished"></translation>
+        <translation>已撤销 %1 个，跳过 %2 个</translation>
     </message>
 </context>
 </TS>
