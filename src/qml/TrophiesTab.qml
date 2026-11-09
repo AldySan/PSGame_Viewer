@@ -119,7 +119,7 @@ Frame {
                             Rectangle {
                                 visible: grade.length > 0
                                 width: gradeText.implicitWidth + 10
-                                height: 16; radius: Theme.radiusSm - 2
+                                height: 18; radius: Theme.radiusSm - 2
                                 color: {
                                     // conventional grade colors:
                                     // platinum, gold, silver, bronze
@@ -133,7 +133,7 @@ Frame {
                                     anchors.centerIn: parent
                                     text: grade
                                     color: "#171717"
-                                    font.pixelSize: 11
+                                    font.pixelSize: 12
                                     font.bold: true
                                 }
                             }
@@ -141,7 +141,7 @@ Frame {
                                 visible: isHidden
                                 text: qsTr("hidden")
                                 color: Theme.muted
-                                font.pixelSize: 11
+                                font.pixelSize: 12
                                 font.italic: true
                             }
                         }

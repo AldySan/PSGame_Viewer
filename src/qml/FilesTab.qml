@@ -214,7 +214,7 @@ ColumnLayout {
                     anchors.verticalCenter: parent.verticalCenter
                     text: infoText
                     color: Theme.muted
-                    font.pixelSize: 11
+                    font.pixelSize: 12
                 }
 
                 MouseArea {

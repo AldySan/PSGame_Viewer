@@ -180,7 +180,7 @@ ColumnLayout {
                                 return bits.join("  ·  ")
                             }
                             color: Theme.muted
-                            font.pixelSize: 11
+                            font.pixelSize: 12
                             elide: Text.ElideMiddle
                             Layout.fillWidth: true
                         }
