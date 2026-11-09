@@ -14,7 +14,10 @@ Popup {
 
     anchors.centerIn: parent
     width: 760
-    height: 560
+    // content-driven height so translations cannot clip (C-4); the
+    // preview list is capped, keeping the dialog finite for long scans
+    height: Math.max(240, Math.min(content.implicitHeight + topPadding + bottomPadding,
+                                   parent.height - 48))
     modal: true
     focus: true
     closePolicy: Popup.CloseOnEscape
@@ -43,6 +46,7 @@ Popup {
     function scheduleRefresh() { refreshTimer.restart() }
 
     ColumnLayout {
+        id: content
         anchors.fill: parent
         spacing: 10
 
@@ -88,7 +92,9 @@ Popup {
 
         Frame {
             Layout.fillWidth: true
-            Layout.fillHeight: true
+            // bounded so the content-driven dialog height stays finite;
+            // the floor keeps the empty state visible with no rows
+            Layout.preferredHeight: Math.max(Math.min(list.contentHeight + 14, 300), 120)
             background: Rectangle {
                 color: Theme.bg
                 radius: Theme.radiusSm
@@ -104,7 +110,6 @@ Popup {
                 spacing: 2
                 model: root.plan
                 ScrollBar.vertical: AppScrollBar {}
-
                 Label {
                     anchors.centerIn: parent
                     visible: root.plan.length === 0

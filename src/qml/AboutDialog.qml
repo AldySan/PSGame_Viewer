@@ -8,7 +8,9 @@ Popup {
     objectName: "aboutDialog"
     anchors.centerIn: parent
     width: 440
-    height: 400
+    // content-driven height so translations cannot clip (C-4)
+    height: Math.max(200, Math.min(content.implicitHeight + topPadding + bottomPadding,
+                                   parent.height - 48))
     modal: true
     focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
@@ -25,6 +27,7 @@ Popup {
     }
 
     ColumnLayout {
+        id: content
         anchors.fill: parent
         spacing: 10
 
@@ -74,8 +77,6 @@ Popup {
             font.pixelSize: 11
             text: qsTr("Built with Qt 6, QML and SQLite. Licensed under the GNU General Public License v3.")
         }
-
-        Item { Layout.fillHeight: true }
 
         AppButton {
             Layout.alignment: Qt.AlignHCenter
