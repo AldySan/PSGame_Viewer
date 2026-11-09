@@ -159,7 +159,7 @@ int runCli(int argc, char *argv[])
     app.setApplicationVersion(QStringLiteral(PSGV_VERSION));
     QCommandLineParser parser;
     parser.setApplicationDescription(
-        QStringLiteral("PSGame-Viewer — PS2/PS3/PS4/PS5 game file viewer"));
+        QStringLiteral("PSGame-Viewer: PS2/PS3/PS4/PS5 game file viewer"));
     parser.addHelpOption();
     parser.addVersionOption();
     QCommandLineOption infoOpt(QStringLiteral("info"),

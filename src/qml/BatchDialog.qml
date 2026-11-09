@@ -183,7 +183,7 @@ Popup {
                     var res = root.controller.batchApply()
                     if (res.logError)
                         root.statusMessage(qsTr(
-                            "Renamed %1, skipped %2. WARNING: the revert log could not be written (%3) — these renames cannot be reverted from a log.")
+                            "Renamed %1, skipped %2. The revert log could not be written (%3), so these renames cannot be reverted from a log.")
                             .arg(res.renamed).arg(res.skipped).arg(res.logError))
                     else if (res.logPath)
                         root.statusMessage(qsTr(

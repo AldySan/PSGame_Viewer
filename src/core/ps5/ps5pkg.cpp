@@ -168,7 +168,7 @@ GameInfo parsePs5RetailStub(const QString &path, const QByteArray &fihHeader)
                multi ? QStringLiteral("%1 (joined %2)").arg(fmtSize(size), fmtSize(out.size))
                      : fmtSize(size));
     out.addRow(QStringLiteral("Note"),
-               QStringLiteral("metadata encrypted — title/files unavailable"));
+               QStringLiteral("metadata encrypted; title/files unavailable"));
     return out;
 }
 

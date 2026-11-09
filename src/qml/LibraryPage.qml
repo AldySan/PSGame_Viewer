@@ -71,7 +71,7 @@ ColumnLayout {
                 text: Library.error !== ""
                       ? qsTr("The library database could not be opened:<br>%1<br>Check that the folder with the executable is writable.")
                         .arg(Library.error)
-                      : qsTr("Library is empty — open files or scan a folder")
+                      : qsTr("Library is empty. Open a file or scan a folder")
                 color: Theme.muted
             }
 
