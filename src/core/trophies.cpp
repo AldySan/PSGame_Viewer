@@ -145,6 +145,26 @@ QList<TrpInner> parseUcp(const QByteArray &data)
     return out;
 }
 
+bool looksLikeTrophyXml(const QByteArray &blob)
+{
+    if (blob.size() < 16)
+        return false;
+    int at = 0;
+    if (blob.startsWith(QByteArrayLiteral("\xEF\xBB\xBF")))
+        at = 3; // UTF-8 BOM
+    while (at < blob.size()) {
+        const char c = blob.at(at);
+        if (c == ' ' || c == '\t' || c == '\r' || c == '\n')
+            ++at;
+        else
+            break;
+    }
+    if (at >= blob.size() || blob.at(at) != '<')
+        return false;
+    const QByteArray head = blob.left(256).toLower();
+    return head.contains("<?xml") || head.contains("trophyconf");
+}
+
 QByteArray decryptEsfm(const QByteArray &blob, const QString &npCommId)
 {
     if (blob.size() < 32 || blob.size() % 16 != 0)
@@ -167,13 +187,16 @@ QByteArray decryptEsfm(const QByteArray &blob, const QString &npCommId)
     const QByteArray body = pt.left(pt.size() - int(pad));
     if (!body.left(200).toLower().contains("trophy"))
         return QByteArray();
-    int printable = 0;
+    // wrong-key garbage is ~13% control bytes; real XML — any language,
+    // UTF-8 multi-byte sequences included — has none. A printable-ASCII
+    // ratio would reject every Japanese trophy set outright.
+    int control = 0;
     for (char c : body) {
         const uchar u = uchar(c);
-        if ((u >= 32 && u < 127) || u == 9 || u == 10 || u == 13)
-            ++printable;
+        if ((u < 32 && u != 9 && u != 10 && u != 13) || u == 0x7F)
+            ++control;
     }
-    if (qint64(printable) * 10 < qint64(body.size()) * 7)
+    if (qint64(control) * 100 > qint64(body.size()) * 5)
         return QByteArray();
     return body;
 }

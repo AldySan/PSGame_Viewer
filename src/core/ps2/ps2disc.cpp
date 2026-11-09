@@ -7,8 +7,9 @@
 #include <QFileInfo>
 
 namespace psg::ps2 {
-namespace {
 
+// SYSTEM.CNF key/value text ("BOOT2 = cdrom0:\\SLUS_999.99;1") -> map
+// with upper-cased keys. Shared by the disc-image and folder viewers.
 QVariantMap parseSystemCnf(const QByteArray &raw)
 {
     QVariantMap cnf;
@@ -24,8 +25,6 @@ QVariantMap parseSystemCnf(const QByteArray &raw)
     }
     return cnf;
 }
-
-} // namespace
 
 GameInfo parsePs2Iso(const QString &path)
 {

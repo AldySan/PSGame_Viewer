@@ -4,7 +4,24 @@
 #include <QVariant>
 #include <QStringList>
 
+#include "types.h"
+
 namespace psg {
+
+// Recursive scan of a plain folder game dump (PS3 JB folder, PS2 disc
+// dump, PS4/PS5 app folder): every file below `root` becomes one
+// LocalFile entry named by its '/'-separated path relative to `root`,
+// sorted case-insensitively — the same shape the disc-image viewers
+// list, so the Files tab shows the real folder tree instead of a
+// handful of hand-picked files. `maxEntries` bounds the entry list for
+// hostile trees; the size/count totals keep counting past the cap.
+struct FolderScan {
+    QList<Entry> entries;
+    quint64 totalSize = 0;
+    int fileCount = 0;
+    bool capped = false;
+};
+FolderScan scanLocalFolder(const QString &root, int maxEntries = 100000);
 
 // Human-readable sizes: "1.50 GB", "12.3 MB", "456 B".
 QString fmtSize(quint64 n);

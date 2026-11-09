@@ -512,6 +512,7 @@ int runUiMatrix(QGuiApplication &app, QQmlApplicationEngine &engine,
     const UiExpect matrix[] = {
         {"ps2.iso", false},
         {"ps3.iso", false},
+        {"ps3_folder", true}, // PS3 JB folder: full tree + plain-XML conf
         {"ps3_debug.pkg", false},
         {"ps3_retail.pkg", false},
         {"ps4_cnt.pkg", false},

@@ -15,6 +15,7 @@ NIST SP 800-38A vectors before use).
 import hashlib
 import json
 import os
+import shutil
 import struct
 import zlib
 
@@ -614,35 +615,73 @@ TRP_TROPHY_KEY = bytes([0x21, 0xF4, 0x1A, 0x6B, 0xAD, 0x8A, 0x1D, 0x3E,
 
 
 def make_trp():
-    """TROPHY.TRP in the REAL retail container layout (cross-checked
+    """PS3 TROPHY.TRP in the real retail container layout (cross-checked
     against RPCS3's TRP.h, psdevwiki and three retail-file extractors):
     0x40-byte header — magic, u32 version, u64 total size, u32 count,
     u32 entry size (0x40), u32 dev flag, sha1[20], pad[16] — then count
     entries of 0x40 bytes: name[32], u64 offset @+0x20, u64 size @+0x28.
-    The pack mixes a 240x240 icon (PS4/PS5 style), two 128x128 icons
-    (PS3 style) and a 4x4 one to exercise every carving path."""
-    npid16 = b"NPWR99999_00".ljust(16, b"\x00")
-    ckey = aes128_cbc_encrypt(TRP_TROPHY_KEY, bytes(16), npid16)
-    xml = (b"<?xml version='1.0' encoding='utf-8'?>"
-           b"<trophyconf><trophy id='0' ttype='P' hidden='no'>"
-           b"<name>First Steps</name>"
-           b"<detail>Open the viewer</detail>"
-           b"</trophy>"
-           b"<trophy id='1' ttype='G' hidden='no'>"
-           b"<name>Collector</name>"
-           b"<detail>View every platform</detail>"
-           b"</trophy></trophyconf>")
-    pad = 16 - len(xml) % 16
-    iv = bytes(range(0x40, 0x50))
-    esfm = iv + aes128_cbc_encrypt(ckey, iv, xml + bytes([pad]) * pad)
 
+    TROPCONF.SFM is stored as PLAIN XML: the PS3 does not encrypt the
+    conf — only the PS4 TROP.ESFM variant is AES-wrapped. (The 0.0.4
+    loader tried to AES-decrypt every conf and real retail packs came
+    up empty, so this fixture is the regression.) The trophy set mixes
+    an English platinum, a HIDDEN Japanese bronze and an English gold
+    so UTF-8 names, grades and the hidden flag are all covered. The
+    pack mixes a 240x240 icon (PS4/PS5 style), two 128x128 icons (PS3
+    style) and a 4x4 one to exercise every carving path."""
+    conf = (
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+        "<trophyconf>"
+        "<trophy id=\"0\" ttype=\"P\" hidden=\"no\">"
+        "<name>First Steps</name>"
+        "<detail>Open the viewer</detail>"
+        "</trophy>"
+        "<trophy id=\"1\" ttype=\"B\" hidden=\"yes\">"
+        "<name>戦国の初陣</name>"
+        "<detail>最初の戦いを勝利せよ</detail>"
+        "</trophy>"
+        "<trophy id=\"2\" ttype=\"G\" hidden=\"no\">"
+        "<name>Collector</name>"
+        "<detail>View every platform</detail>"
+        "</trophy>"
+        "</trophyconf>").encode("utf-8")
     files = [
-        ("TROPCONF.SFM", esfm),
+        ("TROPCONF.SFM", conf),
         ("ICON0.PNG", BIG_ICON_PNG),                                # 240x240
         ("ICON1.PNG", ICON_PNG),                                    # 4x4
         ("TROP001.PNG", png_bytes(128, 128, (0xF7, 0xD7, 0x4A, 0xFF))),
         ("TROP002.PNG", png_bytes(128, 128, (0xC0, 0xC0, 0xC0, 0xFF))),
     ]
+    return build_trp_container(files)
+
+
+def make_trp_esfm():
+    """PS4-style trophy pack: TROP.ESFM is AES-CBC encrypted with the
+    per-title key (AES-CBC of the NP communication id under the public
+    trophy key), IV = first 16 bytes, PKCS#7 padding — keeps the
+    decrypt and NP-id brute-force paths under test."""
+    npid16 = b"NPWR99999_00".ljust(16, b"\x00")
+    ckey = aes128_cbc_encrypt(TRP_TROPHY_KEY, bytes(16), npid16)
+    xml = (b"<trophyconf><trophy id='0' ttype='P' hidden='no'>"
+           b"<name>Platinum Run</name>"
+           b"<detail>Unlock everything</detail>"
+           b"</trophy>"
+           b"<trophy id='1' ttype='S' hidden='no'>"
+           b"<name>Silver Lining</name>"
+           b"<detail>Almost there</detail>"
+           b"</trophy></trophyconf>")
+    pad = 16 - len(xml) % 16
+    iv = bytes(range(0x40, 0x50))
+    esfm = iv + aes128_cbc_encrypt(ckey, iv, xml + bytes([pad]) * pad)
+    return build_trp_container([
+        ("TROP.ESFM", esfm),
+        ("ICON0.PNG", png_bytes(240, 240, (0x33, 0x99, 0xCC, 0xFF))),
+    ])
+
+
+def build_trp_container(files):
+    """Assemble the retail TRP container: 0x40-byte header + one 0x40
+    entry record per file + the payloads."""
     header_size = 0x40
     entry_size = 0x40
     body = bytearray()
@@ -1009,6 +1048,49 @@ def make_ffpfsc(inner_name, inner, compress=True):
 
 # ---------------------------------------------------------------- main
 
+def write_file(rel_dir, name, data):
+    os.makedirs(rel_dir, exist_ok=True)
+    with open(os.path.join(rel_dir, name), "wb") as f:
+        f.write(data)
+
+
+def make_ps3_folder(out_dir):
+    """PS3 JB folder fixture in the exact on-disk layout: PS3_DISC.SFB
+    at the root, PS3_GAME/{PARAM.SFO, ICON0.PNG, PIC1.PNG, LICDIR,
+    TROPDIR/NPWR07867_00/TROPHY.TRP, USRDIR/...}. Regression case for
+    the folder viewer: the WHOLE tree must be indexed (0.0.4 listed
+    only the PNGs and the pack) and the plain-XML retail conf with
+    Japanese names must load into the Trophies tab."""
+    root = os.path.join(out_dir, "ps3_folder")
+    shutil.rmtree(root, ignore_errors=True)
+    game = os.path.join(root, "PS3_GAME")
+    sfo = build_sfo([
+        ("APP_VER", 0x0204, "01.00"),
+        ("CATEGORY", 0x0204, "GD"),
+        ("CONTENT_ID", 0x0204, "JM0000-BLJM61080_00-SBASARA4000000"),
+        ("PARENTAL_LEVEL", 0x0404, 17),
+        ("PS3_SYSTEM_VER", 0x0404, 0x04530000),
+        ("RESOLUTION", 0x0404, 63),
+        ("SOUND_FORMAT", 0x0404, 155),
+        ("TITLE", 0x0204, "戦国BASARA4"),
+        ("TITLE_ID", 0x0204, "BLJM61080"),
+        ("VERSION", 0x0204, "01.00"),
+    ])
+    write_file(root, "PS3_DISC.SFB", b"\x00SFB" + bytes(500))
+    write_file(game, "PARAM.SFO", sfo)
+    write_file(game, "ICON0.PNG", BIG_ICON_PNG)
+    write_file(game, "PIC1.PNG", ICON_PNG)
+    write_file(os.path.join(game, "LICDIR"), "LIC.DAT",
+               b"\x00LIC" + bytes(64))
+    write_file(os.path.join(game, "TROPDIR", "NPWR07867_00"),
+               "TROPHY.TRP", make_trp())
+    write_file(os.path.join(game, "USRDIR"), "EBOOT.BIN",
+               b"\x00EBOOT" + bytes(4000))
+    write_file(os.path.join(game, "USRDIR", "nativePS3", "rom"),
+               "data.bin", b"\x01" * 512)
+    return root
+
+
 def main():
     here = os.path.dirname(os.path.abspath(__file__))
     exfat_trophy = make_exfat_trophy()
@@ -1023,6 +1105,7 @@ def main():
         "ps3.iso": make_ps3_iso(),
         "ps5.exfat": make_exfat(),
         "trophy.trp": make_trp(),
+        "trophy_esfm.trp": make_trp_esfm(),
         "trophy.ucp": make_ucp(),
         # regression fixture for the exFAT read cap: a >5 MB trophy pack
         # must still be readable end to end
@@ -1039,6 +1122,8 @@ def main():
         with open(os.path.join(here, name), "wb") as f:
             f.write(data)
         print(f"wrote {name} ({len(data)} bytes)")
+    make_ps3_folder(here)
+    print("wrote ps3_folder/ (PS3 JB folder fixture)")
 
 
 if __name__ == "__main__":

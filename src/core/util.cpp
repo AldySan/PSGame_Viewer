@@ -1,9 +1,12 @@
 #include "util.h"
 
 #include <QDir>
+#include <QDirIterator>
 #include <QFileInfo>
 #include <QHash>
 #include <QRegularExpression>
+
+#include <algorithm>
 
 namespace psg {
 namespace {
@@ -36,15 +39,22 @@ const QHash<QString, QString> &ps3TidRegions()
         {QStringLiteral("NPEB"), QStringLiteral("Europe")},
         {QStringLiteral("BCES"), QStringLiteral("Europe")},
         {QStringLiteral("BLES"), QStringLiteral("Europe")},
+        {QStringLiteral("NPEA"), QStringLiteral("Europe")},
         {QStringLiteral("NPHB"), QStringLiteral("Asia")},
         {QStringLiteral("BCAS"), QStringLiteral("Asia")},
         {QStringLiteral("BLAS"), QStringLiteral("Asia")},
+        {QStringLiteral("NPHA"), QStringLiteral("Asia")},
         {QStringLiteral("NPJB"), QStringLiteral("Japan")},
         {QStringLiteral("BCJS"), QStringLiteral("Japan")},
         {QStringLiteral("BLJS"), QStringLiteral("Japan")},
+        {QStringLiteral("BLJM"), QStringLiteral("Japan")},
+        {QStringLiteral("NPJA"), QStringLiteral("Japan")},
         {QStringLiteral("NPUB"), QStringLiteral("Americas")},
         {QStringLiteral("BCUS"), QStringLiteral("Americas")},
         {QStringLiteral("BLUS"), QStringLiteral("Americas")},
+        {QStringLiteral("NPUA"), QStringLiteral("Americas")},
+        {QStringLiteral("BCKS"), QStringLiteral("Korea")},
+        {QStringLiteral("NPKA"), QStringLiteral("Korea")},
     };
     return map;
 }
@@ -451,6 +461,48 @@ bool isVersionNewer(const QString &latest, const QString &current)
     while (b.size() < n)
         b.append(0);
     return a > b;
+}
+
+FolderScan scanLocalFolder(const QString &root, int maxEntries)
+{
+    FolderScan out;
+    struct Item {
+        QString rel;
+        QString abs;
+        qint64 size = 0;
+    };
+    QList<Item> items;
+    QDirIterator it(root, QDir::Files, QDirIterator::Subdirectories);
+    while (it.hasNext()) {
+        it.next();
+        Item item;
+        item.abs = it.fileInfo().absoluteFilePath();
+        item.rel = QDir(root).relativeFilePath(item.abs);
+        if (item.rel.isEmpty() || item.rel.startsWith(QLatin1String("..")))
+            continue; // outside the root: symlinks and friends
+        item.size = qMax<qint64>(it.fileInfo().size(), 0);
+        items.append(item);
+    }
+    std::sort(items.begin(), items.end(), [](const Item &a, const Item &b) {
+        const int c = a.rel.compare(b.rel, Qt::CaseInsensitive);
+        return c != 0 ? c < 0 : a.rel < b.rel;
+    });
+    for (const Item &item : items) {
+        out.totalSize += quint64(item.size);
+        ++out.fileCount;
+        if (int(out.entries.size()) >= maxEntries) {
+            out.capped = true;
+            continue;
+        }
+        Entry e;
+        e.id = quint32(out.entries.size());
+        e.name = QDir::fromNativeSeparators(item.rel);
+        e.size = quint64(item.size);
+        e.source = Entry::Source::LocalFile;
+        e.localPath = item.abs;
+        out.entries.append(e);
+    }
+    return out;
 }
 
 } // namespace psg

@@ -155,15 +155,18 @@ void TestApp::asyncTrophies()
     AppSettings settings;
     ViewerController viewer(&settings, &images);
 
-    // the ffpfsc pack has no communication id: the loader must fall back
-    // to the NP-id brute force OFF the GUI thread and still deliver
+    // the ffpfsc pack carries a real retail PS3 conf (plain XML, no
+    // communication id anywhere): the loader must read it directly —
+    // off the GUI thread — and still deliver
     viewer.openPath(QUrl::fromLocalFile(fixture(QStringLiteral("ffpfsc_exfat.ffpfsc"))));
     QVERIFY(viewer.hasFile());
     QVERIFY(viewer.trophiesLoading());
-    QTRY_COMPARE_WITH_TIMEOUT(viewer.trophyModel()->count(), 2, 60000);
+    QTRY_COMPARE_WITH_TIMEOUT(viewer.trophyModel()->count(), 3, 60000);
     QVERIFY(!viewer.trophiesLoading());
     QCOMPARE(viewer.trophyModel()->items().at(0).name,
              QStringLiteral("First Steps"));
+    QCOMPARE(viewer.trophyModel()->items().at(1).name,
+             QString::fromUtf8("戦国の初陣"));
 
     // reopening a file without a pack must clear the list immediately and
     // drop the (impossible here, but contractually) late result
@@ -175,7 +178,7 @@ void TestApp::asyncTrophies()
     // loading state settles through the normal success path
     viewer.openPath(
         QUrl::fromLocalFile(fixture(QStringLiteral("ps5_bigpack.exfat"))));
-    QTRY_COMPARE_WITH_TIMEOUT(viewer.trophyModel()->count(), 2, 60000);
+    QTRY_COMPARE_WITH_TIMEOUT(viewer.trophyModel()->count(), 3, 60000);
     QVERIFY(!viewer.trophiesLoading());
 }
 
@@ -183,8 +186,8 @@ void TestApp::trophyLoaderCommIdShapes()
 {
     // PS4 PARAM.SFO carries NP_COMMUNICATION_ID; PS5 param.json carries
     // npCommunicationId; PS3 folders/PKGs spell the id out in the
-    // TROPDIR/<NPWRxxxxx_00>/ entry path. All three must decrypt
-    // directly — no brute force.
+    // TROPDIR/<NPWRxxxxx_00>/ entry path. All three must decrypt the
+    // ESFM pack directly — no brute force.
     struct Shape {
         const char *metaKey;      // null: id comes from the entry path
         QString entryName;
@@ -201,9 +204,9 @@ void TestApp::trophyLoaderCommIdShapes()
         QList<Entry> entries;
         Entry e;
         e.name = shape.entryName;
-        e.size = quint64(QFileInfo(fixture(QStringLiteral("trophy.trp"))).size());
+        e.size = quint64(QFileInfo(fixture(QStringLiteral("trophy_esfm.trp"))).size());
         e.source = Entry::Source::LocalFile;
-        e.localPath = fixture(QStringLiteral("trophy.trp"));
+        e.localPath = fixture(QStringLiteral("trophy_esfm.trp"));
         entries.append(e);
 
         QVariantMap meta;
@@ -215,7 +218,7 @@ void TestApp::trophyLoaderCommIdShapes()
         QCOMPARE(spy.count(), 1);
         const TrophyPack pack = spy.at(0).at(1).value<TrophyPack>();
         QCOMPARE(pack.items.size(), 2);
-        QCOMPARE(pack.items.at(1).name, QStringLiteral("Collector"));
+        QCOMPARE(pack.items.at(1).name, QStringLiteral("Silver Lining"));
         QVERIFY(!pack.icons.isEmpty());
     }
 }

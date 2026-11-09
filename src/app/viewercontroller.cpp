@@ -289,9 +289,30 @@ void ViewerController::loadGallery()
     // caching past 64 images or 256 MB, whichever comes first.
     constexpr int kMaxImages = 64;
     constexpr quint64 kMaxTotalBytes = 256ull << 20;
+    // the container's declared icon (PS3_GAME/ICON0.PNG, sce_sys/
+    // icon0.png, ...) leads the gallery and becomes the cover; entry
+    // order alone would pick whatever PNG happens to sort first
+    int lead = -1;
+    if (!m_info.iconEntry.isEmpty()) {
+        for (int i = 0; i < m_info.entries.size(); ++i) {
+            if (m_info.entries.at(i).name.compare(m_info.iconEntry,
+                                                  Qt::CaseInsensitive) == 0) {
+                lead = i;
+                break;
+            }
+        }
+    }
+    QList<int> order;
+    if (lead >= 0)
+        order.append(lead);
+    for (int i = 0; i < m_info.entries.size(); ++i) {
+        if (i != lead)
+            order.append(i);
+    }
     QList<QByteArray> gallery;
     quint64 total = 0;
-    for (const Entry &e : m_info.entries) {
+    for (const int idx : order) {
+        const Entry &e = m_info.entries.at(idx);
         if (!e.name.endsWith(QLatin1String(".png"), Qt::CaseInsensitive))
             continue;
         if (e.size == 0 || e.size > 32000000)
