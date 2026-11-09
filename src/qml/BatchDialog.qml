@@ -145,7 +145,7 @@ Popup {
                         text: modelData.ok
                               ? (modelData.newFiles[0] || "")
                               : modelData.reason
-                        color: modelData.ok ? Theme.accent : Theme.danger
+                        color: modelData.ok ? Theme.text : Theme.danger
                         font.pixelSize: 12
                         elide: Text.ElideMiddle
                     }

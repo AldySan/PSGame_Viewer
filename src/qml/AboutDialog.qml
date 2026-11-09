@@ -36,7 +36,7 @@ Popup {
                 Text {
                     anchors.centerIn: parent
                     text: "PS"
-                    color: "#171717"
+                    color: Theme.accentText
                     font.bold: true
                     font.pixelSize: 19
                 }

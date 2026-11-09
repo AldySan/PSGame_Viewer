@@ -59,7 +59,7 @@ Item {
                         id: badgeText
                         anchors.centerIn: parent
                         text: controller.packageBadge
-                        color: "#171717"
+                        color: Theme.accentText
                         font.bold: true
                         font.pixelSize: 12
                     }
