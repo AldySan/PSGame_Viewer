@@ -42,5 +42,10 @@ QtObject {
     readonly property int radius: 8
     readonly property int radiusLg: 12
 
-    readonly property string fontFamily: "Segoe UI"
+    // Native UI face per platform: Segoe UI on Windows, the system
+    // default everywhere else (empty family = Qt's default UI font).
+    // Nothing is bundled — the app is carried on USB sticks and a font
+    // would cost megabytes while breaking each platform's native look.
+    readonly property string fontFamily:
+        Qt.platform.os === "windows" ? "Segoe UI" : ""
 }
