@@ -74,7 +74,7 @@ Popup {
             Layout.fillWidth: true
             wrapMode: Text.WordWrap
             color: Theme.muted
-            font.pixelSize: 11
+            font.pixelSize: 12
             text: qsTr("Built with Qt 6, QML and SQLite. Licensed under the GNU General Public License v3.")
         }
 
