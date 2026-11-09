@@ -316,7 +316,7 @@
     <message>
         <location filename="../src/qml/LibraryPage.qml" line="73"/>
         <source>Library</source>
-        <translation type="unfinished">Pustaka</translation>
+        <translation>Pustaka</translation>
     </message>
     <message>
         <location filename="../src/qml/LibraryPage.qml" line="98"/>
@@ -362,7 +362,7 @@
     <message>
         <location filename="../src/qml/LibraryPage.qml" line="273"/>
         <source>Cancel</source>
-        <translation type="unfinished">Batal</translation>
+        <translation>Batal</translation>
     </message>
 </context>
 <context>
@@ -752,104 +752,104 @@
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="118"/>
         <source>patches</source>
-        <translation type="unfinished"></translation>
+        <translation>patch</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="169"/>
         <source>No file opened</source>
-        <translation type="unfinished"></translation>
+        <translation>Belum ada berkas dibuka</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="276"/>
         <source>Could not open: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak dapat membuka: %1</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="279"/>
         <source>Opened %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 dibuka</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="412"/>
         <source>Could not extract %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak dapat mengekstrak %1</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="416"/>
         <source>Extracted %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 diekstrak</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="425"/>
         <source>Extracted %1, failed %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 diekstrak, %2 gagal</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="447"/>
         <location filename="../src/app/viewercontroller.cpp" line="451"/>
         <source>Nothing to copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak ada yang bisa disalin</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="453"/>
         <source>Cover copied to clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Sampul disalin ke papan klip</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="461"/>
         <location filename="../src/app/viewercontroller.cpp" line="465"/>
         <source>No trophy icons loaded</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak ada ikon trofi yang dimuat</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="478"/>
         <source>Cannot create folder: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak dapat membuat folder: %1</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="501"/>
         <source>Saved %1 trophy icons to %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ikon trofi disimpan ke %2</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="505"/>
         <source> (%1 skipped)</source>
-        <translation type="unfinished"></translation>
+        <translation> (%1 dilewati)</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="523"/>
         <source>Copied to clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Disalin ke papan klip</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="575"/>
         <source>Renamed to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Diganti nama menjadi %1</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="593"/>
         <source>Rename undone</source>
-        <translation type="unfinished">Ganti nama diurungkan</translation>
+        <translation>Ganti nama diurungkan</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="664"/>
         <source>Batch: renamed %1, skipped %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Massal: %1 diganti nama, %2 dilewati</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="676"/>
         <source>Nothing to revert in %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak ada yang bisa dibatalkan dalam %1</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="678"/>
         <source>Dry run: %1 renames would be reverted. Run with apply.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uji coba: %1 penggantian nama akan dibatalkan. Jalankan dengan apply.</translation>
     </message>
     <message>
         <location filename="../src/app/viewercontroller.cpp" line="681"/>
         <source>Reverted %1, skipped %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 dibatalkan, %2 dilewati</translation>
     </message>
 </context>
 </TS>
