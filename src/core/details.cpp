@@ -34,6 +34,19 @@ QStringList curatedMetaLines(Platform platform, const QVariantMap &meta)
     QStringList lines;
     if (meta.isEmpty())
         return lines;
+    if (platform == Platform::PS2) {
+        // PS2 meta is the SYSTEM.CNF text, not an SFO
+        static const char *order[] = {"BOOT2", "VER", "VMODE"};
+        for (const char *k : order) {
+            const QString key = QString::fromLatin1(k);
+            if (!meta.contains(key))
+                continue;
+            const QString v = meta.value(key).toString().trimmed();
+            if (!v.isEmpty())
+                lines.append(QStringLiteral("%1 = %2").arg(key, v));
+        }
+        return lines;
+    }
     if (platform == Platform::PS5) {
         const QVariantMap lp = meta.value(QStringLiteral("localizedParameters")).toMap();
         const QString lang = lp.value(QStringLiteral("defaultLanguage")).toString();
@@ -54,11 +67,13 @@ QStringList curatedMetaLines(Platform platform, const QVariantMap &meta)
     }
 
     // PS3/PS4 param.sfo: short useful subset in a fixed order
+    // (PS3 discs carry PS3_SYSTEM_VER, PS4 packs SYSTEM_VER)
     static const char *order[] = {"TITLE", "TITLE_ID", "CATEGORY",
                                   "CONTENT_ID", "VERSION", "APP_VER",
-                                  "SYSTEM_VER", "FORMAT", "PARENTAL_LEVEL",
-                                  "RESOLUTION", "SOUND_FORMAT",
-                                  "NP_COMMUNICATION_ID", "BOOTABLE"};
+                                  "SYSTEM_VER", "PS3_SYSTEM_VER", "FORMAT",
+                                  "PARENTAL_LEVEL", "RESOLUTION",
+                                  "SOUND_FORMAT", "NP_COMMUNICATION_ID",
+                                  "BOOTABLE"};
     QStringList localized;
     for (auto it = meta.cbegin(); it != meta.cend(); ++it) {
         if (it.key().startsWith(QLatin1String("TITLE_"))

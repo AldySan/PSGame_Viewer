@@ -33,10 +33,12 @@ add_library(psgcore STATIC
   src/core/iso9660.cpp
   src/core/details.cpp
   src/core/ps2/ps2disc.cpp
+  src/core/ps2/ps2folder.cpp
   src/core/ps3/ps3pkg.cpp
   src/core/ps3/ps3folder.cpp
   src/core/ps3/ps3iso.cpp
   src/core/ps4/ps4pkg.cpp
+  src/core/ps4/ps4folder.cpp
   src/core/ps5/ps5pkg.cpp
   src/core/ps5/exfat.cpp
   src/core/ps5/pfs.cpp

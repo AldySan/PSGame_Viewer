@@ -47,6 +47,11 @@ QList<CarvedIcon> carveTrpIcons(const QByteArray &data);
 // PS5 trophy00.ucp archive records.
 QList<TrpInner> parseUcp(const QByteArray &data);
 
+// True when the blob is a plain trophy-conf XML document. PS3 retail
+// packs store TROPCONF.SFM unencrypted (only the PS4 TROP.ESFM variant
+// is AES-wrapped), so the loader reads those directly.
+bool looksLikeTrophyXml(const QByteArray &blob);
+
 // Decrypt one ESFM file to XML bytes (AES-CBC with the per-title key
 // derived from the NP communication ID). Empty on failure.
 QByteArray decryptEsfm(const QByteArray &blob, const QString &npCommId);
