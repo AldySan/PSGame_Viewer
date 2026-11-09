@@ -1,10 +1,12 @@
 #include <QCommandLineParser>
+#include <QClipboard>
 #include <QCoreApplication>
 #include <QAtomicInt>
 #include <QDateTime>
 #include <QDir>
 #include <QElapsedTimer>
 #include <QGuiApplication>
+#include <QKeyEvent>
 #include <QFileInfo>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
@@ -502,6 +504,149 @@ bool settleAndGrab(QQmlApplicationEngine &engine, ViewerController &viewer,
 
 } // namespace
 
+// Keyboard walkthrough for the custom QML interactions: the entry lists
+// are plain Items with Keys handlers, so their keyboard paths only break
+// at press time — this drives real key events through the assembled UI
+// and fails on the first gesture that stops working.
+bool runKeyWalkthrough(QQmlApplicationEngine &engine,
+                       ViewerController &viewer, QString *why)
+{
+    auto *win = qobject_cast<QQuickWindow *>(engine.rootObjects().first());
+    if (!win) {
+        *why = QStringLiteral("keywalk: no window");
+        return false;
+    }
+    const auto find = [&engine](const char *name) -> QObject * {
+        for (QObject *r : engine.rootObjects())
+            if (auto *c = r->findChild<QObject *>(QString::fromLatin1(name)))
+                return c;
+        return nullptr;
+    };
+    const auto key = [win](int k) {
+        QKeyEvent press(QEvent::KeyPress, k, Qt::NoModifier);
+        QCoreApplication::sendEvent(win, &press);
+        QKeyEvent release(QEvent::KeyRelease, k, Qt::NoModifier);
+        QCoreApplication::sendEvent(win, &release);
+    };
+    const auto settle = []() {
+        QElapsedTimer t;
+        t.start();
+        while (t.elapsed() < 120)
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 20);
+    };
+    const auto currentItem = [](QObject *view) {
+        return view->property("currentItem").value<QObject *>();
+    };
+    const auto focusList = [&settle](QObject *view) {
+        QMetaObject::invokeMethod(view, "forceActiveFocus");
+        settle();
+    };
+
+    // --- 1) Files tab: Left/Right/Space fold and unfold the tree -----
+    viewer.openPath(QUrl::fromLocalFile(
+        QDir(QStringLiteral(FIXTURES_DIR)).filePath(
+            QStringLiteral("ps3_folder"))));
+    settle();
+    if (!viewer.hasFile() || !viewer.entryModel()) {
+        *why = QStringLiteral("keywalk: ps3_folder fixture did not open");
+        return false;
+    }
+    if (auto *bar = find("tabBar"))
+        QMetaObject::invokeMethod(bar, "setCurrentIndex", Q_ARG(int, 0));
+    settle();
+    auto *filesList = find("filesList");
+    auto *treeModel = viewer.entryModel();
+    if (!filesList) {
+        *why = QStringLiteral("keywalk: filesList not found");
+        return false;
+    }
+    focusList(filesList);
+    const int folded = treeModel->rowCount();
+    // walk down until the current row is a collapsed folder
+    bool folderRow = false;
+    for (int i = 0; i < folded; ++i) {
+        settle();
+        QObject *row = currentItem(filesList);
+        if (!row)
+            break;
+        if (row->property("isFolder").toBool()
+                && !row->property("expanded").toBool()) {
+            folderRow = true;
+            break;
+        }
+        key(Qt::Key_Down);
+    }
+    if (!folderRow) {
+        *why = QStringLiteral("keywalk: no collapsed folder row reached");
+        return false;
+    }
+    key(Qt::Key_Right);
+    settle();
+    if (treeModel->rowCount() <= folded) {
+        *why = QStringLiteral("keywalk: Right did not expand the folder");
+        return false;
+    }
+    key(Qt::Key_Left);
+    settle();
+    if (treeModel->rowCount() != folded) {
+        *why = QStringLiteral("keywalk: Left did not collapse the folder");
+        return false;
+    }
+    key(Qt::Key_Space);
+    settle();
+    if (treeModel->rowCount() <= folded) {
+        *why = QStringLiteral("keywalk: Space did not toggle the folder");
+        return false;
+    }
+
+    // --- 2) Details tab: Return copies the current metadata line -----
+    if (auto *bar = find("tabBar"))
+        QMetaObject::invokeMethod(bar, "setCurrentIndex", Q_ARG(int, 1));
+    settle();
+    auto *detailsList = find("detailsList");
+    if (!detailsList) {
+        *why = QStringLiteral("keywalk: detailsList not found");
+        return false;
+    }
+    focusList(detailsList);
+    QObject *row = currentItem(detailsList);
+    if (!row) {
+        *why = QStringLiteral("keywalk: details list has no current row");
+        return false;
+    }
+    const QString expected = row->property("lineText").toString();
+    key(Qt::Key_Return);
+    settle();
+    const QString clipboard = QGuiApplication::clipboard()->text();
+    if (clipboard.isEmpty() || clipboard != expected) {
+        *why = QStringLiteral("keywalk: Return copied '%1' instead of '%2'")
+                    .arg(clipboard, expected);
+        return false;
+    }
+
+    // --- 3) Library page: Return opens the current game ---------------
+    auto *pages = find("pages");
+    if (!pages) {
+        *why = QStringLiteral("keywalk: pages stack not found");
+        return false;
+    }
+    pages->setProperty("currentIndex", 1);
+    settle();
+    auto *libraryList = find("libraryList");
+    if (!libraryList) {
+        *why = QStringLiteral("keywalk: libraryList not found");
+        return false;
+    }
+    focusList(libraryList);
+    key(Qt::Key_Return);
+    settle();
+    if (pages->property("currentIndex").toInt() != 0 || !viewer.hasFile()) {
+        *why = QStringLiteral("keywalk: Return did not open the game");
+        return false;
+    }
+    return true;
+}
+
 // Opens every supported fixture format through the assembled UI stack,
 // renders a screenshot per format and returns a ctest exit code.
 int runUiMatrix(QGuiApplication &app, QQmlApplicationEngine &engine,
@@ -547,6 +692,17 @@ int runUiMatrix(QGuiApplication &app, QQmlApplicationEngine &engine,
         printf("ui-test: %d QML issue(s) logged above\n", issues);
         ++failures;
     }
+
+    // the keyboard paths of the custom QML gestures run inside the real
+    // window so regressions surface here instead of in the field
+    QString why;
+    if (runKeyWalkthrough(engine, viewer, &why)) {
+        printf("ui-test: %-24s PASS\n", "keyboard");
+    } else {
+        printf("ui-test: %-24s FAIL - %s\n", "keyboard", qPrintable(why));
+        ++failures;
+    }
+
     printf("ui-test: %d failure(s)\n", failures);
     fflush(stdout);
     return failures == 0 ? 0 : 1;

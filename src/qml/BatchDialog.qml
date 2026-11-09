@@ -117,6 +117,10 @@ Popup {
                     height: 24
                     required property var modelData
                     required property int index
+                    Accessible.role: Accessible.ListItem
+                    Accessible.name: modelData.ok
+                          ? (modelData.newFiles[0] || "")
+                          : modelData.reason
 
                     Text {
                         anchors.left: parent.left
@@ -134,6 +138,9 @@ Popup {
                         anchors.horizontalCenter: parent.horizontalCenter
                         anchors.verticalCenter: parent.verticalCenter
                         text: "→"
+                        // direction marker for the eyes; the row above
+                        // reads as "old name, then new name"
+                        Accessible.ignored: true
                         color: Theme.muted
                         font.pixelSize: 12
                     }

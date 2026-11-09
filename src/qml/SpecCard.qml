@@ -3,7 +3,9 @@ import QtQuick.Controls.Basic
 import QtQuick.Layouts
 import PSGameViewer
 
-// Spec card: two-column grid of label/value rows.
+// Spec card: two-column grid of label/value rows. Values copy on click
+// (with a tooltip saying so); each value is a real button so the copy
+// gesture also works from the keyboard.
 Frame {
     id: root
     property var rows: []
@@ -36,56 +38,47 @@ Frame {
         }
         Repeater {
             model: root.rows
-            Label {
+            Button {
+                id: valueButton
                 Layout.column: 1
                 Layout.row: index
                 Layout.fillWidth: true
-                text: modelData.value
-                color: Theme.text
-                font.pixelSize: 12
-                elide: Text.ElideMiddle
-                // allow copying the value out
-                MouseArea {
-                    anchors.fill: parent
-                    acceptedButtons: Qt.RightButton
-                    onClicked: {
-                        valueMenu.textToCopy = modelData.value
-                        valueMenu.popup()
-                    }
-                }
-            }
-        }
-    }
+                // required properties opt out of the injected context, so
+                // index has to be declared here too
+                required property var modelData
+                required property int index
 
-    Menu {
-        id: valueMenu
-        property string textToCopy: ""
-        padding: 6
-        background: Rectangle {
-            radius: Theme.radius
-            color: Theme.card
-            border.color: Theme.border
-        }
-        MenuItem {
-            id: copyItem
-            text: qsTr("Copy")
-            padding: 6
-            leftPadding: 10
-            rightPadding: 10
-            contentItem: Text {
-                text: copyItem.text
-                color: Theme.text
-                font.pixelSize: 12
-                verticalAlignment: Text.AlignVCenter
-            }
-            background: Rectangle {
-                radius: Theme.radiusSm
-                color: copyItem.hovered || copyItem.highlighted
-                       ? Theme.accentSoft : "transparent"
-            }
-            onTriggered: {
-                // small helper via controller-free clipboard access
-                Viewer.copyText(valueMenu.textToCopy)
+                flat: true
+                topPadding: 2
+                bottomPadding: 2
+                leftPadding: 2
+                rightPadding: 2
+                text: modelData.value
+
+                contentItem: Text {
+                    text: valueButton.text
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 12
+                    color: Theme.text
+                    elide: Text.ElideMiddle
+                    horizontalAlignment: Text.AlignLeft
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                background: Rectangle {
+                    radius: Theme.radiusSm
+                    color: valueButton.pressed ? Theme.pressOverlay
+                           : valueButton.hovered ? Theme.hoverOverlay
+                           : "transparent"
+                    border.width: valueButton.activeFocus ? 2 : 0
+                    border.color: Theme.accent
+                }
+
+                onClicked: Viewer.copyText(modelData.value)
+
+                ToolTip.visible: hovered
+                ToolTip.delay: 600
+                ToolTip.text: qsTr("Click to copy")
             }
         }
     }

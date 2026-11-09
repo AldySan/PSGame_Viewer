@@ -69,6 +69,8 @@ ApplicationWindow {
                 Text {
                     anchors.centerIn: parent
                     text: "PS"
+                    // decorative mark next to the app name label
+                    Accessible.ignored: true
                     color: Theme.accentText
                     font.bold: true
                     font.pixelSize: 13

@@ -4,32 +4,32 @@
 <context>
     <name>AboutDialog</name>
     <message>
-        <location filename="../src/qml/AboutDialog.qml" line="47"/>
+        <location filename="../src/qml/AboutDialog.qml" line="49"/>
         <source>PSGame-Viewer</source>
         <translation>PSGame-Viewer</translation>
     </message>
     <message>
-        <location filename="../src/qml/AboutDialog.qml" line="53"/>
+        <location filename="../src/qml/AboutDialog.qml" line="55"/>
         <source>Version %1</source>
         <translation>Versi %1</translation>
     </message>
     <message>
-        <location filename="../src/qml/AboutDialog.qml" line="65"/>
+        <location filename="../src/qml/AboutDialog.qml" line="67"/>
         <source>See what is inside PlayStation game files without extracting them: PS2 and PS3 disc images, PS3 packages and folders, PS4 and PS5 packages (including split parts), PS5 exFAT images and app folders. Cover art, spec cards, file listings, trophies, extraction and uniform renaming.</source>
         <translation>Lihat isi berkas game PlayStation tanpa mengekstraknya: citra disc PS2 dan PS3, paket serta folder PS3, paket PS4 dan PS5 (termasuk bagian terpisah), citra exFAT PS5, dan folder aplikasi. Sampul, kartu spesifikasi, daftar berkas, trofi, ekstraksi, dan penamaan ulang seragam.</translation>
     </message>
     <message>
-        <location filename="../src/qml/AboutDialog.qml" line="73"/>
+        <location filename="../src/qml/AboutDialog.qml" line="75"/>
         <source>Built with Qt 6, QML and SQLite. Licensed under the GNU General Public License v3.</source>
         <translation>Dibangun dengan Qt 6, QML, dan SQLite. Dilisensikan di bawah GNU General Public License v3.</translation>
     </message>
     <message>
-        <location filename="../src/qml/AboutDialog.qml" line="80"/>
+        <location filename="../src/qml/AboutDialog.qml" line="82"/>
         <source>Check for updates</source>
         <translation>Periksa pembaruan</translation>
     </message>
     <message>
-        <location filename="../src/qml/AboutDialog.qml" line="87"/>
+        <location filename="../src/qml/AboutDialog.qml" line="89"/>
         <source>Close</source>
         <translation>Tutup</translation>
     </message>
@@ -62,72 +62,72 @@
         <translation>Tambahkan folder atau berkas untuk melihat pratinjau</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="160"/>
+        <location filename="../src/qml/BatchDialog.qml" line="167"/>
         <source>%1 of %2 ready</source>
         <translation>%1 dari %2 siap</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="168"/>
+        <location filename="../src/qml/BatchDialog.qml" line="175"/>
         <source>Revert from log…</source>
         <translation>Pulihkan dari log…</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="173"/>
+        <location filename="../src/qml/BatchDialog.qml" line="180"/>
         <source>Close</source>
         <translation>Tutup</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="178"/>
+        <location filename="../src/qml/BatchDialog.qml" line="185"/>
         <source>Apply</source>
         <translation>Terapkan</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="193"/>
+        <location filename="../src/qml/BatchDialog.qml" line="200"/>
         <source>Renamed %1, skipped %2</source>
         <translation>%1 diganti nama, %2 dilewati</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="189"/>
+        <location filename="../src/qml/BatchDialog.qml" line="196"/>
         <source>Renamed %1, skipped %2. Log: %3</source>
         <translation>%1 diganti nama, %2 dilewati. Log: %3</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="185"/>
+        <location filename="../src/qml/BatchDialog.qml" line="192"/>
         <source>Renamed %1, skipped %2. The revert log could not be written (%3), so these renames cannot be reverted from a log.</source>
         <translation>%1 diganti nama, %2 dilewati. Log pembatalan tidak dapat ditulis (%3), sehingga penggantian nama ini tidak bisa dibatalkan dari log.</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="210"/>
+        <location filename="../src/qml/BatchDialog.qml" line="217"/>
         <source>%1 file(s) scanned</source>
         <translation>%1 berkas dipindai</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="225"/>
+        <location filename="../src/qml/BatchDialog.qml" line="232"/>
         <source>Folder to scan</source>
         <translation>Folder yang akan dipindai</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="237"/>
+        <location filename="../src/qml/BatchDialog.qml" line="244"/>
         <source>Add game files</source>
         <translation>Tambah berkas game</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="239"/>
+        <location filename="../src/qml/BatchDialog.qml" line="246"/>
         <source>Game files (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</source>
         <translation>Berkas game (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="252"/>
+        <location filename="../src/qml/BatchDialog.qml" line="259"/>
         <source>Revert log file</source>
         <translation>Berkas log pemulihan</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="253"/>
+        <location filename="../src/qml/BatchDialog.qml" line="260"/>
         <source>Revert logs (batch_rename_*.log)</source>
         <translation>Log pemulihan (batch_rename_*.log)</translation>
     </message>
     <message>
-        <location filename="../src/qml/BatchDialog.qml" line="253"/>
+        <location filename="../src/qml/BatchDialog.qml" line="260"/>
         <source>All files (*)</source>
         <translation>Semua berkas (*)</translation>
     </message>
@@ -135,32 +135,42 @@
 <context>
     <name>CoverPanel</name>
     <message>
-        <location filename="../src/qml/CoverPanel.qml" line="77"/>
+        <location filename="../src/qml/CoverPanel.qml" line="59"/>
+        <source>Screenshot %1</source>
+        <translation>Tangkapan layar %1</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/CoverPanel.qml" line="60"/>
+        <source>Use this screenshot as the cover</source>
+        <translation>Pakai tangkapan layar ini sebagai sampul</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/CoverPanel.qml" line="92"/>
         <source>Save</source>
         <translation>Simpan</translation>
     </message>
     <message>
-        <location filename="../src/qml/CoverPanel.qml" line="83"/>
+        <location filename="../src/qml/CoverPanel.qml" line="98"/>
         <source>Copy</source>
         <translation>Salin</translation>
     </message>
     <message>
-        <location filename="../src/qml/CoverPanel.qml" line="93"/>
+        <location filename="../src/qml/CoverPanel.qml" line="108"/>
         <source>Save cover image</source>
         <translation>Simpan gambar sampul</translation>
     </message>
     <message>
-        <location filename="../src/qml/CoverPanel.qml" line="95"/>
+        <location filename="../src/qml/CoverPanel.qml" line="110"/>
         <source>PNG image (*.png)</source>
         <translation>Gambar PNG (*.png)</translation>
     </message>
     <message>
-        <location filename="../src/qml/CoverPanel.qml" line="99"/>
+        <location filename="../src/qml/CoverPanel.qml" line="114"/>
         <source>Cover saved</source>
         <translation>Sampul disimpan</translation>
     </message>
     <message>
-        <location filename="../src/qml/CoverPanel.qml" line="101"/>
+        <location filename="../src/qml/CoverPanel.qml" line="116"/>
         <source>Could not save the cover</source>
         <translation>Gagal menyimpan sampul</translation>
     </message>
@@ -169,6 +179,7 @@
     <name>DetailsTab</name>
     <message>
         <location filename="../src/qml/DetailsTab.qml" line="26"/>
+        <location filename="../src/qml/DetailsTab.qml" line="52"/>
         <source>Metadata</source>
         <translation>Metadata</translation>
     </message>
@@ -177,28 +188,38 @@
         <source>Show all</source>
         <translation>Tampilkan semua</translation>
     </message>
+    <message>
+        <location filename="../src/qml/DetailsTab.qml" line="112"/>
+        <source>Click to copy</source>
+        <translation>Klik untuk menyalin</translation>
+    </message>
 </context>
 <context>
     <name>EmptyState</name>
     <message>
-        <location filename="../src/qml/EmptyState.qml" line="33"/>
+        <location filename="../src/qml/EmptyState.qml" line="36"/>
         <source>Drop a game file here</source>
         <translation>Tarik berkas game ke sini</translation>
     </message>
     <message>
-        <location filename="../src/qml/EmptyState.qml" line="40"/>
+        <location filename="../src/qml/EmptyState.qml" line="43"/>
         <source>PKG · ISO · exFAT images · game folders</source>
         <translation>PKG · ISO · citra exFAT · folder game</translation>
     </message>
     <message>
-        <location filename="../src/qml/EmptyState.qml" line="46"/>
+        <location filename="../src/qml/EmptyState.qml" line="49"/>
         <source>or use Open in the header</source>
         <translation>atau gunakan Buka di bilah atas</translation>
     </message>
     <message>
-        <location filename="../src/qml/EmptyState.qml" line="55"/>
+        <location filename="../src/qml/EmptyState.qml" line="58"/>
         <source>Recent files</source>
         <translation>Berkas terbaru</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/EmptyState.qml" line="79"/>
+        <source>Open this file</source>
+        <translation>Buka berkas ini</translation>
     </message>
 </context>
 <context>
@@ -229,19 +250,50 @@
         <translation>Ekstrak semua…</translation>
     </message>
     <message>
-        <location filename="../src/qml/FilesTab.qml" line="72"/>
+        <location filename="../src/qml/FilesTab.qml" line="68"/>
+        <source>File entries</source>
+        <translation>Entri berkas</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/FilesTab.qml" line="111"/>
+        <source>No entries in this container</source>
+        <translation>Tidak ada entri di kontainer ini</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/FilesTab.qml" line="125"/>
         <source>Name</source>
         <translation>Nama</translation>
     </message>
     <message>
-        <location filename="../src/qml/FilesTab.qml" line="81"/>
+        <location filename="../src/qml/FilesTab.qml" line="134"/>
         <source>Size</source>
         <translation>Ukuran</translation>
     </message>
     <message>
-        <location filename="../src/qml/FilesTab.qml" line="90"/>
+        <location filename="../src/qml/FilesTab.qml" line="143"/>
         <source>Info</source>
         <translation>Info</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/FilesTab.qml" line="168"/>
+        <source>Folder %1</source>
+        <translation>Folder %1</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/FilesTab.qml" line="171"/>
+        <source>Expanded</source>
+        <translation>Dibentangkan</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/FilesTab.qml" line="172"/>
+        <source>Collapsed</source>
+        <translation>Dilipat</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/FilesTab.qml" line="173"/>
+        <location filename="../src/qml/FilesTab.qml" line="239"/>
+        <source>Double-click to extract</source>
+        <translation>Klik dua kali untuk mengekstrak</translation>
     </message>
 </context>
 <context>
@@ -252,37 +304,42 @@
         <translation>Cari judul, Title ID, atau Content ID…</translation>
     </message>
     <message>
-        <location filename="../src/qml/LibraryPage.qml" line="36"/>
+        <location filename="../src/qml/LibraryPage.qml" line="39"/>
         <source>Scan folder…</source>
         <translation>Pindai folder…</translation>
     </message>
     <message>
-        <location filename="../src/qml/LibraryPage.qml" line="40"/>
+        <location filename="../src/qml/LibraryPage.qml" line="43"/>
         <source>Clean missing</source>
         <translation>Bersihkan yang hilang</translation>
     </message>
     <message>
-        <location filename="../src/qml/LibraryPage.qml" line="72"/>
+        <location filename="../src/qml/LibraryPage.qml" line="73"/>
+        <source>Library</source>
+        <translation type="unfinished">Pustaka</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/LibraryPage.qml" line="98"/>
         <source>The library database could not be opened:&lt;br&gt;%1&lt;br&gt;Check that the folder with the executable is writable.</source>
         <translation>Basis data pustaka tidak dapat dibuka:&lt;br&gt;%1&lt;br&gt;Pastikan folder tempat executable berada dapat ditulis.</translation>
     </message>
     <message>
-        <location filename="../src/qml/LibraryPage.qml" line="74"/>
+        <location filename="../src/qml/LibraryPage.qml" line="100"/>
         <source>Library is empty. Open a file or scan a folder</source>
         <translation>Pustaka kosong. Buka berkas atau pindai folder</translation>
     </message>
     <message>
-        <location filename="../src/qml/LibraryPage.qml" line="162"/>
+        <location filename="../src/qml/LibraryPage.qml" line="190"/>
         <source>Open</source>
         <translation>Buka</translation>
     </message>
     <message>
-        <location filename="../src/qml/LibraryPage.qml" line="169"/>
+        <location filename="../src/qml/LibraryPage.qml" line="197"/>
         <source>Remove</source>
         <translation>Hapus</translation>
     </message>
     <message>
-        <location filename="../src/qml/LibraryPage.qml" line="180"/>
+        <location filename="../src/qml/LibraryPage.qml" line="208"/>
         <source>Folder to scan</source>
         <translation>Folder yang akan dipindai</translation>
     </message>
@@ -291,72 +348,72 @@
     <name>Main</name>
     <message>
         <location filename="../src/qml/Main.qml" line="14"/>
-        <location filename="../src/qml/Main.qml" line="78"/>
+        <location filename="../src/qml/Main.qml" line="80"/>
         <source>PSGame-Viewer</source>
         <translation>PSGame-Viewer</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="86"/>
+        <location filename="../src/qml/Main.qml" line="88"/>
         <source>Open</source>
         <translation>Buka</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="91"/>
+        <location filename="../src/qml/Main.qml" line="93"/>
         <source>Library</source>
         <translation>Pustaka</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="91"/>
+        <location filename="../src/qml/Main.qml" line="93"/>
         <source>Viewer</source>
         <translation>Penampil</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="95"/>
+        <location filename="../src/qml/Main.qml" line="97"/>
         <source>Rename</source>
         <translation>Ganti nama</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="100"/>
+        <location filename="../src/qml/Main.qml" line="102"/>
         <source>Batch</source>
         <translation>Massal</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="104"/>
+        <location filename="../src/qml/Main.qml" line="106"/>
         <source>Settings</source>
         <translation>Pengaturan</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="109"/>
+        <location filename="../src/qml/Main.qml" line="111"/>
         <source>About</source>
         <translation>Tentang</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="183"/>
+        <location filename="../src/qml/Main.qml" line="185"/>
         <source>Open a game file</source>
         <translation>Buka berkas game</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="185"/>
+        <location filename="../src/qml/Main.qml" line="187"/>
         <source>Game files (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</source>
         <translation>Berkas game (*.pkg *.iso *.exfat *.ffpkg *.ffpfsc)</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="186"/>
+        <location filename="../src/qml/Main.qml" line="188"/>
         <source>All files (*)</source>
         <translation>Semua berkas (*)</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="210"/>
+        <location filename="../src/qml/Main.qml" line="212"/>
         <source>Open file…</source>
         <translation>Buka berkas…</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="229"/>
+        <location filename="../src/qml/Main.qml" line="231"/>
         <source>Open game folder…</source>
         <translation>Buka folder game…</translation>
     </message>
     <message>
-        <location filename="../src/qml/Main.qml" line="250"/>
+        <location filename="../src/qml/Main.qml" line="252"/>
         <source>Open a game folder (PS3 game or PS5 app folder)</source>
         <translation>Buka folder game (folder game PS3 atau folder aplikasi PS5)</translation>
     </message>
@@ -379,27 +436,32 @@
         <translation>pola kustom</translation>
     </message>
     <message>
-        <location filename="../src/qml/NamePatternBar.qml" line="128"/>
+        <location filename="../src/qml/NamePatternBar.qml" line="101"/>
+        <source>Insert the %1 token</source>
+        <translation>Sisipkan token %1</translation>
+    </message>
+    <message>
+        <location filename="../src/qml/NamePatternBar.qml" line="117"/>
         <source>Include:</source>
         <translation>Sertakan:</translation>
     </message>
     <message>
-        <location filename="../src/qml/NamePatternBar.qml" line="134"/>
+        <location filename="../src/qml/NamePatternBar.qml" line="123"/>
         <source>Title</source>
         <translation>Judul</translation>
     </message>
     <message>
-        <location filename="../src/qml/NamePatternBar.qml" line="140"/>
+        <location filename="../src/qml/NamePatternBar.qml" line="129"/>
         <source>Title ID</source>
         <translation>Title ID</translation>
     </message>
     <message>
-        <location filename="../src/qml/NamePatternBar.qml" line="146"/>
+        <location filename="../src/qml/NamePatternBar.qml" line="135"/>
         <source>Version</source>
         <translation>Versi</translation>
     </message>
     <message>
-        <location filename="../src/qml/NamePatternBar.qml" line="152"/>
+        <location filename="../src/qml/NamePatternBar.qml" line="141"/>
         <source>Region</source>
         <translation>Wilayah</translation>
     </message>
@@ -421,27 +483,27 @@
     <name>RenameDialog</name>
     <message>
         <location filename="../src/qml/RenameDialog.qml" line="36"/>
-        <location filename="../src/qml/RenameDialog.qml" line="103"/>
+        <location filename="../src/qml/RenameDialog.qml" line="105"/>
         <source>Rename</source>
         <translation>Ganti nama</translation>
     </message>
     <message>
-        <location filename="../src/qml/RenameDialog.qml" line="89"/>
+        <location filename="../src/qml/RenameDialog.qml" line="91"/>
         <source>Undo</source>
         <translation>Urungkan</translation>
     </message>
     <message>
-        <location filename="../src/qml/RenameDialog.qml" line="93"/>
+        <location filename="../src/qml/RenameDialog.qml" line="95"/>
         <source>Rename undone</source>
         <translation>Ganti nama diurungkan</translation>
     </message>
     <message>
-        <location filename="../src/qml/RenameDialog.qml" line="98"/>
+        <location filename="../src/qml/RenameDialog.qml" line="100"/>
         <source>Cancel</source>
         <translation>Batal</translation>
     </message>
     <message>
-        <location filename="../src/qml/RenameDialog.qml" line="113"/>
+        <location filename="../src/qml/RenameDialog.qml" line="115"/>
         <source>Rename failed (target exists or not writable)</source>
         <translation>Ganti nama gagal (target sudah ada atau tidak dapat ditulis)</translation>
     </message>
@@ -502,9 +564,9 @@
 <context>
     <name>SpecCard</name>
     <message>
-        <location filename="../src/qml/SpecCard.qml" line="71"/>
-        <source>Copy</source>
-        <translation>Salin</translation>
+        <location filename="../src/qml/SpecCard.qml" line="81"/>
+        <source>Click to copy</source>
+        <translation>Klik untuk menyalin</translation>
     </message>
 </context>
 <context>
@@ -535,12 +597,12 @@
         <translation>Tidak ada paket trofi dalam berkas ini</translation>
     </message>
     <message>
-        <location filename="../src/qml/TrophiesTab.qml" line="147"/>
+        <location filename="../src/qml/TrophiesTab.qml" line="142"/>
         <source>hidden</source>
         <translation>tersembunyi</translation>
     </message>
     <message>
-        <location filename="../src/qml/TrophiesTab.qml" line="174"/>
+        <location filename="../src/qml/TrophiesTab.qml" line="165"/>
         <source>Save trophy icons to folder</source>
         <translation>Simpan ikon trofi ke folder</translation>
     </message>

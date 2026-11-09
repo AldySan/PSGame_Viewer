@@ -84,13 +84,8 @@ Frame {
                 required property bool isHidden
                 required property int iconIndex
                 required property bool hasIcon
-
-                Rectangle {
-                    anchors.fill: parent
-                    anchors.margins: 1
-                    radius: Theme.radiusSm
-                    color: mouse.containsMouse ? Theme.card2 : "transparent"
-                }
+                Accessible.role: Accessible.ListItem
+                Accessible.name: name
 
                 RowLayout {
                     anchors.fill: parent
@@ -159,12 +154,8 @@ Frame {
                         }
                     }
                 }
-
-                MouseArea {
-                    id: mouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                }
+                // rows are read-only: no hover tint, no mouse area — a
+                // highlighted row that does nothing reads as broken
             }
         }
     }

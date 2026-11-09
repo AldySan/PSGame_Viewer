@@ -33,7 +33,8 @@ Item {
                 cache: false
             }
 
-            // gallery strip
+            // gallery strip: real buttons so the strip is reachable and
+            // operable with the keyboard (Tab + Space), not mouse-only
             Row {
                 anchors.bottom: parent.bottom
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -43,29 +44,43 @@ Item {
 
                 Repeater {
                     model: controller.galleryKeys
-                    delegate: Rectangle {
+                    delegate: Button {
                         id: shot
                         required property var modelData
+                        required property int index
                         readonly property bool selected:
                             shot.modelData === controller.coverKey
                         width: 40; height: 40
-                        radius: Theme.radiusSm
-                        color: shot.selected ? Theme.accentSoft : Theme.card2
-                        border.width: 1
-                        border.color: shot.selected ? Theme.accent : Theme.border
-                        Image {
-                            anchors.fill: parent
-                            anchors.margins: 3
-                            source: "image://psg/" + shot.modelData
-                            fillMode: Image.PreserveAspectFit
-                            asynchronous: true
-                            cache: false
+                        padding: 0
+                        topPadding: 0
+                        bottomPadding: 0
+                        leftPadding: 0
+                        rightPadding: 0
+                        Accessible.name: qsTr("Screenshot %1").arg(index + 1)
+                        Accessible.description: qsTr("Use this screenshot as the cover")
+
+                        contentItem: Item {
+                            Image {
+                                anchors.fill: parent
+                                anchors.margins: 3
+                                source: "image://psg/" + shot.modelData
+                                fillMode: Image.PreserveAspectFit
+                                asynchronous: true
+                                cache: false
+                            }
                         }
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: controller.selectCover(shot.modelData)
+
+                        background: Rectangle {
+                            radius: Theme.radiusSm
+                            color: shot.selected ? Theme.accentSoft : Theme.card2
+                            // 2px marks both the selected state and the
+                            // keyboard focus ring
+                            border.width: shot.selected || shot.activeFocus ? 2 : 1
+                            border.color: shot.selected || shot.activeFocus
+                                          ? Theme.accent : Theme.border
                         }
+
+                        onClicked: controller.selectCover(shot.modelData)
                     }
                 }
             }
