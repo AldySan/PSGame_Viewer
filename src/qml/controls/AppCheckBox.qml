@@ -27,6 +27,8 @@ Controls.CheckBox {
         Text {
             anchors.centerIn: parent
             text: "✓"
+            // the checked state is announced by Accessible.checked
+            Accessible.ignored: true
             visible: root.checked
             color: Theme.accentText
             font.pixelSize: 12

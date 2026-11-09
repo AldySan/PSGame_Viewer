@@ -19,6 +19,8 @@ Controls.ComboBox {
         x: root.mirrored ? 12 : root.width - width - 10
         y: (root.height - height) / 2
         text: "▾"
+        // the combo state is announced by the control itself
+        Accessible.ignored: true
         color: Theme.muted
         font.pixelSize: 12
     }

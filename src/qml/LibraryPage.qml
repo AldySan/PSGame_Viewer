@@ -20,6 +20,9 @@ ColumnLayout {
             Layout.fillWidth: true
             placeholderText: qsTr("Search title, Title ID or Content ID…")
             font.pixelSize: 13
+            // placeholder text is the only label; keep it as the accessible
+            // name so screen readers announce what the field is for
+            Accessible.name: placeholderText
             // debounce: without the timer every keystroke wrote the
             // property, which re-queries SQLite and resets the whole
             // ListView (scroll jump + flicker on large libraries)
@@ -54,6 +57,7 @@ ColumnLayout {
 
         ListView {
             id: list
+            objectName: "libraryList"
             anchors.fill: parent
             anchors.margins: 6
             clip: true
@@ -61,6 +65,28 @@ ColumnLayout {
             spacing: 2
             model: Library
             ScrollBar.vertical: AppScrollBar {}
+
+            // keyboard path for the double-click shortcut: Tab lands on
+            // the list, arrows move, Enter opens the current game
+            activeFocusOnTab: true
+            Accessible.role: Accessible.List
+            Accessible.name: qsTr("Library")
+            onActiveFocusChanged: {
+                if (activeFocus && currentIndex < 0 && count > 0)
+                    currentIndex = 0
+            }
+            Keys.onReturnPressed: if (currentItem) root.openRequested(currentItem.path)
+            Keys.onEnterPressed: if (currentItem) root.openRequested(currentItem.path)
+
+            highlight: Rectangle {
+                // current-row focus ring; mouse users never see it
+                visible: list.activeFocus
+                color: "transparent"
+                border.width: 2
+                border.color: Theme.accent
+                radius: Theme.radiusSm
+            }
+            highlightMoveDuration: 0
 
             Label {
                 anchors.centerIn: parent
@@ -87,6 +113,8 @@ ColumnLayout {
                 required property string version
                 required property string sizeText
                 required property string addedText
+                Accessible.role: Accessible.ListItem
+                Accessible.name: title
 
                 Rectangle {
                     anchors.fill: parent

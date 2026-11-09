@@ -37,6 +37,7 @@ Frame {
 
         ListView {
             id: list
+            objectName: "detailsList"
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true
@@ -44,11 +45,42 @@ Frame {
             ScrollBar.vertical: AppScrollBar {}
             model: showAll.checked ? root.full : root.curated
 
+            // keyboard path for the click-to-copy gesture: Tab lands on
+            // the list, arrows move, Enter or Space copies the line
+            activeFocusOnTab: true
+            Accessible.role: Accessible.List
+            Accessible.name: qsTr("Metadata")
+            Keys.onReturnPressed: copyCurrent()
+            Keys.onEnterPressed: copyCurrent()
+            Keys.onSpacePressed: copyCurrent()
+            onActiveFocusChanged: {
+                if (activeFocus && currentIndex < 0 && count > 0)
+                    currentIndex = 0
+            }
+            function copyCurrent() {
+                if (currentItem)
+                    Viewer.copyText(currentItem.lineText)
+            }
+
+            highlight: Rectangle {
+                // current-row focus ring; mouse users never see it
+                visible: list.activeFocus
+                color: "transparent"
+                border.width: 2
+                border.color: Theme.accent
+                radius: Theme.radiusSm
+            }
+            highlightMoveDuration: 0
+
             delegate: Item {
                 width: list.width
                 height: 22
                 required property string modelData
                 required property int index
+                // exposed for the view's copyCurrent() above
+                readonly property string lineText: modelData
+                Accessible.role: Accessible.ListItem
+                Accessible.name: modelData
 
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
@@ -71,8 +103,13 @@ Frame {
                     id: mouse
                     anchors.fill: parent
                     hoverEnabled: true
-                    onClicked: Viewer.copyText(parent.modelData)
+                    onClicked: Viewer.copyText(parent.lineText)
                 }
+
+                // the copy gesture is invisible without this hint
+                ToolTip.visible: mouse.containsMouse
+                ToolTip.delay: 600
+                ToolTip.text: qsTr("Click to copy")
             }
         }
     }

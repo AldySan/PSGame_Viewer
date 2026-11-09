@@ -91,31 +91,20 @@ ColumnLayout {
         Layout.fillWidth: true
         Repeater {
             model: ["title", "tid", "cid", "version", "region", "type", "orig"]
-            delegate: Label {
+            delegate: AppChip {
                 id: chip
                 required property string modelData
                 text: "{" + modelData + "}"
-                color: chipMouse.containsMouse ? Theme.accent : Theme.muted
-                font.pixelSize: 11
-                padding: 4
-                background: Rectangle {
-                    radius: Theme.radiusSm
-                    color: chipMouse.containsMouse ? Theme.accentSoft : Theme.card2
-                    border.width: 1
-                    border.color: chipMouse.containsMouse ? Theme.accent : Theme.border
-                }
-                MouseArea {
-                    id: chipMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: {
-                        presetBox.currentIndex = presetBox.count - 1
-                        customField.text += (customField.text.length ? " " : "")
-                                            + "{" + modelData + "}"
-                        customField.cursorPosition = customField.text.length
-                        customField.forceActiveFocus()
-                    }
+                topPadding: 3
+                bottomPadding: 3
+                // "{title}" reads badly; spell the action out instead
+                Accessible.name: qsTr("Insert the %1 token").arg(modelData)
+                onClicked: {
+                    presetBox.currentIndex = presetBox.count - 1
+                    customField.text += (customField.text.length ? " " : "")
+                                        + "{" + modelData + "}"
+                    customField.cursorPosition = customField.text.length
+                    customField.forceActiveFocus()
                 }
             }
         }

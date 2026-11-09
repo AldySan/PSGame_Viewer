@@ -53,11 +53,64 @@ ColumnLayout {
 
         ListView {
             id: list
+            objectName: "filesList"
             anchors.fill: parent
             clip: true
             model: root.model
             boundsBehavior: Flickable.StopAtBounds
             ScrollBar.vertical: AppScrollBar {}
+
+            // keyboard equivalents of the mouse gestures: Left/Right fold
+            // and unfold the current folder, Space toggles it, Enter opens
+            // the extract dialog for a file
+            activeFocusOnTab: true
+            Accessible.role: Accessible.List
+            Accessible.name: qsTr("File entries")
+            onActiveFocusChanged: {
+                if (activeFocus && currentIndex < 0 && count > 0)
+                    currentIndex = 0
+            }
+            Keys.onLeftPressed: {
+                if (currentItem && currentItem.isFolder && currentItem.expanded)
+                    root.model.toggle(currentItem.index)
+            }
+            Keys.onRightPressed: {
+                if (currentItem && currentItem.isFolder && !currentItem.expanded)
+                    root.model.toggle(currentItem.index)
+            }
+            Keys.onSpacePressed: {
+                if (currentItem && currentItem.isFolder)
+                    root.model.toggle(currentItem.index)
+            }
+            Keys.onReturnPressed: activateCurrent()
+            Keys.onEnterPressed: activateCurrent()
+
+            function activateCurrent() {
+                if (!currentItem)
+                    return
+                if (currentItem.isFolder)
+                    root.model.toggle(currentItem.index)
+                else if (currentItem.entryIndex >= 0)
+                    root.extractRequested(currentItem.entryIndex)
+            }
+
+            highlight: Rectangle {
+                // current-row focus ring; mouse users never see it
+                visible: list.activeFocus
+                color: "transparent"
+                border.width: 2
+                border.color: Theme.accent
+                radius: Theme.radiusSm
+            }
+            highlightMoveDuration: 0
+
+            // empty container: honest state instead of a bare frame
+            Label {
+                anchors.centerIn: parent
+                visible: root.model && root.model.totalEntries === 0
+                text: qsTr("No entries in this container")
+                color: Theme.muted
+            }
 
             // header
             header: Item {
@@ -108,6 +161,16 @@ ColumnLayout {
                 required property bool isFolder
                 required property bool expanded
                 required property int entryIndex
+                Accessible.role: Accessible.ListItem
+                // the fold state is named in the announcement so the row
+                // makes sense without the ▾/▸ glyphs
+                Accessible.name: isFolder
+                                  ? qsTr("Folder %1").arg(name)
+                                  : name
+                Accessible.description: isFolder
+                        ? expanded ? qsTr("Expanded")
+                                   : qsTr("Collapsed")
+                        : qsTr("Double-click to extract")
 
                 Rectangle {
                     anchors.fill: parent
@@ -123,6 +186,9 @@ ColumnLayout {
                     color: Theme.muted
                     font.pixelSize: 12
                     visible: isFolder
+                    // the fold state is in Accessible.description; the
+                    // glyph itself is decoration for sighted users
+                    Accessible.ignored: true
                 }
                 Text {
                     x: list.depthIndent(depth) + 26
@@ -165,6 +231,12 @@ ColumnLayout {
                             root.extractRequested(entryIndex)
                     }
                 }
+
+                // the extract gesture is invisible without this hint
+                ToolTip.visible: mouse.containsMouse && !isFolder
+                                 && entryIndex >= 0
+                ToolTip.delay: 600
+                ToolTip.text: qsTr("Double-click to extract")
             }
         }
     }

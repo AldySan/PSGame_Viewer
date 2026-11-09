@@ -34,7 +34,7 @@ Controls.TabButton {
         color: root.checked ? Theme.accentSoft
                : root.hovered ? Theme.hoverOverlay
                : "transparent"
-        border.width: root.checked ? 1 : 0
+        border.width: root.activeFocus ? 2 : root.checked ? 1 : 0
         border.color: Theme.accent
     }
 }
