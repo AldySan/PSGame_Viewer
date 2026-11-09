@@ -144,15 +144,15 @@ ColumnLayout {
                         Layout.preferredHeight: 30
                         radius: Theme.radiusSm
                         color: {
-                            if (platform === "PS2") return "#1d4ed8"
-                            if (platform === "PS3") return "#0e7490"
-                            if (platform === "PS4") return "#5b21b6"
-                            return "#9a3412"
+                            if (platform === "PS2") return Theme.platformPs2
+                            if (platform === "PS3") return Theme.platformPs3
+                            if (platform === "PS4") return Theme.platformPs4
+                            return Theme.platformPs5
                         }
                         Text {
                             anchors.centerIn: parent
                             text: platform
-                            color: "#f1f3f8"
+                            color: Theme.platformChipText
                             font.bold: true
                             font.pixelSize: 12
                         }

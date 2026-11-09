@@ -37,6 +37,16 @@ QtObject {
     // input surfaces sit slightly apart from cards
     readonly property color inputBg: light ? "#ffffff" : "#1b1b1b"
 
+    // platform identity colors for the library chips: one distinct hue
+    // per platform family so rows sort visually before they are read.
+    // Same values in both themes; the label color clears 4.5:1 on all
+    // four fills (6.0 / 4.8 / 8.1 / 6.6).
+    readonly property color platformPs2: "#1d4ed8"
+    readonly property color platformPs3: "#0e7490"
+    readonly property color platformPs4: "#5b21b6"
+    readonly property color platformPs5: "#9a3412"
+    readonly property color platformChipText: "#f1f3f8"
+
     // corner radius scale: small chips -> cards -> dialogs
     readonly property int radiusSm: 6
     readonly property int radius: 8
