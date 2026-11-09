@@ -12,7 +12,9 @@ Popup {
 
     anchors.centerIn: parent
     width: 560
-    height: 320
+    // content-driven height so translations cannot clip (C-4)
+    height: Math.max(200, Math.min(content.implicitHeight + topPadding + bottomPadding,
+                                   parent.height - 48))
     modal: true
     focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
@@ -29,6 +31,7 @@ Popup {
     }
 
     ColumnLayout {
+        id: content
         anchors.fill: parent
         spacing: 12
 
@@ -82,8 +85,6 @@ Popup {
                 verticalAlignment: Text.AlignVCenter
             }
         }
-
-        Item { Layout.fillHeight: true }
 
         RowLayout {
             spacing: 8

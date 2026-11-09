@@ -11,7 +11,11 @@ Popup {
     objectName: "updateDialog"
     anchors.centerIn: parent
     width: 480
-    height: 420
+    // content-driven height so translations cannot clip (C-4); the
+    // release notes scroller is capped, so the dialog grows with its
+    // text but never past the window
+    height: Math.max(200, Math.min(content.implicitHeight + topPadding + bottomPadding,
+                                   parent.height - 48))
     modal: true
     focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
@@ -85,6 +89,7 @@ Popup {
     }
 
     ColumnLayout {
+        id: content
         anchors.fill: parent
         spacing: 10
 
@@ -169,7 +174,9 @@ Popup {
                      && root.result.state === "update-available"
                      && (root.result.notes || "").length > 0
             Layout.fillWidth: true
-            Layout.fillHeight: true
+            // bounded so the content-driven dialog height stays finite
+            // even with a very long changelog
+            Layout.preferredHeight: Math.min(notesText.implicitHeight + 8, 260)
             clip: true
             contentWidth: width
             contentHeight: notesText.implicitHeight
@@ -185,8 +192,6 @@ Popup {
                 linkColor: Theme.accent
             }
         }
-
-        Item { Layout.fillHeight: !root.busy }
 
         RowLayout {
             Layout.fillWidth: true
