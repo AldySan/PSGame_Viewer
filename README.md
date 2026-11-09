@@ -1,12 +1,41 @@
 <div align="center">
   <p>
     <img src="assets/icons/psgame-viewer-256.png" width="128" alt="PSGame-Viewer logo" />
-  </p>
-  <h1>PSGame-Viewer</h1>
-  <p>A desktop viewer for PlayStation game files — look inside a PKG, an ISO or a PS5 disc image without extracting a thing.</p>
-  <p>
-    <a href="https://github.com/AldySan/PSGame_Viewer/actions/workflows/ci.yml"><img src="https://github.com/AldySan/PSGame_Viewer/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-    <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg" alt="License: GPL-3.0" /></a>
+  </p>  <h1>PSGame-Viewer</h1>  <p>
+    <strong>A cross-platform viewer for PlayStation game files.</strong><br />
+    Explore PKG, ISO and PS5 disc images without extracting a thing.
+  </p>  <p>
+    <a href="https://github.com/AldySan/PSGame_Viewer/actions/workflows/ci.yml">
+      <img src="https://github.com/AldySan/PSGame_Viewer/actions/workflows/ci.yml/badge.svg?branch=dev" alt="CI" />
+    </a>
+    <a href="https://github.com/AldySan/PSGame_Viewer/releases">
+      <img src="https://img.shields.io/github/v/release/AldySan/PSGame_Viewer?display_name=tag&color=brightgreen" alt="Latest Release" />
+    </a>
+    <a href="LICENSE">
+      <img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg" alt="License: GPL-3.0" />
+    </a>
+  </p>  <p>
+    <a href="https://github.com/AldySan/PSGame_Viewer/stargazers">
+      <img src="https://img.shields.io/github/stars/AldySan/PSGame_Viewer?style=flat&logo=github&color=yellow" alt="GitHub Stars" />
+    </a>
+    <a href="https://github.com/AldySan/PSGame_Viewer/network/members">
+      <img src="https://img.shields.io/github/forks/AldySan/PSGame_Viewer?style=flat&logo=github" alt="GitHub Forks" />
+    </a>
+    <a href="https://github.com/AldySan/PSGame_Viewer/issues">
+      <img src="https://img.shields.io/github/issues/AldySan/PSGame_Viewer?style=flat&logo=github&color=orange" alt="Open Issues" />
+    </a>
+    <a href="https://github.com/AldySan/PSGame_Viewer/commits/dev">
+      <img src="https://img.shields.io/github/last-commit/AldySan/PSGame_Viewer/dev?style=flat&logo=github" alt="Last Commit" />
+    </a>
+  </p>  <p>
+    <img src="https://img.shields.io/badge/C++-17-00599C?logo=cplusplus&logoColor=white" alt="C++17" />
+    <img src="https://img.shields.io/badge/Qt-6-41CD52?logo=qt&logoColor=white" alt="Qt 6" />
+    <img src="https://img.shields.io/badge/CMake-3.21%2B-064F8C?logo=cmake&logoColor=white" alt="CMake 3.21+" />
+    <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?logo=linux" alt="Cross-platform" />
+  </p>  <p>
+    <a href="https://ko-fi.com/aldysan">
+      <img src="https://img.shields.io/badge/Support%20on-Ko--fi-FF5E5B?logo=ko-fi&logoColor=white" alt="Support on Ko-fi" />
+    </a>
   </p>
 </div>
 
