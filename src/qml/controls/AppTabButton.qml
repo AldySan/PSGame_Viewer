@@ -20,7 +20,10 @@ Controls.TabButton {
     contentItem: Text {
         text: root.text
         font: root.font
-        color: root.checked ? Theme.accent : Theme.text
+        // selected tabs keep plain text color: the state is carried by the
+        // accentSoft fill plus the accent border, and accent text on that
+        // fill failed 4.5:1 in both themes
+        color: Theme.text
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
