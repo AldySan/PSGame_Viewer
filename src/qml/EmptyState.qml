@@ -23,6 +23,9 @@ ColumnLayout {
         Text {
             anchors.centerIn: parent
             text: "PS"
+            // decorative brand mark: the labels below say what the screen
+            // is for, so screen readers skip the two letters
+            Accessible.ignored: true
             color: Theme.accent
             font.bold: true
             font.pixelSize: 34
@@ -66,34 +69,16 @@ ColumnLayout {
 
         Repeater {
             model: root.recents.slice(0, root.maxChips)
-            delegate: Rectangle {
+            delegate: AppChip {
                 id: chip
                 required property var modelData
                 readonly property string fileName:
                     String(chip.modelData).split(/[\\/]/).pop()
-                width: chipLabel.implicitWidth + 22
-                height: 28
-                radius: Theme.radiusSm + 2
-                color: chipMouse.containsMouse ? Theme.accentSoft : Theme.card
-                border.width: 1
-                border.color: chipMouse.containsMouse ? Theme.accent : Theme.border
-
-                Text {
-                    id: chipLabel
-                    anchors.centerIn: parent
-                    text: chip.fileName
-                    color: chipMouse.containsMouse ? Theme.text : Theme.muted
-                    font.pixelSize: 12
-                    elide: Text.ElideMiddle
-                }
-
-                MouseArea {
-                    id: chipMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: root.openRecent(chip.modelData)
-                }
+                // the file name IS the accessible name (Button default);
+                // the action is spelled out for screen readers
+                Accessible.description: qsTr("Open this file")
+                text: chip.fileName
+                onClicked: root.openRecent(chip.modelData)
             }
         }
     }

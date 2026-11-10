@@ -52,6 +52,9 @@ private slots:
     void ps2Iso();
     void ps3Iso();
     void ps3Folder();
+    void ps3FolderDisc();
+    void ps2Folder();
+    void ps4Folder();
     void ps5ExfatImage();
     void ps5ExfatBigPackRead();
     void ps5FfpfscExfat();
@@ -433,13 +436,163 @@ void TestPsgCore::ps3Folder()
     QCOMPARE(rowOf(info, "Version"), QStringLiteral("01.00"));
     QCOMPARE(rowOf(info, "Min. System"), QStringLiteral("4.53"));
     QVERIFY(rowOf(info, "Size").contains(QStringLiteral("files")));
-    // PNG gallery + trophy pack are listed as entries
-    QVERIFY(info.entries.size() >= 2);
+    // the whole tree is listed: PNGs, the SFO and the trophy pack
+    QVERIFY(info.entries.size() >= 3);
     QCOMPARE(info.entries.at(0).name, QStringLiteral("ICON0.PNG"));
     bool hasTrophy = false;
-    for (const Entry &e : info.entries)
+    bool hasSfo = false;
+    for (const Entry &e : info.entries) {
         hasTrophy = hasTrophy || e.name.endsWith(QLatin1String("TROPHY.TRP"));
+        hasSfo = hasSfo || e.name.compare(QLatin1String("PARAM.SFO"),
+                                          Qt::CaseInsensitive) == 0;
+    }
     QVERIFY(hasTrophy);
+    QVERIFY(hasSfo);
+}
+
+void TestPsgCore::ps3FolderDisc()
+{
+    // disc-dump layout: PS3_DISC.SFB at the root, everything inside
+    // PS3_GAME/ (the on-disk shape of a JB folder)
+    const GameInfo info = detect::openAny(fixture(QStringLiteral("ps3_folder")));
+    QVERIFY(info.ok);
+    QCOMPARE(info.platform, Platform::PS3);
+    QCOMPARE(rowOf(info, "Platform"), QStringLiteral("PS3 folder"));
+    QCOMPARE(info.title, QString::fromUtf8("戦国BASARA4"));
+    QCOMPARE(rowOf(info, "Title ID"), QStringLiteral("BLJM61080"));
+    QCOMPARE(rowOf(info, "Region"), QStringLiteral("Japan"));
+    QCOMPARE(rowOf(info, "Min. System"), QStringLiteral("4.53"));
+    QCOMPARE(info.iconEntry, QStringLiteral("PS3_GAME/ICON0.PNG"));
+
+    // the FULL tree is indexed — SFB, SFO, LICDIR, USRDIR, nested data
+    const QStringList want = {
+        QStringLiteral("PS3_DISC.SFB"),
+        QStringLiteral("PS3_GAME/PARAM.SFO"),
+        QStringLiteral("PS3_GAME/LICDIR/LIC.DAT"),
+        QStringLiteral("PS3_GAME/TROPDIR/NPWR07867_00/TROPHY.TRP"),
+        QStringLiteral("PS3_GAME/USRDIR/EBOOT.BIN"),
+        QStringLiteral("PS3_GAME/USRDIR/nativePS3/rom/data.bin"),
+    };
+    for (const QString &w : want) {
+        bool found = false;
+        for (const Entry &e : info.entries)
+            found = found || e.name.compare(w, Qt::CaseInsensitive) == 0;
+        QVERIFY2(found, qPrintable(w));
+    }
+
+    // curated details include the SFO keys, PS3_SYSTEM_VER included
+    const QStringList curated = curatedMetaLines(Platform::PS3, info.meta);
+    QVERIFY(curated.join(u'\n').contains(QStringLiteral("PS3_SYSTEM_VER = 4.53")));
+    QVERIFY(curated.join(u'\n').contains(QStringLiteral("TITLE_ID = BLJM61080")));
+
+    // the retail pack loads: TROPCONF.SFM is PLAIN XML with Japanese
+    // trophy names — no decryption must be attempted (0.0.4 did, and
+    // the tab came up empty)
+    const Entry *trp = nullptr;
+    for (const Entry &e : info.entries) {
+        if (e.name.endsWith(QLatin1String("TROPHY.TRP"), Qt::CaseInsensitive))
+            trp = &e;
+    }
+    QVERIFY(trp);
+    const QByteArray data = readEntryBytes(*trp, info.path);
+    const QList<trophies::TrpInner> inner = trophies::parseTrp(data);
+    QCOMPARE(inner.size(), 5);
+    const QByteArray conf = data.mid(int(inner.at(0).offset),
+                                     int(inner.at(0).size));
+    QVERIFY(trophies::looksLikeTrophyXml(conf));
+    const QList<trophies::Trophy> list = trophies::parseTrophyXml(conf);
+    QCOMPARE(list.size(), 3);
+    QCOMPARE(list.at(1).name, QString::fromUtf8("戦国の初陣"));
+    QCOMPARE(list.at(1).hidden, true);
+}
+
+void TestPsgCore::ps2Folder()
+{
+    QTemporaryDir dir;
+    const QString base = dir.filePath(QStringLiteral("SLUS-99999"));
+    QVERIFY(QDir(base).mkpath(QStringLiteral(".")));
+    {
+        QFile f(QDir(base).filePath(QStringLiteral("SYSTEM.CNF")));
+        QVERIFY(f.open(QIODevice::WriteOnly));
+        f.write(QByteArrayLiteral("BOOT2 = cdrom0:\\SLUS_999.99;1\r\n"
+                                  "VER = 1.02\r\nVMODE = NTSC\r\n"));
+        QFile e(QDir(base).filePath(QStringLiteral("SLUS_999.99")));
+        QVERIFY(e.open(QIODevice::WriteOnly));
+        e.write(QByteArrayLiteral("\x7f" "ELF") + QByteArray(2000, 0));
+        QFile i(QDir(base).filePath(QStringLiteral("IOPRP300.IMG")));
+        QVERIFY(i.open(QIODevice::WriteOnly));
+        i.write(QByteArray(1024, 0x2A));
+    }
+
+    const GameInfo info = detect::openAny(base);
+    QVERIFY(info.ok);
+    QCOMPARE(info.platform, Platform::PS2);
+    QCOMPARE(rowOf(info, "Platform"), QStringLiteral("PS2 folder (disc dump)"));
+    QCOMPARE(rowOf(info, "Title ID"), QStringLiteral("SLUS-99999"));
+    QCOMPARE(rowOf(info, "Region"), QStringLiteral("Americas"));
+    QCOMPARE(rowOf(info, "Version"), QStringLiteral("v1.02"));
+    QCOMPARE(rowOf(info, "VMODE"), QStringLiteral("NTSC"));
+    QCOMPARE(rowOf(info, "Boot"), QStringLiteral("SLUS_999.99"));
+    QCOMPARE(info.ps2Serial, QStringLiteral("SLUS-99999"));
+    // whole tree: SYSTEM.CNF, the ELF and the IOPRP image
+    QCOMPARE(info.entries.size(), 3);
+    QCOMPARE(info.entries.at(0).name, QStringLiteral("IOPRP300.IMG"));
+    QCOMPARE(info.entries.at(2).name, QStringLiteral("SYSTEM.CNF"));
+    // curated details are the SYSTEM.CNF keys
+    const QStringList curated = curatedMetaLines(Platform::PS2, info.meta);
+    QVERIFY(curated.contains(
+        QStringLiteral("BOOT2 = cdrom0:\\SLUS_999.99;1")));
+    QVERIFY(curated.contains(QStringLiteral("VMODE = NTSC")));
+}
+
+void TestPsgCore::ps4Folder()
+{
+    // reuse the CNT fixture's param.sfo + icon bytes, laid out as an
+    // extracted app dump
+    const GameInfo pkgInfo = detect::openAny(fixture(QStringLiteral("ps4_cnt.pkg")));
+    QVERIFY(pkgInfo.ok);
+    const QByteArray sfoBytes = readEntryBytes(
+        pkgInfo.entries.at(0), pkgInfo.path);
+    const QByteArray iconBytes = readEntryBytes(
+        pkgInfo.entries.at(1), pkgInfo.path);
+
+    QTemporaryDir dir;
+    const QString base = dir.filePath(QStringLiteral("CUSA90001"));
+    QVERIFY(QDir(base).mkpath(QStringLiteral("sce_sys")));
+    QVERIFY(QDir(base).mkpath(QStringLiteral("sce_module")));
+    {
+        QFile f(QDir(base).filePath(QStringLiteral("sce_sys/param.sfo")));
+        QVERIFY(f.open(QIODevice::WriteOnly));
+        f.write(sfoBytes);
+        QFile i(QDir(base).filePath(QStringLiteral("sce_sys/icon0.png")));
+        QVERIFY(i.open(QIODevice::WriteOnly));
+        i.write(iconBytes);
+        QFile e(QDir(base).filePath(QStringLiteral("eboot.bin")));
+        QVERIFY(e.open(QIODevice::WriteOnly));
+        e.write(QByteArray(4096, 0x1E));
+        QFile m(QDir(base).filePath(QStringLiteral("sce_module/kernel.prx")));
+        QVERIFY(m.open(QIODevice::WriteOnly));
+        m.write(QByteArray(2048, 0x3C));
+    }
+
+    const GameInfo info = detect::openAny(base);
+    QVERIFY(info.ok);
+    QCOMPARE(info.platform, Platform::PS4);
+    QCOMPARE(rowOf(info, "Platform"), QStringLiteral("PS4 app folder"));
+    QCOMPARE(rowOf(info, "Title ID"), QStringLiteral("CUSA90001"));
+    QCOMPARE(rowOf(info, "Content ID"),
+             QStringLiteral("UP9000-CUSA90001_00-PSGAMEVIEWER01"));
+    QCOMPARE(rowOf(info, "Region"), QStringLiteral("Americas"));
+    QCOMPARE(rowOf(info, "Type"), QStringLiteral("Base Game"));
+    QCOMPARE(rowOf(info, "Min. System"), QStringLiteral("5.05"));
+    QCOMPARE(info.iconEntry, QStringLiteral("sce_sys/icon0.png"));
+    QCOMPARE(info.patchTid, QStringLiteral("CUSA90001"));
+    // whole tree: eboot, module and the sce_sys files
+    QCOMPARE(info.entries.size(), 4);
+    QCOMPARE(info.entries.at(0).name, QStringLiteral("eboot.bin"));
+    QCOMPARE(info.entries.at(1).name, QStringLiteral("sce_module/kernel.prx"));
+    QCOMPARE(info.entries.at(2).name, QStringLiteral("sce_sys/icon0.png"));
+    QCOMPARE(info.entries.at(3).name, QStringLiteral("sce_sys/param.sfo"));
 }
 
 // ---------------------------------------------------------------- PS5 LIH
@@ -630,9 +783,12 @@ void TestPsgCore::ps5AppFolder()
     QCOMPARE(info.platform, Platform::PS5);
     QCOMPARE(rowOf(info, "Platform"), QStringLiteral("PS5 app folder"));
     QCOMPARE(rowOf(info, "Title ID"), QStringLiteral("PPSA90001"));
-    QCOMPARE(info.entries.size(), 1);
-    QCOMPARE(info.entries.at(0).name, QStringLiteral("icon0.png"));
+    // the whole tree is indexed: icon and param.json alike
+    QCOMPARE(info.entries.size(), 2);
+    QCOMPARE(info.entries.at(0).name, QStringLiteral("sce_sys/icon0.png"));
+    QCOMPARE(info.entries.at(1).name, QStringLiteral("sce_sys/param.json"));
     QVERIFY(info.entries.at(0).source == Entry::Source::LocalFile);
+    QCOMPARE(info.iconEntry, QStringLiteral("sce_sys/icon0.png"));
 }
 
 // ---------------------------------------------------------------- trophies
@@ -653,22 +809,43 @@ void TestPsgCore::trophies()
     // real retail layout: 0x40 header + i * 0x40 entries, first body byte
     // at 0x40 + 5 * 0x40 = 0x180
     QCOMPARE(inner.at(0).offset, quint64(0x180));
-    QCOMPARE(inner.at(0).size, quint64(0x120));
+    QVERIFY(inner.at(0).size > 100);
 
-    const QByteArray esfm = data.mid(int(inner.at(0).offset),
+    // TROPCONF.SFM is PLAIN XML in PS3 retail packs
+    const QByteArray conf = data.mid(int(inner.at(0).offset),
                                      int(inner.at(0).size));
-    const QByteArray xml = trophies::decryptEsfm(esfm,
-                                                 QStringLiteral("NPWR99999_00"));
-    QVERIFY(!xml.isEmpty());
-    QVERIFY(xml.contains("<trophyconf>"));
-
-    const QList<trophies::Trophy> list = trophies::parseTrophyXml(xml);
-    QCOMPARE(list.size(), 2);
+    QVERIFY(trophies::looksLikeTrophyXml(conf));
+    const QList<trophies::Trophy> list = trophies::parseTrophyXml(conf);
+    QCOMPARE(list.size(), 3);
     QCOMPARE(list.at(0).name, QStringLiteral("First Steps"));
     QCOMPARE(list.at(0).grade, QStringLiteral("P"));
     QCOMPARE(list.at(0).hidden, false);
-    QCOMPARE(list.at(1).name, QStringLiteral("Collector"));
-    QCOMPARE(list.at(1).grade, QStringLiteral("G"));
+    QCOMPARE(list.at(1).name, QString::fromUtf8("戦国の初陣"));
+    QCOMPARE(list.at(1).grade, QStringLiteral("B"));
+    QCOMPARE(list.at(1).hidden, true);
+    QCOMPARE(list.at(2).name, QStringLiteral("Collector"));
+    QCOMPARE(list.at(2).grade, QStringLiteral("G"));
+
+    // the PS4-style pack keeps the AES decrypt + brute-force paths
+    // under test
+    QFile ef(fixture(QStringLiteral("trophy_esfm.trp")));
+    QVERIFY(ef.open(QIODevice::ReadOnly));
+    const QByteArray edata = ef.readAll();
+    const QList<trophies::TrpInner> einner = trophies::parseTrp(edata);
+    QCOMPARE(einner.size(), 2);
+    QCOMPARE(einner.at(0).name, QStringLiteral("TROP.ESFM"));
+    const QByteArray esfm = edata.mid(int(einner.at(0).offset),
+                                      int(einner.at(0).size));
+    QVERIFY(!trophies::looksLikeTrophyXml(esfm));
+    const QByteArray xml = trophies::decryptEsfm(
+        esfm, QStringLiteral("NPWR99999_00"));
+    QVERIFY(!xml.isEmpty());
+    QVERIFY(xml.contains("<trophyconf>"));
+    const QList<trophies::Trophy> elist = trophies::parseTrophyXml(xml);
+    QCOMPARE(elist.size(), 2);
+    QCOMPARE(elist.at(0).name, QStringLiteral("Platinum Run"));
+    QCOMPARE(elist.at(1).name, QStringLiteral("Silver Lining"));
+    QCOMPARE(elist.at(1).grade, QStringLiteral("S"));
 
     // wrong NP comm ID fails cleanly
     QVERIFY(trophies::decryptEsfm(esfm, QStringLiteral("NPWR00001_00")).isEmpty());

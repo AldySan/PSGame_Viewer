@@ -9,4 +9,7 @@ namespace psg::ps2 {
 // derived from the file name (PS2 discs embed none).
 GameInfo parsePs2Iso(const QString &path);
 
+// SYSTEM.CNF key/value text -> map with upper-cased keys.
+QVariantMap parseSystemCnf(const QByteArray &raw);
+
 } // namespace psg::ps2

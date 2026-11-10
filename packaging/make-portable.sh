@@ -79,7 +79,13 @@ rm -rf "$STAGE/lib/qt6/qml/QtQuick/Controls/FluentWinUI3" \
 #    runtime, so resolve the dependency closure of the executable AND of
 #    every staged .so, and repeat until no new library appears.
 copy_deps() {
-    LD_LIBRARY_PATH="$STAGE/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
+    # $QT_DIR/lib goes on the search path: the staged plugins and QML
+    # modules carry RUNPATH entries that point at the Qt *install*
+    # layout ($ORIGIN/../lib), which does not exist inside the payload —
+    # without this the closure cannot see the Qt libraries a plugin
+    # needs (Svg behind libqsvgicon, Labs behind the labs plugins, ...),
+    # and they silently drop out of the archive.
+    LD_LIBRARY_PATH="$STAGE/lib:$QT_DIR/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
         ldd "$1" 2>/dev/null | awk '/=> \//{print $3}' | sort -u | while read -r so; do
         case "$so" in
             "$STAGE"/*) ;;                     # already staged: keep it
@@ -98,6 +104,25 @@ while :; do
     [ "$cur" -eq "$prev" ] && break
     prev=$cur
 done
+
+# 3b. EGL: Qt6Gui DT_NEEDs libEGL.so.1, so the payload must always carry
+#     it. The closure above deliberately leaves system paths alone, so on
+#     a build host with the system EGL installed (/usr/lib/...) the loader
+#     silently drops out of the archive — then the app dies on targets
+#     without a system EGL. Ship the glvnd loader itself; it resolves the
+#     vendor backend (libGLdispatch and friends) from the target system
+#     at runtime, exactly like the system copy would.
+if [ ! -e "$STAGE/lib/libEGL.so.1" ]; then
+    egl="$(ldd "$STAGE/bin/psgame-viewer" 2>/dev/null \
+           | awk '$1=="libEGL.so.1" && $2=="=>"{print $3}')"
+    [ -z "$egl" ] && egl="$(ldconfig -p 2>/dev/null \
+           | awk '$1=="libEGL.so.1:"{sub(/.*=> */,""); print $2; exit}')"
+    if [ -n "$egl" ] && [ -f "$egl" ]; then
+        cp -L "$egl" "$STAGE/lib/libEGL.so.1"
+    else
+        echo "warning: no libEGL.so.1 found to bundle" >&2
+    fi
+fi
 
 # 4. optional desktop entry + icons (register manually if wanted)
 cp "$ROOT/assets/psgame-viewer.desktop" "$STAGE/share/applications/"
@@ -144,6 +169,15 @@ next to the executable in bin/:
 Optionally register the menu entry:
   xdg-desktop-menu install share/applications/psgame-viewer.desktop
 NOTE
+
+# 8. the archive never ships runtime state: a smoke run inside the
+#    stage (or a stray app start) would otherwise leak the settings file,
+#    the library database, the cover cache or the rename logs into the
+#    payload (see src/app/portable.h for the full list).
+rm -f "$STAGE/bin/PSGame-Viewer.ini" \
+      "$STAGE/bin/library.db" \
+      "$STAGE"/bin/batch_rename_*.log
+rm -rf "$STAGE/bin/cache"
 
 cd "$(dirname "$STAGE")"
 tar -czf "$ROOT/$NAME.tar.gz" "$NAME"

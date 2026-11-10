@@ -9,7 +9,10 @@ Popup {
     objectName: "settingsDialog"
     anchors.centerIn: parent
     width: 420
-    height: 400
+    // content-driven height: every language renders, long translations
+    // grow the dialog instead of being clipped by a fixed frame
+    height: Math.max(200, Math.min(content.implicitHeight + topPadding + bottomPadding,
+                                   parent.height - 48))
     modal: true
     focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
@@ -37,6 +40,7 @@ Popup {
     }
 
     ColumnLayout {
+        id: content
         anchors.fill: parent
         spacing: 14
 
@@ -97,8 +101,6 @@ Popup {
             text: qsTr("Check for updates on startup")
             font.pixelSize: 13
         }
-
-        Item { Layout.fillHeight: true }
 
         RowLayout {
             spacing: 8

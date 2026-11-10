@@ -12,7 +12,9 @@ Popup {
 
     anchors.centerIn: parent
     width: 560
-    height: 320
+    // content-driven height so translations cannot clip (C-4)
+    height: Math.max(200, Math.min(content.implicitHeight + topPadding + bottomPadding,
+                                   parent.height - 48))
     modal: true
     focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
@@ -29,6 +31,7 @@ Popup {
     }
 
     ColumnLayout {
+        id: content
         anchors.fill: parent
         spacing: 12
 
@@ -59,7 +62,9 @@ Popup {
             radius: Theme.radiusSm
             color: Theme.card2
             border.width: 1
-            border.color: Theme.border
+            // accent marks the result box; the name itself stays in text
+            // color (accent text on card2 failed 4.5:1 in both themes)
+            border.color: Theme.accent
             Label {
                 id: previewLabel
                 anchors.fill: parent
@@ -74,14 +79,12 @@ Popup {
                         : root.controller.renamePreview(patternBar.pattern,
                                                         patternBar.include)
                 }
-                color: Theme.accent
+                color: Theme.text
                 font.pixelSize: 13
                 elide: Text.ElideMiddle
                 verticalAlignment: Text.AlignVCenter
             }
         }
-
-        Item { Layout.fillHeight: true }
 
         RowLayout {
             spacing: 8

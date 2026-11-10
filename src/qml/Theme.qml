@@ -14,14 +14,22 @@ QtObject {
     readonly property color accentPressed: light ? "#2558a6" : "#3b70c9"
     readonly property color text: light ? "#1d2330" : "#f1f3f8"
     readonly property color muted: light ? "#5c6575" : "#8b93a5"
-    readonly property color border: light ? "#d9dde5" : "#333333"
-    readonly property color danger: light ? "#c0392b" : "#e0564b"
+    // component boundaries must clear WCAG 1.4.11 (3:1) against every
+    // surface they touch: card, bg, card2 and inputBg. The strictest
+    // surface per theme picks the value (card2 in both), so anything
+    // drawn with this token is identifiable without the fill.
+    readonly property color border: light ? "#82868e" : "#767676"
+    readonly property color danger: light ? "#c0392b" : "#e26055"
     readonly property color good: light ? "#27863a" : "#5bbf6b"
 
     // text color used on top of an accent-filled surface
     readonly property color accentText: light ? "#ffffff" : "#0e1116"
-    // accent-tinted fill for selected tabs, menu highlights, hovers
-    readonly property color accentSoft: light ? "#e3edfb" : "#20395f"
+    // accent-tinted fill for selected tabs, menu highlights, hovers.
+    // Strong on purpose: a 3:1 fill (WCAG 1.4.11 for state) instead of
+    // a whisper tint, while text on top still clears 4.5:1 in both
+    // themes, so the same token works as a hover fill and a selection
+    // background.
+    readonly property color accentSoft: light ? "#598cd9" : "#3b6bb9"
     // neutral overlay for hover states on transparent controls
     readonly property color hoverOverlay: light ? "#0d000000" : "#12ffffff"
     // pressed overlay darkens whatever base the control has
@@ -29,10 +37,25 @@ QtObject {
     // input surfaces sit slightly apart from cards
     readonly property color inputBg: light ? "#ffffff" : "#1b1b1b"
 
+    // platform identity colors for the library chips: one distinct hue
+    // per platform family so rows sort visually before they are read.
+    // Same values in both themes; the label color clears 4.5:1 on all
+    // four fills (6.0 / 4.8 / 8.1 / 6.6).
+    readonly property color platformPs2: "#1d4ed8"
+    readonly property color platformPs3: "#0e7490"
+    readonly property color platformPs4: "#5b21b6"
+    readonly property color platformPs5: "#9a3412"
+    readonly property color platformChipText: "#f1f3f8"
+
     // corner radius scale: small chips -> cards -> dialogs
     readonly property int radiusSm: 6
     readonly property int radius: 8
     readonly property int radiusLg: 12
 
-    readonly property string fontFamily: "Segoe UI"
+    // Native UI face per platform: Segoe UI on Windows, the system
+    // default everywhere else (empty family = Qt's default UI font).
+    // Nothing is bundled — the app is carried on USB sticks and a font
+    // would cost megabytes while breaking each platform's native look.
+    readonly property string fontFamily:
+        Qt.platform.os === "windows" ? "Segoe UI" : ""
 }

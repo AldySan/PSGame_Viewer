@@ -174,7 +174,7 @@ int LibraryController::removeMissing()
         // it the button looks like a no-op
         emit statusMessage(removed > 0
                                ? tr("Removed %1 missing entries").arg(removed)
-                               : tr("All games present — nothing to clean"));
+                               : tr("All games present. Nothing to clean"));
     }
     return removed;
 }

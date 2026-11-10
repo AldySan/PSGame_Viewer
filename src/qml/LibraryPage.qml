@@ -20,6 +20,9 @@ ColumnLayout {
             Layout.fillWidth: true
             placeholderText: qsTr("Search title, Title ID or Content ID…")
             font.pixelSize: 13
+            // placeholder text is the only label; keep it as the accessible
+            // name so screen readers announce what the field is for
+            Accessible.name: placeholderText
             // debounce: without the timer every keystroke wrote the
             // property, which re-queries SQLite and resets the whole
             // ListView (scroll jump + flicker on large libraries)
@@ -54,6 +57,7 @@ ColumnLayout {
 
         ListView {
             id: list
+            objectName: "libraryList"
             anchors.fill: parent
             anchors.margins: 6
             clip: true
@@ -61,6 +65,28 @@ ColumnLayout {
             spacing: 2
             model: Library
             ScrollBar.vertical: AppScrollBar {}
+
+            // keyboard path for the double-click shortcut: Tab lands on
+            // the list, arrows move, Enter opens the current game
+            activeFocusOnTab: true
+            Accessible.role: Accessible.List
+            Accessible.name: qsTr("Library")
+            onActiveFocusChanged: {
+                if (activeFocus && currentIndex < 0 && count > 0)
+                    currentIndex = 0
+            }
+            Keys.onReturnPressed: if (currentItem) root.openRequested(currentItem.path)
+            Keys.onEnterPressed: if (currentItem) root.openRequested(currentItem.path)
+
+            highlight: Rectangle {
+                // current-row focus ring; mouse users never see it
+                visible: list.activeFocus
+                color: "transparent"
+                border.width: 2
+                border.color: Theme.accent
+                radius: Theme.radiusSm
+            }
+            highlightMoveDuration: 0
 
             Label {
                 anchors.centerIn: parent
@@ -71,7 +97,7 @@ ColumnLayout {
                 text: Library.error !== ""
                       ? qsTr("The library database could not be opened:<br>%1<br>Check that the folder with the executable is writable.")
                         .arg(Library.error)
-                      : qsTr("Library is empty — open files or scan a folder")
+                      : qsTr("Library is empty. Open a file or scan a folder")
                 color: Theme.muted
             }
 
@@ -87,6 +113,8 @@ ColumnLayout {
                 required property string version
                 required property string sizeText
                 required property string addedText
+                Accessible.role: Accessible.ListItem
+                Accessible.name: title
 
                 Rectangle {
                     anchors.fill: parent
@@ -116,15 +144,15 @@ ColumnLayout {
                         Layout.preferredHeight: 30
                         radius: Theme.radiusSm
                         color: {
-                            if (platform === "PS2") return "#1d4ed8"
-                            if (platform === "PS3") return "#0e7490"
-                            if (platform === "PS4") return "#5b21b6"
-                            return "#9a3412"
+                            if (platform === "PS2") return Theme.platformPs2
+                            if (platform === "PS3") return Theme.platformPs3
+                            if (platform === "PS4") return Theme.platformPs4
+                            return Theme.platformPs5
                         }
                         Text {
                             anchors.centerIn: parent
                             text: platform
-                            color: "#f1f3f8"
+                            color: Theme.platformChipText
                             font.bold: true
                             font.pixelSize: 12
                         }
@@ -152,7 +180,7 @@ ColumnLayout {
                                 return bits.join("  ·  ")
                             }
                             color: Theme.muted
-                            font.pixelSize: 11
+                            font.pixelSize: 12
                             elide: Text.ElideMiddle
                             Layout.fillWidth: true
                         }
@@ -168,7 +196,8 @@ ColumnLayout {
                     AppButton {
                         text: qsTr("Remove")
                         flat: true
-                        onClicked: Library.removeAt(index)
+                        // destructive: ask first, remove only on confirm
+                        onClicked: removeConfirm.ask(title, index)
                     }
                 }
             }
@@ -179,6 +208,85 @@ ColumnLayout {
         id: scanDialog
         title: qsTr("Folder to scan")
         onAccepted: Library.scanFolder(selectedFolder, true)
+    }
+
+    // light confirmation before a library row is dropped: the action
+    // is destructive from the user's point of view (visible data
+    // disappears) even though a scan can re-add the entry
+    Popup {
+        id: removeConfirm
+        objectName: "removeConfirm"
+        anchors.centerIn: parent
+        width: 360
+        height: Math.max(150, Math.min(confirmColumn.implicitHeight + topPadding + bottomPadding,
+                                       parent.height - 48))
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        padding: 18
+
+        property string gameTitle: ""
+        property int rowIndex: -1
+
+        function ask(title, index) {
+            gameTitle = title
+            rowIndex = index
+            open()
+        }
+
+        background: Rectangle {
+            color: Theme.card
+            radius: Theme.radiusLg
+            border.color: Theme.border
+        }
+
+        ColumnLayout {
+            id: confirmColumn
+            anchors.fill: parent
+            spacing: 10
+
+            Label {
+                text: qsTr("Remove from library")
+                color: Theme.text
+                font.pixelSize: 16
+                font.bold: true
+            }
+            Label {
+                Layout.fillWidth: true
+                wrapMode: Text.WordWrap
+                text: qsTr("Remove %1 from the library?").arg(removeConfirm.gameTitle)
+                color: Theme.text
+                font.pixelSize: 12
+            }
+            Label {
+                Layout.fillWidth: true
+                wrapMode: Text.WordWrap
+                text: qsTr("The file itself stays on disk. A folder scan adds the entry back.")
+                color: Theme.muted
+                font.pixelSize: 12
+            }
+
+            RowLayout {
+                spacing: 8
+                Item { Layout.fillWidth: true }
+                AppButton {
+                    text: qsTr("Cancel")
+                    flat: true
+                    onClicked: removeConfirm.close()
+                }
+                AppButton {
+                    text: qsTr("Remove")
+                    destructive: true
+                    // without a valid row there is nothing to remove (the
+                    // dialog is also openable by the test harness)
+                    enabled: removeConfirm.rowIndex >= 0
+                    onClicked: {
+                        Library.removeAt(removeConfirm.rowIndex)
+                        removeConfirm.close()
+                    }
+                }
+            }
+        }
     }
 
     Connections {

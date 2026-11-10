@@ -7,10 +7,14 @@ import PSGameViewer
 //   default     - subtle surface with a border
 //   flat        - ghost button (transparent, tinted on hover)
 //   highlighted - accent-filled primary action
+// plus `destructive` for the rare danger-filled action (confirming a
+// removal), so danger fills stay deliberate and findable.
 // Colors are taken from the Theme singleton so the runtime dark/light
 // switch keeps working without depending on the system palette.
 Controls.Button {
     id: root
+
+    property bool destructive: false
 
     font.family: Theme.fontFamily
 
@@ -29,7 +33,8 @@ Controls.Button {
     contentItem: Text {
         text: root.text
         font: root.font
-        color: root.highlighted ? Theme.accentText : Theme.text
+        color: root.highlighted || root.destructive
+               ? Theme.accentText : Theme.text
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
@@ -41,8 +46,13 @@ Controls.Button {
                ? (root.pressed ? Theme.accentPressed
                   : root.hovered ? Qt.lighter(Theme.accent, 1.06)
                   : Theme.accent)
+               : root.destructive
+               ? (root.pressed ? Qt.darker(Theme.danger, 1.15)
+                  : root.hovered ? Qt.lighter(Theme.danger, 1.06)
+                  : Theme.danger)
                : (root.flat ? "transparent" : Theme.card2)
-        border.width: root.flat || root.highlighted ? 0 : 1
+        border.width: root.flat || root.highlighted || root.destructive
+                      ? 0 : 1
         border.color: root.hovered && !root.highlighted
                       ? Qt.lighter(Theme.border, 1.18) : Theme.border
 
@@ -50,7 +60,7 @@ Controls.Button {
         Rectangle {
             anchors.fill: parent
             radius: parent.radius
-            visible: !root.highlighted
+            visible: !root.highlighted && !root.destructive
             color: root.pressed ? Theme.pressOverlay
                    : root.hovered ? Theme.hoverOverlay
                    : "transparent"

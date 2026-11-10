@@ -14,7 +14,10 @@ Popup {
 
     anchors.centerIn: parent
     width: 760
-    height: 560
+    // content-driven height so translations cannot clip (C-4); the
+    // preview list is capped, keeping the dialog finite for long scans
+    height: Math.max(240, Math.min(content.implicitHeight + topPadding + bottomPadding,
+                                   parent.height - 48))
     modal: true
     focus: true
     closePolicy: Popup.CloseOnEscape
@@ -43,6 +46,7 @@ Popup {
     function scheduleRefresh() { refreshTimer.restart() }
 
     ColumnLayout {
+        id: content
         anchors.fill: parent
         spacing: 10
 
@@ -88,7 +92,9 @@ Popup {
 
         Frame {
             Layout.fillWidth: true
-            Layout.fillHeight: true
+            // bounded so the content-driven dialog height stays finite;
+            // the floor keeps the empty state visible with no rows
+            Layout.preferredHeight: Math.max(Math.min(list.contentHeight + 14, 300), 120)
             background: Rectangle {
                 color: Theme.bg
                 radius: Theme.radiusSm
@@ -104,7 +110,6 @@ Popup {
                 spacing: 2
                 model: root.plan
                 ScrollBar.vertical: AppScrollBar {}
-
                 Label {
                     anchors.centerIn: parent
                     visible: root.plan.length === 0
@@ -117,6 +122,10 @@ Popup {
                     height: 24
                     required property var modelData
                     required property int index
+                    Accessible.role: Accessible.ListItem
+                    Accessible.name: modelData.ok
+                          ? (modelData.newFiles[0] || "")
+                          : modelData.reason
 
                     Text {
                         anchors.left: parent.left
@@ -134,6 +143,9 @@ Popup {
                         anchors.horizontalCenter: parent.horizontalCenter
                         anchors.verticalCenter: parent.verticalCenter
                         text: "→"
+                        // direction marker for the eyes; the row above
+                        // reads as "old name, then new name"
+                        Accessible.ignored: true
                         color: Theme.muted
                         font.pixelSize: 12
                     }
@@ -145,7 +157,7 @@ Popup {
                         text: modelData.ok
                               ? (modelData.newFiles[0] || "")
                               : modelData.reason
-                        color: modelData.ok ? Theme.accent : Theme.danger
+                        color: modelData.ok ? Theme.text : Theme.danger
                         font.pixelSize: 12
                         elide: Text.ElideMiddle
                     }
@@ -183,7 +195,7 @@ Popup {
                     var res = root.controller.batchApply()
                     if (res.logError)
                         root.statusMessage(qsTr(
-                            "Renamed %1, skipped %2. WARNING: the revert log could not be written (%3) — these renames cannot be reverted from a log.")
+                            "Renamed %1, skipped %2. The revert log could not be written (%3), so these renames cannot be reverted from a log.")
                             .arg(res.renamed).arg(res.skipped).arg(res.logError))
                     else if (res.logPath)
                         root.statusMessage(qsTr(

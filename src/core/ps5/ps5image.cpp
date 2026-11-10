@@ -461,7 +461,6 @@ GameInfo parseAppFolder(const QString &path)
     GameInfo out;
     out.path = path;
     out.platform = Platform::PS5;
-    out.iconEntry = QStringLiteral("icon0.png");
 
     QVariantMap meta;
     QString title;
@@ -477,22 +476,29 @@ GameInfo parseAppFolder(const QString &path)
         }
     }
 
-    quint64 total = 0;
-    int nfiles = 0;
-    QDirIterator it(path, QDir::Files, QDirIterator::Subdirectories);
-    while (it.hasNext()) {
-        it.next();
-        ++nfiles;
-        total += quint64(it.fileInfo().size());
+    // a PS5 app dump always carries sce_sys/param.json; without it this
+    // is not a PS5 folder — and must not be labeled one (that used to
+    // swallow PS2/PS4 dumps and arbitrary folders alike)
+    if (meta.isEmpty()) {
+        out.error = QStringLiteral(
+            "not a PS5 app folder (no sce_sys/param.json)");
+        return out;
     }
-    out.size = total;
+
+    // the whole dump tree: sce_sys, eboot.bin, sce_module, data — like
+    // the image viewers list their contents
+    const FolderScan scan = scanLocalFolder(path);
 
     out.ok = true;
     out.title = title.isEmpty() ? QFileInfo(path).fileName() : title;
     out.meta = meta;
+    out.size = scan.totalSize;
+    out.entries = scan.entries;
     out.addRow(QStringLiteral("Platform"), QStringLiteral("PS5 app folder"));
     out.addRow(QStringLiteral("Size"),
-               QStringLiteral("%1 (%2 files)").arg(fmtSize(total)).arg(nfiles));
+               QStringLiteral("%1 (%2 files)")
+                   .arg(fmtSize(scan.totalSize))
+                   .arg(scan.fileCount));
 
     const QList<AmprFile> ampr = scanAmpr(path);
     if (!ampr.isEmpty()) {
@@ -528,65 +534,34 @@ GameInfo parseAppFolder(const QString &path)
     }
     out.rows += extra;
 
-    // icon0.png + every other PNG in sce_sys for the gallery
-    quint32 eid = 0;
-    const QString iconPath = QDir(path).filePath(QStringLiteral("sce_sys/icon0.png"));
-    if (QFileInfo(iconPath).isFile()) {
-        Entry e;
-        e.id = eid++;
-        e.name = QStringLiteral("icon0.png");
-        e.size = quint64(QFileInfo(iconPath).size());
-        e.source = Entry::Source::LocalFile;
-        e.localPath = iconPath;
-        out.entries.append(e);
-    }
-    const QDir sceDir(QDir(path).filePath(QStringLiteral("sce_sys")));
-    const QStringList sceFiles = sceDir.entryList(QDir::Files, QDir::Name);
-    for (const QString &fn : sceFiles) {
-        if (fn == QLatin1String("icon0.png")
-            || !fn.endsWith(QLatin1String(".png"), Qt::CaseInsensitive))
-            continue;
-        const QString fp = sceDir.filePath(fn);
-        const qint64 sz = QFileInfo(fp).size();
-        if (sz <= 0)
-            continue;
-        Entry e;
-        e.id = eid++;
-        e.name = fn;
-        e.size = quint64(sz);
-        e.source = Entry::Source::LocalFile;
-        e.localPath = fp;
-        out.entries.append(e);
-    }
-
-    // trophy packs anywhere in the dump so the Trophies tab auto-fills
-    QDirIterator tit(path, {QStringLiteral("*.trp"), QStringLiteral("*.ucp")},
-                     QDir::Files, QDirIterator::Subdirectories);
-    while (tit.hasNext()) {
-        const QString fp = tit.next();
-        const qint64 sz = QFileInfo(fp).size();
-        if (sz <= 0 || sz >= 300000000)
-            continue;
-        Entry e;
-        e.id = eid++;
-        e.name = QDir(path).relativeFilePath(fp);
-        e.size = quint64(sz);
-        e.source = Entry::Source::LocalFile;
-        e.localPath = fp;
-        out.entries.append(e);
-    }
-
-    // AMPR/LZ4 asset containers in the Files tab (name + size + codec)
+    // codec labels for the AMPR asset containers, on their tree entries
     for (const AmprFile &a : ampr) {
-        Entry e;
-        e.id = eid++;
-        e.name = a.codec.isEmpty() ? a.name
-                                   : QStringLiteral("%1  [%2]").arg(a.name, a.codec);
-        e.size = a.size;
-        e.source = Entry::Source::LocalFile;
-        e.localPath = QDir(path).filePath(a.name);
-        e.codec = a.codec.isEmpty() ? QStringLiteral("-") : a.codec;
-        out.entries.append(e);
+        for (Entry &e : out.entries) {
+            if (e.name.compare(a.name, Qt::CaseInsensitive) == 0) {
+                e.codec = a.codec.isEmpty() ? QStringLiteral("-") : a.codec;
+                break;
+            }
+        }
+    }
+
+    // cover icon: sce_sys/icon0.png wherever it sits in the tree
+    for (const Entry &e : out.entries) {
+        if (e.name.compare(QLatin1String("sce_sys/icon0.png"),
+                           Qt::CaseInsensitive)
+            == 0) {
+            out.iconEntry = e.name;
+            break;
+        }
+    }
+    if (out.iconEntry.isEmpty()) {
+        for (const Entry &e : out.entries) {
+            if (QFileInfo(e.name).fileName()
+                    .compare(QLatin1String("icon0.png"), Qt::CaseInsensitive)
+                == 0) {
+                out.iconEntry = e.name;
+                break;
+            }
+        }
     }
     return out;
 }

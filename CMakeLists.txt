@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(PSGameViewer VERSION 0.0.4 LANGUAGES CXX)
+project(PSGameViewer VERSION 0.0.5 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -33,10 +33,12 @@ add_library(psgcore STATIC
   src/core/iso9660.cpp
   src/core/details.cpp
   src/core/ps2/ps2disc.cpp
+  src/core/ps2/ps2folder.cpp
   src/core/ps3/ps3pkg.cpp
   src/core/ps3/ps3folder.cpp
   src/core/ps3/ps3iso.cpp
   src/core/ps4/ps4pkg.cpp
+  src/core/ps4/ps4folder.cpp
   src/core/ps5/ps5pkg.cpp
   src/core/ps5/exfat.cpp
   src/core/ps5/pfs.cpp
@@ -113,6 +115,7 @@ qt_add_qml_module(psgame-viewer
     src/qml/Theme.qml
     src/qml/controls/AppButton.qml
     src/qml/controls/AppCheckBox.qml
+    src/qml/controls/AppChip.qml
     src/qml/controls/AppComboBox.qml
     src/qml/controls/AppScrollBar.qml
     src/qml/controls/AppTabButton.qml

@@ -82,39 +82,55 @@ void TrophyLoader::load(quint64 token, const QString &containerPath,
         }
 
         const auto inner = parseTrp(data);
-        QByteArray esfm;
+        // PS3 packs carry TROPCONF.SFM as PLAIN XML (retail included —
+        // only the PS4 TROP.ESFM variant is AES-wrapped); when both
+        // exist the plain PS3 conf wins.
+        QByteArray conf;
+        bool encrypted = false;
         for (const auto &f : inner) {
-            // PS3 packs carry TROPCONF.SFM, PS4 packs TROP.ESFM
             if (f.name.compare(QLatin1String("TROPCONF.SFM"),
-                               Qt::CaseInsensitive) == 0
-                || f.name.compare(QLatin1String("TROP.ESFM"),
-                                  Qt::CaseInsensitive) == 0) {
-                esfm = data.mid(int(f.offset), int(f.size));
+                               Qt::CaseInsensitive) == 0) {
+                conf = data.mid(int(f.offset), int(f.size));
                 break;
             }
         }
-        if (esfm.isEmpty())
+        if (conf.isEmpty()) {
+            for (const auto &f : inner) {
+                if (f.name.compare(QLatin1String("TROP.ESFM"),
+                                   Qt::CaseInsensitive) == 0) {
+                    conf = data.mid(int(f.offset), int(f.size));
+                    encrypted = true;
+                    break;
+                }
+            }
+        }
+        if (conf.size() < 16)
             continue;
-        // PS4 packs carry the communication id in PARAM.SFO
-        // (NP_COMMUNICATION_ID), PS5 images carry it in param.json
-        // (npCommunicationId), PS3 folders/PKGs spell it out in the
-        // TROPDIR/<NPWRxxxxx_00>/ entry path — accept all shapes.
-        QString npid = meta.value(
-            QStringLiteral("NP_COMMUNICATION_ID")).toString();
-        if (npid.isEmpty())
-            npid = meta.value(QStringLiteral("npCommunicationId")).toString();
-        if (npid.isEmpty())
-            npid = trophies::npCommIdFromPath(e.name);
-        QByteArray xml = npid.isEmpty() ? QByteArray()
-                                        : decryptEsfm(esfm, npid);
-        if (xml.isEmpty()) {
-            const auto hit = bruteforceNpid(
-                esfm, 0, 100000,
-                [this]() {
-                    return m_abort.load(std::memory_order_relaxed);
-                });
-            if (!hit.first.isEmpty())
-                xml = hit.second;
+        QByteArray xml;
+        if (!encrypted && trophies::looksLikeTrophyXml(conf)) {
+            xml = conf;
+        } else {
+            // PS4 packs carry the communication id in PARAM.SFO
+            // (NP_COMMUNICATION_ID), PS5 images carry it in param.json
+            // (npCommunicationId), PS3 folders/PKGs spell it out in the
+            // TROPDIR/<NPWRxxxxx_00>/ entry path — accept all shapes.
+            QString npid = meta.value(
+                QStringLiteral("NP_COMMUNICATION_ID")).toString();
+            if (npid.isEmpty())
+                npid = meta.value(QStringLiteral("npCommunicationId")).toString();
+            if (npid.isEmpty())
+                npid = trophies::npCommIdFromPath(e.name);
+            if (!npid.isEmpty())
+                xml = decryptEsfm(conf, npid);
+            if (xml.isEmpty()) {
+                const auto hit = bruteforceNpid(
+                    conf, 0, 100000,
+                    [this]() {
+                        return m_abort.load(std::memory_order_relaxed);
+                    });
+                if (!hit.first.isEmpty())
+                    xml = hit.second;
+            }
         }
         if (xml.isEmpty())
             continue;

@@ -2,9 +2,11 @@
 
 #include "bytes.h"
 #include "ps2/ps2disc.h"
+#include "ps2/ps2folder.h"
 #include "ps3/ps3folder.h"
 #include "ps3/ps3iso.h"
 #include "ps3/ps3pkg.h"
+#include "ps4/ps4folder.h"
 #include "ps4/ps4pkg.h"
 #include "ps5/exfat.h"
 #include "ps5/ps5image.h"
@@ -193,6 +195,10 @@ GameInfo openAny(const QString &path)
     if (fi.isDir()) {
         if (!ps3::ps3FolderBase(path).isEmpty())
             return ps3::parsePs3Folder(path);
+        if (!ps2::ps2FolderBase(path).isEmpty())
+            return ps2::parsePs2Folder(path);
+        if (ps4::isPs4AppFolder(path))
+            return ps4::parsePs4Folder(path);
         return ps5::parseAppFolder(path);
     }
     if (!fi.isFile()) {
